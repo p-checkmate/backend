@@ -10,7 +10,6 @@ const documentation = new Documentation({
     version: "1.0.0",
     title: "Checkmate API",
     serverUrl: "http://localhost:3000",
-    description: "Checkmate API Documentation",
     composition: "inline",
 });
 
