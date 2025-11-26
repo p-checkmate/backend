@@ -1,0 +1,56 @@
+name: deploy-main
+
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout source code
+              uses: actions/checkout@v4
+
+            - name: Log in to Docker Hub
+              run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+            - name: Build Docker Image
+              run: docker build -t ${{ secrets.DOCKER_USERNAME }}/checkmate-server .
+
+            - name: Push Docker Image
+              run: docker push ${{ secrets.DOCKER_USERNAME }}/checkmate-server
+
+            - name: Configure SSH
+              run: |
+                  mkdir -p ~/.ssh
+                  echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+                  chmod 600 ~/.ssh/id_rsa
+
+                  cat >>~/.ssh/config <<END
+                  Host checkmate
+                    HostName ${{ secrets.EC2_HOST }}
+                    User ubuntu
+                    IdentityFile ~/.ssh/id_rsa
+                    StrictHostKeyChecking no
+                  END
+
+            - name: Deploy on EC2
+              run: |
+                  ssh checkmate <<EOF
+                    sudo docker network create checkmate-net || true
+                    sudo docker pull ${{ secrets.DOCKER_USERNAME }}/checkmate-server
+                    sudo docker stop checkmate || true
+                    sudo docker rm checkmate || true
+                    sudo docker run -d \
+                      --name checkmate \
+                      --env-file /opt/app/.env \
+                      -p 3000:3000 \
+                      --network checkmate-net \
+                      ${{ secrets.DOCKER_USERNAME }}/checkmate-server
+                      sudo docker image prune -af
+                      sudo docker container prune -f
+                      sudo docker network prune -f
+                  EOF

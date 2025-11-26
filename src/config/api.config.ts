@@ -19,7 +19,6 @@ export const apiConfig = createConfig({
             config: apiConfig,
             version: "1.0.0",
             title: "Checkmate API",
-            description: "Checkmate API Documentation",
             serverUrl: `http://localhost:${PORT}`,
             composition: "inline",
         });
