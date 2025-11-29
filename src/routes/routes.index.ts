@@ -1,11 +1,12 @@
 import { Routing } from "express-zod-api";
-import { handleUserTest } from "../controllers/users.controller.js";
+import { handleSearchBooks} from "../controllers/books.controller.js";
 
 export const routing: Routing = {
     api: {
         v1: {
-            users: {
-                test: handleUserTest,
+            books: {
+                search: handleSearchBooks,
+            
             },
         },
     },
