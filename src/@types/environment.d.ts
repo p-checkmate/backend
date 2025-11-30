@@ -7,6 +7,10 @@ declare global {
             DB_PORT?: number;
             DB_NAME?: string;
             DB_PASSWORD?: string;
+            JWT_SECRET?: string;
+            JWT_EXPIRES_IN?: string;
+            JWT_REFRESH_SECRET?: string;
+            JWT_REFRESH_EXPIRES_IN?: string;
         }
     }
 }
