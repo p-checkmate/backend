@@ -1,28 +1,28 @@
-import jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
+import type { StringValue } from "ms";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-export const generateToken = (payload: any) => {
-    const secret: string = process.env.JWT_SECRET as string;
-    const expiresIn: string = process.env.JWT_EXPIRES_IN || "1h";
+const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET as string;
+const JWT_REFRESH_SECRET: jwt.Secret = process.env.JWT_REFRESH_SECRET as string;
 
-    return jwt.sign(payload, secret, { expiresIn });
+export const generateToken = (payload: any) => {
+    const expiresIn = (process.env.JWT_EXPIRES_IN as StringValue) || "1d";
+
+    return jwt.sign(payload, JWT_SECRET, { expiresIn });
 };
 
 export const generateRefreshToken = (payload: any) => {
-    const secret = process.env.JWT_REFRESH_SECRET as string;
-    const expiresIn: string = process.env.JWT_REFRESH_EXPIRES_IN || "7d";
+    const expiresIn = (process.env.JWT_REFRESH_EXPIRES_IN as StringValue) || "7d";
 
-    return jwt.sign(payload, secret, { expiresIn });
+    return jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn });
 };
 
 export const verifyToken = (token: string) => {
-    const secret = process.env.JWT_SECRET as string;
-    return jwt.verify(token, secret);
+    return jwt.verify(token, JWT_SECRET);
 };
 
 export const verifyRefreshToken = (token: string) => {
-    const secret = process.env.JWT_REFRESH_SECRET as string;
-    return jwt.verify(token, secret);
+    return jwt.verify(token, JWT_REFRESH_SECRET);
 };
