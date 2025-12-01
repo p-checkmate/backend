@@ -1,11 +1,11 @@
-import * as jwt from "jsonwebtoken";
+import jwt, { Secret } from "jsonwebtoken";
 import type { StringValue } from "ms";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET as string;
-const JWT_REFRESH_SECRET: jwt.Secret = process.env.JWT_REFRESH_SECRET as string;
+const JWT_SECRET: Secret = process.env.JWT_SECRET as string;
+const JWT_REFRESH_SECRET: Secret = process.env.JWT_REFRESH_SECRET as string;
 
 export const generateToken = (payload: any) => {
     const expiresIn = (process.env.JWT_EXPIRES_IN as StringValue) || "1d";
