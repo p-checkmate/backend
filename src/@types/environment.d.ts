@@ -8,6 +8,10 @@ declare global {
             DB_NAME?: string;
             DB_PASSWORD?: string;
             ALADIN_API_KEY?: string;
+            JWT_SECRET?: string;
+            JWT_EXPIRES_IN?: string;
+            JWT_REFRESH_SECRET?: string;
+            JWT_REFRESH_EXPIRES_IN?: string;
         }
     }
 }

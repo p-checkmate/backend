@@ -16,10 +16,12 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "bcrypt": "^6.0.0",
         "dotenv": "^17.2.3",
         "express": "^5.1.0",
         "express-zod-api": "^25.6.0",
         "http-errors": "^2.0.1",
+        "jsonwebtoken": "^9.0.2",
         "mysql2": "^3.15.3",
         "sequelize": "^6.37.7",
         "swagger-ui-express": "^5.0.1",
@@ -28,8 +30,10 @@
     },
     "devDependencies": {
         "@tsconfig/node20": "^20.1.8",
+        "@types/bcrypt": "^6.0.0",
         "@types/express": "^5.0.5",
         "@types/http-errors": "^2.0.5",
+        "@types/jsonwebtoken": "^9.0.10",
         "@types/node": "^24.10.1",
         "@types/sequelize": "^6.12.0",
         "@types/swagger-ui-express": "^4.1.8",
