@@ -14,7 +14,7 @@ import {
     deleteRefreshToken,
     createUser,
 } from "../repositories/users.repository.js";
-import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt";
+import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
 
 // 로그인
 export const userLogin = async (input: LoginInput): Promise<LoginOutput> => {
