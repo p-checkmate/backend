@@ -7,7 +7,7 @@ import {
     getRefreshTokenByToken,
     deleteRefreshToken,
 } from "../repositories/users.repository.js";
-import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt";
+import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
 
 // 로그인
 export const userLogin = async (input: LoginInput): Promise<LoginOutput> => {
@@ -88,5 +88,16 @@ export const refreshAccessToken = async (input: RefreshTokenInput): Promise<Refr
 
         // 기타 에러
         throw error;
+    }
+};
+
+// 로그아웃
+export const userLogout = async (input: RefreshTokenInput): Promise<string> => {
+    // DB에서 리프레시 토큰 삭제
+    const rows = await deleteRefreshToken(input.refreshToken);
+    if (rows === 1) {
+        return "로그아웃 되었습니다.";
+    } else {
+        throw HttpError(400, "로그아웃에 실패했습니다. 유효한 리프레시 토큰인지 확인해주세요.");
     }
 };

@@ -1,5 +1,5 @@
 import { Routing } from "express-zod-api";
-import { handleLogin, handleRefreshToken } from "../controllers/auth.controller.js";
+import { handleLogin, handleRefreshToken, handleLogout } from "../controllers/auth.controller.js";
 
 export const routing: Routing = {
     api: {
@@ -7,6 +7,7 @@ export const routing: Routing = {
             auth: {
                 login: handleLogin,
                 refresh: handleRefreshToken,
+                logout: handleLogout,
             },
         },
     },

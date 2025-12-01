@@ -6,7 +6,7 @@ import {
     refreshInputSchema,
     refreshOutputSchema,
 } from "../schemas/users.schema.js";
-import { refreshAccessToken, userLogin } from "../services/users.service.js";
+import { refreshAccessToken, userLogin, userLogout } from "../services/users.service.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 // 인증이 필요한 엔드포인트용 팩토리
@@ -29,5 +29,18 @@ export const handleRefreshToken = defaultEndpointsFactory.build({
     output: refreshOutputSchema,
     handler: async ({ input }) => {
         return await refreshAccessToken(input);
+    },
+});
+
+// 로그아웃
+export const handleLogout = authEndpointsFactory.build({
+    method: "post",
+    input: refreshInputSchema,
+    output: z.object({
+        message: z.string(),
+    }),
+    handler: async ({ input }) => {
+        const message = await userLogout(input);
+        return { message };
     },
 });

@@ -25,6 +25,8 @@ export const getRefreshTokenByToken = async (token: string): Promise<RefreshToke
 };
 
 // 리프레시 토큰 삭제
-export const deleteRefreshToken = async (token: string): Promise<void> => {
-    await pool.query("DELETE FROM refresh_token WHERE token = ?", [token]);
+export const deleteRefreshToken = async (token: string): Promise<number> => {
+    const [results] = await pool.query("DELETE FROM refresh_token WHERE token = ?", [token]);
+    const resultSetHeader = results as { affectedRows: number };
+    return resultSetHeader.affectedRows;
 };
