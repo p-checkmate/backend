@@ -7,7 +7,7 @@ import {
     refreshOutputSchema,
     signupOutputSchema,
 } from "../schemas/users.schema.js";
-import { refreshAccessToken, userLogin, userSignup, userWithdrawal } from "../services/users.service.js";
+import { refreshAccessToken, userLogin, userSignup, userLogout, userWithdrawal } from "../services/users.service.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 // 인증이 필요한 엔드포인트용 팩토리
@@ -40,6 +40,19 @@ export const handleSignup = defaultEndpointsFactory.build({
     output: signupOutputSchema,
     handler: async ({ input }) => {
         return await userSignup(input);
+    },
+});
+
+// 로그아웃
+export const handleLogout = authEndpointsFactory.build({
+    method: "post",
+    input: refreshInputSchema,
+    output: z.object({
+        message: z.string(),
+    }),
+    handler: async ({ input }) => {
+        const message = await userLogout(input);
+        return { message };
     },
 });
 
