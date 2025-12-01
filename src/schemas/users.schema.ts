@@ -37,12 +37,23 @@ export const refreshOutputSchema = z.object({
     accessToken: z.string(),
 });
 
+// Signup Output 스키마
+export const signupOutputSchema = z.object({
+    accessToken: z.string(),
+    refreshToken: z.string(),
+    user: userSchema.pick({
+        user_id: true,
+        email: true,
+    }),
+});
+
 // TypeScript 타입 추출
 export type UserData = z.infer<typeof userSchema>;
 export type LoginInput = z.infer<typeof loginInputSchema>;
 export type LoginOutput = z.infer<typeof loginOutputSchema>;
 export type RefreshTokenInput = z.infer<typeof refreshInputSchema>;
 export type RefreshTokenOutput = z.infer<typeof refreshOutputSchema>;
+export type SignupOutput = z.infer<typeof signupOutputSchema>;
 
 // MySQL2용 타입 (Repositories에서 사용)
 export interface User extends RowDataPacket {

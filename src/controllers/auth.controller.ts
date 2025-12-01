@@ -5,8 +5,9 @@ import {
     loginOutputSchema,
     refreshInputSchema,
     refreshOutputSchema,
+    signupOutputSchema,
 } from "../schemas/users.schema.js";
-import { refreshAccessToken, userLogin, userLogout } from "../services/users.service.js";
+import { refreshAccessToken, userLogin, userSignup, userLogout } from "../services/users.service.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 // 인증이 필요한 엔드포인트용 팩토리
@@ -29,6 +30,16 @@ export const handleRefreshToken = defaultEndpointsFactory.build({
     output: refreshOutputSchema,
     handler: async ({ input }) => {
         return await refreshAccessToken(input);
+    },
+});
+
+// 회원가입
+export const handleSignup = defaultEndpointsFactory.build({
+    method: "post",
+    input: loginInputSchema,
+    output: signupOutputSchema,
+    handler: async ({ input }) => {
+        return await userSignup(input);
     },
 });
 

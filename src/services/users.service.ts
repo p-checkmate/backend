@@ -1,11 +1,18 @@
 import bcrypt from "bcrypt";
 import HttpError from "http-errors";
-import { LoginInput, LoginOutput, RefreshTokenInput, RefreshTokenOutput } from "../schemas/users.schema.js";
+import {
+    LoginInput,
+    LoginOutput,
+    RefreshTokenInput,
+    RefreshTokenOutput,
+    SignupOutput,
+} from "../schemas/users.schema.js";
 import {
     getUserByEmail,
     saveRefreshToken,
     getRefreshTokenByToken,
     deleteRefreshToken,
+    createUser,
 } from "../repositories/users.repository.js";
 import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
 
@@ -100,4 +107,41 @@ export const userLogout = async (input: RefreshTokenInput): Promise<string> => {
     } else {
         throw HttpError(400, "로그아웃에 실패했습니다. 유효한 리프레시 토큰인지 확인해주세요.");
     }
+};
+
+export const userSignup = async (input: LoginInput): Promise<SignupOutput> => {
+    // 사용자 중복 검사
+    const isDuplicated = await getUserByEmail(input.email);
+    if (isDuplicated) {
+        throw HttpError(409, "이미 존재하는 이메일입니다.");
+    }
+
+    const password = await bcrypt.hash(input.password, 10);
+
+    const user = await createUser(input.email, password);
+
+    if (!user) {
+        throw HttpError(500, "사용자 생성에 실패했습니다.");
+    }
+
+    // 토큰 생성
+    const accessToken = generateToken({
+        user_id: user.user_id,
+    });
+    const refreshToken = generateRefreshToken({
+        user_id: user.user_id,
+    });
+
+    // 리프레시 토큰 저장
+    await saveRefreshToken(user.user_id, refreshToken);
+
+    // 응답 반환
+    return {
+        accessToken,
+        refreshToken,
+        user: {
+            user_id: user.user_id,
+            email: user.email,
+        },
+    };
 };
