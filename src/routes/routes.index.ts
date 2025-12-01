@@ -1,6 +1,6 @@
 import { Routing } from "express-zod-api";
-import { handleSearchBooks} from "../controllers/books.controller.js";
-import { handleLogin, handleRefreshToken, handleSignup } from "../controllers/auth.controller.js";
+import { handleSearchBooks } from "../controllers/books.controller.js";
+import { handleLogin, handleRefreshToken, handleSignup, handleWithdrawUser } from "../controllers/auth.controller.js";
 
 export const routing: Routing = {
     api: {
@@ -12,6 +12,7 @@ export const routing: Routing = {
                 login: handleLogin,
                 refresh: handleRefreshToken,
                 signup: handleSignup,
+                me: handleWithdrawUser,
             },
         },
     },
