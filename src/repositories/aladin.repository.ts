@@ -1,9 +1,8 @@
-import { aladinConfig } from '../config/aladin.config';
-import { AladinApiResponse} from "../schemas/aladin.schema.js";
+import { aladinConfig } from "../config/aladin.config.js";
+import { AladinApiResponse } from "../schemas/aladin.schema.js";
 
 const apiKey = aladinConfig.ALADIN_API_KEY;
 const baseUrl = aladinConfig.ALADIN_BASE_URL;
-
 
 export const searchBooksFromAladin = async (
     query: string,
@@ -30,4 +29,3 @@ export const searchBooksFromAladin = async (
     const data = await response.json();
     return data as AladinApiResponse;
 };
-
