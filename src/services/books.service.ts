@@ -1,5 +1,12 @@
-import { searchBooksFromAladin } from "../repositories/aladin.repository.js";
+import { searchBooksFromAladin, getBookDetailFromAladin } from "../repositories/aladin.repository.js";
+import {
+    findBookByItemId,
+    insertBook,
+    findOrCreateGenre,
+    linkBookGenre,
+} from "../repositories/books.repository.js";
 import { BookSearchResponse, AladinBookItem } from "../schemas/aladin.schema.js";
+import { BookDetailResponse } from "../schemas/books.schema.js";
 import HttpErrors from "http-errors";
 
 // 도서 검색 서비스
@@ -44,5 +51,66 @@ export const searchBooks = async (
         itemsPerPage: aladinResponse.itemsPerPage,
         hasMore,
         items,
+    };
+};
+
+// 도서 상세 조회 서비스
+export const getBookDetail = async (bookId: number): Promise<BookDetailResponse> => {
+    // 1. DB에서 itemId로 먼저 조회
+    const existingBook = await findBookByItemId(bookId.toString());
+
+    if (existingBook) {
+        return existingBook;
+    }
+
+    // 2. DB에 없으면 알라딘 API에서 조회
+    const aladinBook = await getBookDetailFromAladin(bookId);
+
+    if (!aladinBook) {
+        throw HttpErrors(404, "해당 도서를 찾을 수 없습니다.");
+    }
+
+    // 3. 카테고리 파싱
+    const categoryNames = (aladinBook.categoryName ?? "")
+        .split(">")
+        .map((c) => c.trim())
+        .filter((c) => c.length > 0);
+
+    const bookItem: AladinBookItem = {
+        itemId: aladinBook.itemId,
+        title: aladinBook.title,
+        author: aladinBook.author,
+        publisher: aladinBook.publisher,
+        pubDate: aladinBook.pubDate,
+        description: aladinBook.description,
+        isbn13: aladinBook.isbn13,
+        cover: aladinBook.cover,
+        categoryNames,
+    };
+
+    // 4. DB에 책 저장
+    const insertedBookId = await insertBook(bookItem);
+
+    // 5. 장르 저장 및 연결 (카테고리 중 마지막 2개를 장르로 사용)
+    const genresToSave = categoryNames.slice(-2);
+    const savedGenres = [];
+
+    for (const genreName of genresToSave) {
+        const genreId = await findOrCreateGenre(genreName);
+        await linkBookGenre(insertedBookId, genreId);
+        savedGenres.push({ genreId, genreName });
+    }
+
+    // 6. 응답 반환
+    return {
+        bookId: insertedBookId,
+        itemId: bookItem.itemId.toString(),
+        title: bookItem.title,
+        author: bookItem.author ?? null,
+        publisher: bookItem.publisher ?? null,
+        publishedDate: bookItem.pubDate ?? null,
+        description: bookItem.description ?? null,
+        thumbnailUrl: bookItem.cover ?? null,
+        genres: savedGenres,
     };
 };
