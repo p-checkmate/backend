@@ -1,0 +1,8 @@
+ALTER TABLE `refresh_token`
+    DROP FOREIGN KEY `FK_REFRESH_TOKEN_USER`;
+
+ALTER TABLE `refresh_token`
+    DROP KEY `IDX_USER_ID`,
+    DROP KEY `IDX_TOKEN`;
+
+DROP TABLE IF EXISTS `refresh_token`;
