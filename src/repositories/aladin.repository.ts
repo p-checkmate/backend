@@ -1,14 +1,18 @@
-import { ALADIN_API_KEY, ALADIN_BASE_URL } from "../config/api.config.js";
+import { aladinConfig } from '../config/aladin.config';
 import { AladinApiResponse} from "../schemas/aladin.schema.js";
+
+const apiKey = aladinConfig.ALADIN_API_KEY;
+const baseUrl = aladinConfig.ALADIN_BASE_URL;
+
 
 export const searchBooksFromAladin = async (
     query: string,
     start: number = 1,
     maxResults: number = 30
 ): Promise<AladinApiResponse> => {
-    const url = new URL(`${ALADIN_BASE_URL}/ItemSearch.aspx`);
+    const url = new URL(`${baseUrl}/ItemSearch.aspx`);
 
-    url.searchParams.append("ttbkey", ALADIN_API_KEY);
+    url.searchParams.append("ttbkey", apiKey);
     url.searchParams.append("Query", query);
     url.searchParams.append("QueryType", "Keyword");
     url.searchParams.append("MaxResults", maxResults.toString());

@@ -7,6 +7,7 @@ declare global {
             DB_PORT?: number;
             DB_NAME?: string;
             DB_PASSWORD?: string;
+            ALADIN_API_KEY?: string;
         }
     }
 }

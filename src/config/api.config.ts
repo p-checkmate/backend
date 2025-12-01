@@ -6,10 +6,6 @@ dotenv.config();
 
 export const PORT = Number(process.env.PORT) || 3000;
 
-// 알라딘 API 설정
-export const ALADIN_API_KEY = process.env.ALADIN_API_KEY || "";
-export const ALADIN_BASE_URL = "http://www.aladin.co.kr/ttb/api";
-
 
 export const apiConfig = createConfig({
     http: { listen: PORT },

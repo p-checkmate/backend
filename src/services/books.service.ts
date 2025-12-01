@@ -35,10 +35,14 @@ export const searchBooks = async (
         throw HttpErrors(404, "검색 결과가 없습니다.");
     }
 
+    // 더 불러올 데이터가 있는지 계산
+    const hasMore = aladinResponse.startIndex + items.length < aladinResponse.totalResults;
+
     return {
         totalResults: aladinResponse.totalResults,
         startIndex: aladinResponse.startIndex,
         itemsPerPage: aladinResponse.itemsPerPage,
+        hasMore,
         items,
     };
 };

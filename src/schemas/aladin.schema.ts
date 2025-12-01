@@ -18,6 +18,7 @@ export const bookSearchResponseSchema = z.object({
     totalResults: z.number(),
     startIndex: z.number(),
     itemsPerPage: z.number(),
+    hasMore: z.boolean(),
     items: z.array(aladinBookItemSchema),
 });
 
