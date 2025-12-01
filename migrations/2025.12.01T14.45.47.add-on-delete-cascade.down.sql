@@ -1,0 +1,61 @@
+-- USER 테이블을 참조하는 기존 외래 키 삭제
+ALTER TABLE `quote` DROP FOREIGN KEY `FK_QUOTE_USER`;
+ALTER TABLE `discussion_like` DROP FOREIGN KEY `FK_DISCUSSION_LIKE_USER`;
+ALTER TABLE `vote` DROP FOREIGN KEY `FK_VOTE_USER`;
+ALTER TABLE `bookmark` DROP FOREIGN KEY `FK_BOOKMARK_USER`;
+ALTER TABLE `discussion_comment` DROP FOREIGN KEY `FK_COMMENT_USER`;
+ALTER TABLE `quote_like` DROP FOREIGN KEY `FK_QUOTE_LIKE_USER`;
+ALTER TABLE `discussion` DROP FOREIGN KEY `FK_DISCUSSION_USER_ID`;
+ALTER TABLE `user_genre` DROP FOREIGN KEY `FK_USER_GENRE_USER`;
+
+
+-- DISCUSSION 테이블을 참조하는 기존 외래 키 삭제
+ALTER TABLE `discussion_comment` DROP FOREIGN KEY `FK_COMMENT_DISCUSSION`;
+ALTER TABLE `vote` DROP FOREIGN KEY `FK_VOTE_DISCUSSION`;
+ALTER TABLE `discussion_like` DROP FOREIGN KEY `FK_DISCUSSION_LIKE_DISCUSSION`;
+
+
+-- 외래 키를 기본 옵션 (ON DELETE RESTRICT/NO ACTION)으로 재생성
+ALTER TABLE `quote`
+  ADD CONSTRAINT `FK_QUOTE_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+ALTER TABLE `discussion_like`
+  ADD CONSTRAINT `FK_DISCUSSION_LIKE_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+ALTER TABLE `vote`
+  ADD CONSTRAINT `FK_VOTE_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+ALTER TABLE `bookmark`
+  ADD CONSTRAINT `FK_BOOKMARK_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+ALTER TABLE `discussion_comment`
+  ADD CONSTRAINT `FK_COMMENT_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+ALTER TABLE `quote_like`
+  ADD CONSTRAINT `FK_QUOTE_LIKE_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+ALTER TABLE `discussion`
+  ADD CONSTRAINT `FK_DISCUSSION_USER_ID`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+ALTER TABLE `user_genre`
+  ADD CONSTRAINT `FK_USER_GENRE_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`);
+
+ALTER TABLE `discussion_comment`
+  ADD CONSTRAINT `FK_COMMENT_DISCUSSION`
+  FOREIGN KEY (`discussion_id`) REFERENCES `discussion` (`discussion_id`);
+
+ALTER TABLE `vote`
+  ADD CONSTRAINT `FK_VOTE_DISCUSSION`
+  FOREIGN KEY (`discussion_id`) REFERENCES `discussion` (`discussion_id`);
+
+ALTER TABLE `discussion_like`
+  ADD CONSTRAINT `FK_DISCUSSION_LIKE_DISCUSSION`
+  FOREIGN KEY (`discussion_id`) REFERENCES `discussion` (`discussion_id`);
