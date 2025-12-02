@@ -1,5 +1,6 @@
 import { aladinConfig } from '../config/aladin.config.js';
 import {AladinApiResponse, AladinApiItem, AladinItemLookupResponse} from "../schemas/aladin.schema.js";
+import HttpErrors from "http-errors";
 
 const apiKey = aladinConfig.ALADIN_API_KEY;
 const baseUrl = aladinConfig.ALADIN_BASE_URL;
@@ -24,15 +25,12 @@ export const searchBooksFromAladin = async (
     const response = await fetch(url.toString());
 
     if (!response.ok) {
-        throw new Error(`알라딘 API 호출 실패: ${response.status}`);
+        throw HttpErrors(response.status, "알라딘 API 호출 실패");
     }
 
     const data = await response.json();
     return data as AladinApiResponse;
 };
-
-
-
 
 // 알라딘 API 도서 상세 조회 (ItemLookup)
 export const getBookDetailFromAladin = async (itemId: number): Promise<AladinApiItem | null> => {
@@ -47,7 +45,7 @@ export const getBookDetailFromAladin = async (itemId: number): Promise<AladinApi
     const response = await fetch(url.toString());
 
     if (!response.ok) {
-        throw new Error(`알라딘 API 호출 실패: ${response.status}`);
+        throw HttpErrors(response.status, "알라딘 API 호출 실패");
     }
 
     const data = (await response.json()) as AladinItemLookupResponse;

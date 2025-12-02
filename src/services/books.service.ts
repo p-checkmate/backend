@@ -1,4 +1,6 @@
 import { searchBooksFromAladin, getBookDetailFromAladin } from "../repositories/aladin.repository.js";
+import { BookSearchResponse, AladinBookItem } from "../schemas/aladin.schema.js";
+import { BookDetailResponse, BookRow, Genre } from "../schemas/books.schema.js";
 import {
     findBookByItemId,
     insertBook,
@@ -6,8 +8,6 @@ import {
     findOrCreateGenre,
     linkBookGenre,
 } from "../repositories/books.repository.js";
-import { BookSearchResponse, AladinBookItem } from "../schemas/aladin.schema.js";
-import { BookDetailResponse, BookRow, Genre } from "../schemas/books.schema.js";
 import HttpErrors from "http-errors";
 
 
@@ -26,6 +26,8 @@ export const searchBooks = async (
             .map((c) => c.trim())
             .filter((c) => c.length > 0);
 
+        // BookSearchResponse 응답 스키마에 맞게 변환하여 반환
+        // 검색 결과가 없어도 빈 배열로 정상 응답
         return {
             itemId: item.itemId,
             title: item.title,
@@ -39,13 +41,9 @@ export const searchBooks = async (
         };
     });
 
-    //검색 결과가 없는 경우 404 오류 반환
-    if (items.length === 0) {
-        throw HttpErrors(404, "검색 결과가 없습니다.");
-    }
-
     // 더 불러올 데이터가 있는지 계산
-    const hasMore = aladinResponse.startIndex + items.length < aladinResponse.totalResults;
+    const hasMore = items.length > 0 && aladinResponse.startIndex + items.length < aladinResponse.totalResults;
+
     // BookSearchResponse 응답 스키마에 맞게 변환하여 반환
     return {
         totalResults: aladinResponse.totalResults,
