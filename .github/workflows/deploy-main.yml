@@ -40,17 +40,26 @@ jobs:
             - name: Deploy on EC2
               run: |
                   ssh checkmate <<EOF
-                    sudo docker network create checkmate-net || true
                     sudo docker pull ${{ secrets.DOCKER_USERNAME }}/checkmate-server
+
+                    sudo docker run --rm \
+                      --env-file /opt/app/.env \
+                      --name checkmate-migrate \
+                      ${{ secrets.DOCKER_USERNAME }}/checkmate-server \
+                      npm run migrate
+                      
                     sudo docker stop checkmate || true
                     sudo docker rm checkmate || true
+
+                    sudo docker network create checkmate-net || true
                     sudo docker run -d \
                       --name checkmate \
                       --env-file /opt/app/.env \
                       -p 3000:3000 \
                       --network checkmate-net \
                       ${{ secrets.DOCKER_USERNAME }}/checkmate-server
-                      sudo docker image prune -af
-                      sudo docker container prune -f
-                      sudo docker network prune -f
+                      
+                    sudo docker image prune -af
+                    sudo docker container prune -f
+                    sudo docker network prune -f
                   EOF
