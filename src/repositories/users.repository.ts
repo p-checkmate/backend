@@ -25,8 +25,10 @@ export const getRefreshTokenByToken = async (token: string): Promise<RefreshToke
 };
 
 // 리프레시 토큰 삭제
-export const deleteRefreshToken = async (token: string): Promise<void> => {
-    await pool.query("DELETE FROM refresh_token WHERE token = ?", [token]);
+export const deleteRefreshToken = async (token: string): Promise<number> => {
+    const [results] = await pool.query("DELETE FROM refresh_token WHERE token = ?", [token]);
+    const resultSetHeader = results as { affectedRows: number };
+    return resultSetHeader.affectedRows;
 };
 
 // 사용자 생성
@@ -48,4 +50,11 @@ export const createUser = async (userEmail: string, password: string): Promise<U
     const [rows] = await pool.query<User[]>("SELECT * FROM user WHERE user_id = ?;", [newUserId]);
 
     return rows[0] || null;
+};
+
+// 회원탈퇴
+export const deleteUser = async (userId: number): Promise<number> => {
+    const [results] = await pool.query("DELETE FROM user WHERE user_id = ?", [userId]);
+    const resultSetHeader = results as { affectedRows: number };
+    return resultSetHeader.affectedRows;
 };
