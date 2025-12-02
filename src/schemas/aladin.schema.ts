@@ -7,6 +7,7 @@ export const aladinBookItemSchema = z.object({
     author: z.string(),
     publisher: z.string(),
     pubDate: z.string(),
+    
     description: z.string(),
     isbn13: z.string(),
     cover: z.string(),
@@ -43,6 +44,19 @@ export interface AladinApiResponse {
 }
 
 
+// 알라딘 API subInfo 타입
+export interface AladinSubInfo {
+    itemPage?: number;  // 페이지 수
+    originalTitle?: string;
+    subTitle?: string;
+    packing?: {
+        weight?: number;
+        sizeDepth?: number;
+        sizeHeight?: number;
+        sizeWidth?: number;
+    };
+}
+
 // 알라딘 API 원본 도서 아이템 타입
 export interface AladinApiItem {
     itemId: number;
@@ -54,4 +68,5 @@ export interface AladinApiItem {
     isbn13: string;
     cover: string;
     categoryName?: string;
+    subInfo?: AladinSubInfo;  
 }

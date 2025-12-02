@@ -20,7 +20,7 @@ export const searchBooksFromAladin = async (
     url.searchParams.append("SearchTarget", "Book");
     url.searchParams.append("Output", "JS");
     url.searchParams.append("Version", "20131101");
-
+    url.searchParams.append("OptResult", "subInfo");
     const response = await fetch(url.toString());
 
     if (!response.ok) {
@@ -51,7 +51,7 @@ export const getBookDetailFromAladin = async (itemId: number): Promise<AladinApi
     url.searchParams.append("ItemIdType", "ItemId");
     url.searchParams.append("Output", "JS");
     url.searchParams.append("Version", "20131101");
-
+    url.searchParams.append("OptResult", "subInfo");
     const response = await fetch(url.toString());
 
     if (!response.ok) {

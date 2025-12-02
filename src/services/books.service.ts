@@ -56,21 +56,14 @@ export const searchBooks = async (
 
 // 도서 상세 조회 서비스
 export const getBookDetail = async (bookId: number): Promise<BookDetailResponse> => {
-    // 1. DB에서 itemId로 먼저 조회
-    const existingBook = await findBookByItemId(bookId.toString());
-
-    if (existingBook) {
-        return existingBook;
-    }
-
-    // 2. DB에 없으면 알라딘 API에서 조회
+    //알라딘 API에서 조회
     const aladinBook = await getBookDetailFromAladin(bookId);
 
     if (!aladinBook) {
         throw HttpErrors(404, "해당 도서를 찾을 수 없습니다.");
     }
 
-    // 3. 카테고리 파싱
+    //카테고리 파싱
     const categoryNames = (aladinBook.categoryName ?? "")
         .split(">")
         .map((c) => c.trim())
@@ -88,22 +81,36 @@ export const getBookDetail = async (bookId: number): Promise<BookDetailResponse>
         categoryNames,
     };
 
-    // 4. DB에 책 저장
-    const insertedBookId = await insertBook(bookItem);
+    //페이지 수 추출
+    const page = aladinBook.subInfo?.itemPage ?? null;
 
-    // 5. 장르 저장 및 연결 (카테고리 중 마지막 2개를 장르로 사용)
-    const genresToSave = categoryNames.slice(-2);
-    const savedGenres = [];
+    //DB에서 기존 책 확인
+    const existingBook = await findBookByItemId(bookId.toString());
 
-    for (const genreName of genresToSave) {
-        const genreId = await findOrCreateGenre(genreName);
-        await linkBookGenre(insertedBookId, genreId);
-        savedGenres.push({ genreId, genreName });
+    let finalBookId: number;
+    let savedGenres: { genreId: number; genreName: string }[] = [];
+
+    if (existingBook) {
+        //존재하면 기존 정보 사용
+        finalBookId = existingBook.bookId;
+        savedGenres = existingBook.genres;
+    } else {
+        //DB에 책 저장 
+        finalBookId = await insertBook(bookItem, page);
+
+        //장르 저장 및 연결
+        const genresToSave = categoryNames.slice(-2);
+
+        for (const genreName of genresToSave) {
+            const genreId = await findOrCreateGenre(genreName);
+            await linkBookGenre(finalBookId, genreId);
+            savedGenres.push({ genreId, genreName });
+        }
     }
 
-    // 6. 응답 반환
+    //응답 반환 
     return {
-        bookId: insertedBookId,
+        bookId: finalBookId,
         itemId: bookItem.itemId.toString(),
         title: bookItem.title,
         author: bookItem.author ?? null,
@@ -111,6 +118,7 @@ export const getBookDetail = async (bookId: number): Promise<BookDetailResponse>
         publishedDate: bookItem.pubDate ?? null,
         description: bookItem.description ?? null,
         thumbnailUrl: bookItem.cover ?? null,
+        page,
         genres: savedGenres,
     };
 };
