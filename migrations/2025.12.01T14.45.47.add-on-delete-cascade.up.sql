@@ -1,0 +1,75 @@
+-- USER 테이블을 참조하는 기존 외래 키 삭제
+ALTER TABLE `quote` DROP FOREIGN KEY `FK_QUOTE_USER`;
+ALTER TABLE `discussion_like` DROP FOREIGN KEY `FK_DISCUSSION_LIKE_USER`;
+ALTER TABLE `vote` DROP FOREIGN KEY `FK_VOTE_USER`;
+ALTER TABLE `bookmark` DROP FOREIGN KEY `FK_BOOKMARK_USER`;
+ALTER TABLE `discussion_comment` DROP FOREIGN KEY `FK_COMMENT_USER`;
+ALTER TABLE `quote_like` DROP FOREIGN KEY `FK_QUOTE_LIKE_USER`;
+ALTER TABLE `discussion` DROP FOREIGN KEY `FK_DISCUSSION_USER_ID`;
+ALTER TABLE `user_genre` DROP FOREIGN KEY `FK_USER_GENRE_USER`;
+
+
+-- DISCUSSION 테이블을 참조하는 기존 외래 키 삭제 (연쇄 삭제를 위해 필요)
+ALTER TABLE `discussion_comment` DROP FOREIGN KEY `FK_COMMENT_DISCUSSION`;
+ALTER TABLE `vote` DROP FOREIGN KEY `FK_VOTE_DISCUSSION`;
+ALTER TABLE `discussion_like` DROP FOREIGN KEY `FK_DISCUSSION_LIKE_DISCUSSION`;
+
+
+-- ON DELETE CASCADE 옵션을 추가하여 외래 키 재생성
+ALTER TABLE `quote`
+  ADD CONSTRAINT `FK_QUOTE_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+  ON DELETE CASCADE;
+
+ALTER TABLE `discussion_like`
+  ADD CONSTRAINT `FK_DISCUSSION_LIKE_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+  ON DELETE CASCADE;
+
+ALTER TABLE `vote`
+  ADD CONSTRAINT `FK_VOTE_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+  ON DELETE CASCADE;
+
+ALTER TABLE `bookmark`
+  ADD CONSTRAINT `FK_BOOKMARK_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+  ON DELETE CASCADE;
+
+ALTER TABLE `discussion_comment`
+  ADD CONSTRAINT `FK_COMMENT_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+  ON DELETE CASCADE;
+
+ALTER TABLE `quote_like`
+  ADD CONSTRAINT `FK_QUOTE_LIKE_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+  ON DELETE CASCADE;
+
+ALTER TABLE `discussion`
+  ADD CONSTRAINT `FK_DISCUSSION_USER_ID`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+  ON DELETE CASCADE;
+
+ALTER TABLE `user_genre`
+  ADD CONSTRAINT `FK_USER_GENRE_USER`
+  FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+  ON DELETE CASCADE;
+
+
+-- DISCUSSION 테이블 참조 (토론 삭제 시 댓글/투표/좋아요 연쇄 삭제)
+-- 사용자가 삭제되어 discussion이 삭제될 경우, 종속된 데이터도 연쇄적으로 삭제되도록 설정
+ALTER TABLE `discussion_comment`
+  ADD CONSTRAINT `FK_COMMENT_DISCUSSION`
+  FOREIGN KEY (`discussion_id`) REFERENCES `discussion` (`discussion_id`)
+  ON DELETE CASCADE;
+
+ALTER TABLE `vote`
+  ADD CONSTRAINT `FK_VOTE_DISCUSSION`
+  FOREIGN KEY (`discussion_id`) REFERENCES `discussion` (`discussion_id`)
+  ON DELETE CASCADE;
+
+ALTER TABLE `discussion_like`
+  ADD CONSTRAINT `FK_DISCUSSION_LIKE_DISCUSSION`
+  FOREIGN KEY (`discussion_id`) REFERENCES `discussion` (`discussion_id`)
+  ON DELETE CASCADE;
