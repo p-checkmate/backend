@@ -24,7 +24,7 @@ export const bookDetailResponseSchema = z.object({
 export type Genre = z.infer<typeof genreSchema>;
 export type BookDetailResponse = z.infer<typeof bookDetailResponseSchema>;
 
-// DB 조회 결과 Row 타입
+//DB 조회 결과 Row 타입(Repository 전용)
 export interface BookRow {
     book_id: number;
     aladin_item_id: string;

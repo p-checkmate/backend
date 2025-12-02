@@ -1,63 +1,35 @@
 import { z } from "zod";
 
-//알라딘 API 검색 결과 아이템 스키마 
+// 검색 결과의 각 아이템(책 1권) 스키마
 export const aladinBookItemSchema = z.object({
-    itemId: z.number(),
-    title: z.string(),
-    author: z.string(),
-    publisher: z.string(),
-    pubDate: z.string(),
-    
-    description: z.string(),
-    isbn13: z.string(),
-    cover: z.string(),
-    categoryNames: z.array(z.string()).optional(),
+    itemId: z.number(), // 알라딘 내부 도서 ID
+    title: z.string(), // 제목
+    author: z.string(),  // 저자
+    publisher: z.string(), // 출판사
+    pubDate: z.string(), // 출간일
+    description: z.string(), // 책 소개
+    isbn13: z.string(),  // ISBN13
+    cover: z.string(), // 표지 이미지 URL
+    categoryNames: z.array(z.string()).optional(),// 카테고리 경로
 });
 
-//검색 결과 응답 스키마
+// 검색 API 전체 응답 스키마
 export const bookSearchResponseSchema = z.object({
-    totalResults: z.number(),
-    startIndex: z.number(),
-    hasMore: z.boolean(),
-    itemsPerPage: z.number(),
-    items: z.array(aladinBookItemSchema),
+    totalResults: z.number(),      // 전체 검색 결과 수
+    startIndex: z.number(),        // 현재 페이지 시작 위치
+    hasMore: z.boolean(),          // 다음 결과가 더 있는지 여부
+    itemsPerPage: z.number(),      // 한 번에 받은 아이템 수
+    items: z.array(aladinBookItemSchema),  // 책 리스트
 });
 
-//TypeScript 타입 추출
+// TypeScript 추론 타입
 export type AladinBookItem = z.infer<typeof aladinBookItemSchema>;
 export type BookSearchResponse = z.infer<typeof bookSearchResponseSchema>;
 
 
-//알라딘 API 원본 응답 타입
-export interface AladinApiResponse {
-    version: string;
-    title: string;
-    link: string;
-    pubDate: string;
-    totalResults: number;
-    startIndex: number;
-    itemsPerPage: number;
-    query: string;
-    searchCategoryId: number;
-    searchCategoryName: string;
-    item: AladinApiItem[];
-}
 
-
-// 알라딘 API subInfo 타입
-export interface AladinSubInfo {
-    itemPage?: number;  // 페이지 수
-    originalTitle?: string;
-    subTitle?: string;
-    packing?: {
-        weight?: number;
-        sizeDepth?: number;
-        sizeHeight?: number;
-        sizeWidth?: number;
-    };
-}
-
-// 알라딘 API 원본 도서 아이템 타입
+/* 알라딘의 ItemSearch / ItemLookUp API에서 내려오는 
+"책 한 권"의 원시(JSON) 데이터 구조를 표현하는 타입. */
 export interface AladinApiItem {
     itemId: number;
     title: string;
@@ -68,5 +40,21 @@ export interface AladinApiItem {
     isbn13: string;
     cover: string;
     categoryName?: string;
-    subInfo?: AladinSubInfo;  
+    subInfo?: {
+        itemPage?: number;  
+    };
+}
+
+
+//알라딘 검색 API(ItemSearch) 원본 응답 타입
+export interface AladinApiResponse {
+    item: AladinApiItem[];
+    totalResults: number;
+    startIndex: number;
+    itemsPerPage: number;
+}
+
+//알라딘 상세 조회 API(ItemLookUp) 원본 응답 타입
+export interface AladinItemLookupResponse {
+    item: AladinApiItem[];
 }

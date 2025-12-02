@@ -3,24 +3,18 @@ import { BookRow, GenreRow, BookDetailResponse, Genre } from "../schemas/books.s
 import { AladinBookItem } from "../schemas/aladin.schema.js";
 import { RowDataPacket, ResultSetHeader } from "mysql2";
 
+
 // itemId(aladin_item_id)로 책 조회
-export const findBookByItemId = async (itemId: string): Promise<BookDetailResponse | null> => {
+export const findBookByItemId = async (itemId: string): Promise<BookRow | null> => {
     const [rows] = await pool.query<RowDataPacket[]>(
         `SELECT book_id, aladin_item_id, title, author, publisher,
-                published_date, description, thumbnail_url
+                published_date, description, thumbnail_url, page_count
         FROM book 
         WHERE aladin_item_id = ?`,
         [itemId]
     );
 
-    if (rows.length === 0) {
-        return null;
-    }
-
-    const row = rows[0] as BookRow;
-    const genres = await findGenresByBookId(row.book_id);
-
-    return mapRowToBookDetail(row, genres);
+    return rows.length ? (rows[0] as BookRow) : null;
 };
 
 // 책에 연결된 장르 조회
@@ -39,21 +33,21 @@ export const findGenresByBookId = async (bookId: number): Promise<Genre[]> => {
     }));
 };
 
+
 // 책 정보 저장
-export const insertBook = async (book: AladinBookItem): Promise<number> => {
-
-
+export const insertBook = async (book: AladinBookItem, page: number | null): Promise<number> => {
     const [result] = await pool.query<ResultSetHeader>(
-        `INSERT INTO book (aladin_item_id, title, author, publisher, published_date, description, thumbnail_url)
-        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO book (aladin_item_id, title, author, publisher, published_date, description, thumbnail_url, page_count)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             book.itemId.toString(),
             book.title.substring(0, 100),
             book.author?.substring(0, 100) ?? null,
             book.publisher?.substring(0, 100) ?? null,
-            book.pubDate ?? null, 
+            book.pubDate ?? null,
             book.description ?? null,
             book.cover?.substring(0, 500) ?? null,
+            page,
         ]
     );
 
@@ -90,23 +84,4 @@ export const linkBookGenre = async (bookId: number, genreId: number): Promise<vo
 };
 
 
-// DB Row를 응답 형식으로 변환
-const mapRowToBookDetail = (row: BookRow, genres: Genre[]): BookDetailResponse => {
-    let publishedDate: string | null = null;
 
-    if (row.published_date) {
-        publishedDate = row.published_date.toISOString().split("T")[0];
-    }
-
-    return {
-        bookId: row.book_id,
-        itemId: row.aladin_item_id.toString(),
-        title: row.title,
-        author: row.author,
-        publisher: row.publisher,
-        publishedDate,
-        description: row.description,
-        thumbnailUrl: row.thumbnail_url,
-        genres,
-    };
-};

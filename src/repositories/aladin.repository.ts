@@ -1,10 +1,10 @@
 import { aladinConfig } from '../config/aladin.config.js';
-import { AladinApiResponse, AladinApiItem } from "../schemas/aladin.schema.js";
+import {AladinApiResponse, AladinApiItem, AladinItemLookupResponse} from "../schemas/aladin.schema.js";
 
 const apiKey = aladinConfig.ALADIN_API_KEY;
 const baseUrl = aladinConfig.ALADIN_BASE_URL;
 
-
+//알라딘 검색 API 호출 (ItemSearch)
 export const searchBooksFromAladin = async (
     query: string,
     start: number = 1,
@@ -33,14 +33,6 @@ export const searchBooksFromAladin = async (
 
 
 
-// 알라딘 API ItemLookup 응답 타입
-export interface AladinItemLookupResponse {
-    version: string;
-    title: string;
-    link: string;
-    pubDate: string;
-    item: AladinApiItem[];
-}
 
 // 알라딘 API 도서 상세 조회 (ItemLookup)
 export const getBookDetailFromAladin = async (itemId: number): Promise<AladinApiItem | null> => {
