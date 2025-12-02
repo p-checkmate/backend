@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const PORT = Number(process.env.PORT) || 3000;
-
+const PRODUCTION_URL = process.env.PRODUCTION_URL || "https://chekemate.shop";
 
 export const apiConfig = createConfig({
     http: { listen: PORT },
@@ -20,7 +20,10 @@ export const apiConfig = createConfig({
             config: apiConfig,
             version: "1.0.0",
             title: "Checkmate API",
-            serverUrl: `http://localhost:${PORT}`,
+            serverUrl: [
+                `http://localhost:${PORT}`, // Local URL
+                PRODUCTION_URL, // Production URL
+            ],
             composition: "inline",
         });
 
