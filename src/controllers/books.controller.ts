@@ -1,12 +1,15 @@
 import { z } from "zod";
 import { defaultEndpointsFactory } from "express-zod-api";
 import { bookSearchResponseSchema } from "../schemas/aladin.schema.js";
+import { bookDetailResponseSchema } from "../schemas/books.schema.js";
+import { searchBooks, getBookDetail } from "../services/books.service.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js"; 
 
-import { searchBooks} from "../services/books.service.js";
+// GET /api/v1/books/search?q=
+// 알라딘 API 기반 도서 검색
+const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
 
-/*GET /api/v1/books/search?q=
-알라딘 API 기반 도서 검색 */
-export const handleSearchBooks = defaultEndpointsFactory.build({
+export const handleSearchBooks = authEndpointsFactory.build({
     method: "get",
     input: z.object({
         q: z.string().min(1),
@@ -19,3 +22,17 @@ export const handleSearchBooks = defaultEndpointsFactory.build({
     },
 });
 
+
+
+// GET /api/v1/books/:bookId
+// 책 상세 정보 조회
+export const handleGetBookDetail = authEndpointsFactory.build({
+    method: "get",
+    input: z.object({
+        bookId: z.string().transform((val) => parseInt(val, 10)),
+    }),
+    output: bookDetailResponseSchema,
+    handler: async ({ input }) => {
+        return await getBookDetail(input.bookId);
+    },
+});

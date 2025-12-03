@@ -1,9 +1,11 @@
-import { aladinConfig } from "../config/aladin.config.js";
-import { AladinApiResponse } from "../schemas/aladin.schema.js";
+import { aladinConfig } from '../config/aladin.config.js';
+import {AladinApiResponse, AladinApiItem, AladinItemLookupResponse} from "../schemas/aladin.schema.js";
+import HttpErrors from "http-errors";
 
 const apiKey = aladinConfig.ALADIN_API_KEY;
 const baseUrl = aladinConfig.ALADIN_BASE_URL;
 
+//알라딘 검색 API 호출 (ItemSearch)
 export const searchBooksFromAladin = async (
     query: string,
     start: number = 1,
@@ -19,13 +21,39 @@ export const searchBooksFromAladin = async (
     url.searchParams.append("SearchTarget", "Book");
     url.searchParams.append("Output", "JS");
     url.searchParams.append("Version", "20131101");
-
+    url.searchParams.append("OptResult", "subInfo");
     const response = await fetch(url.toString());
 
     if (!response.ok) {
-        throw new Error(`알라딘 API 호출 실패: ${response.status}`);
+        throw HttpErrors(response.status, "알라딘 API 호출 실패");
     }
 
     const data = await response.json();
     return data as AladinApiResponse;
+};
+
+// 알라딘 API 도서 상세 조회 (ItemLookup)
+export const getBookDetailFromAladin = async (itemId: number): Promise<AladinApiItem | null> => {
+    const url = new URL(`${baseUrl}/ItemLookUp.aspx`);
+
+    url.searchParams.append("ttbkey", apiKey);
+    url.searchParams.append("ItemId", itemId.toString());
+    url.searchParams.append("ItemIdType", "ItemId");
+    url.searchParams.append("Output", "JS");
+    url.searchParams.append("Version", "20131101");
+    url.searchParams.append("OptResult", "subInfo");
+    const response = await fetch(url.toString());
+
+    if (!response.ok) {
+        throw HttpErrors(response.status, "알라딘 API 호출 실패");
+    }
+
+    const data = (await response.json()) as AladinItemLookupResponse;
+
+    if (!data.item || data.item.length === 0) {
+        return null;
+    }
+
+    return data.item[0];
+
 };
