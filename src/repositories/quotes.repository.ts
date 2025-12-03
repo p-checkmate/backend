@@ -78,18 +78,20 @@ export const deleteQuote = async (
   return result.affectedRows > 0;
 };
 
-//좋아요 증가
+// 좋아요 증가
 export const likeQuote = async (quoteId: number, userId: number) => {
   const conn = await pool.getConnection();
+
   try {
     await conn.beginTransaction();
 
-    // 존재 여부 체크
-    const [exists] = await conn.query(
+    // 좋아요 중복 여부 확인
+    const [rows] = await conn.query<any[]>(
       `SELECT * FROM quote_like WHERE quote_id = ? AND user_id = ?`,
       [quoteId, userId]
     );
-    if (exists.length > 0) {
+
+    if (rows.length > 0) {
       await conn.rollback();
       return;
     }
@@ -113,17 +115,33 @@ export const likeQuote = async (quoteId: number, userId: number) => {
   }
 };
 
-//좋아요감소
+
+// 좋아요 삭제
 export const unlikeQuote = async (quoteId: number, userId: number) => {
   const conn = await pool.getConnection();
+
   try {
     await conn.beginTransaction();
 
+    // 좋아요 여부 확인
+    const [rows] = await conn.query<any[]>(
+      `SELECT * FROM quote_like WHERE quote_id = ? AND user_id = ?`,
+      [quoteId, userId]
+    );
+
+    // 좋아요가 없으면 취소 불가 
+    if (rows.length === 0) {
+      await conn.rollback();
+      return;
+    }
+
+    // 좋아요 삭제
     await conn.query(
       `DELETE FROM quote_like WHERE quote_id = ? AND user_id = ?`,
       [quoteId, userId]
     );
 
+    // like_count 감소 (음수방지)
     await conn.query(
       `UPDATE quote SET like_count = like_count - 1 WHERE quote_id = ? AND like_count > 0`,
       [quoteId]
