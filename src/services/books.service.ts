@@ -4,13 +4,16 @@ import {
     viewBestsellersFromAladin,
 } from "../repositories/aladin.repository.js";
 import { BookSearchResponse, AladinBookItem, AladinApiResponse } from "../schemas/aladin.schema.js";
-import { BookDetailResponse, BookRow, Genre } from "../schemas/books.schema.js";
+import { BookDetailResponse, BookRow, Genre, BookmarkResponse } from "../schemas/books.schema.js";
+
+
 import {
     findBookByItemId,
     insertBook,
     findGenresByBookId,
     findOrCreateGenre,
     linkBookGenre,
+    insertBookmark,
 } from "../repositories/books.repository.js";
 import HttpErrors from "http-errors";
 
@@ -133,4 +136,21 @@ export const getBookDetail = async (bookId: number): Promise<BookDetailResponse>
 export const viewBestsellers = async (start: number = 1, maxResults: number = 30): Promise<BookSearchResponse> => {
     const aladinResponse = await viewBestsellersFromAladin(start, maxResults);
     return processBookSearchResponse(aladinResponse);
+};
+
+// 북마크 추가
+export const addBookmark = async (
+    userId: number,
+    aladinItemId: number,
+): Promise<BookmarkResponse> => {
+    // 알라딘 itemId 로 book row 찾기
+    const bookRow = await findBookByItemId(aladinItemId.toString());
+    const bookDbId = bookRow!.book_id; 
+    const bookmarkId = await insertBookmark(userId, bookDbId);
+
+    return {
+        bookmarkId,       
+        userId,
+        bookId: aladinItemId, 
+    };
 };

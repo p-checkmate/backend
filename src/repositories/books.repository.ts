@@ -83,5 +83,13 @@ export const linkBookGenre = async (bookId: number, genreId: number): Promise<vo
     );
 };
 
+// 북마크 추가
+export const insertBookmark = async (userId: number, bookId: number): Promise<number> => {
+    const [result] = await pool.query<ResultSetHeader>(
+        `INSERT IGNORE INTO bookmark (user_id, book_id) VALUES (?, ?)`,
+        [userId, bookId],
+    );
 
+    return result.insertId;
+};
 
