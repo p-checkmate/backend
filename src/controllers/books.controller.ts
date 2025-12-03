@@ -4,7 +4,7 @@ import { bookSearchResponseSchema } from "../schemas/aladin.schema.js";
 import { bookDetailResponseSchema, bookmarkResponseSchema } from "../schemas/books.schema.js";
 import { searchBooks, getBookDetail, viewBestsellers } from "../services/books.service.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js"; 
-import { addBookmark } from "../services/books.service.js";
+import { addBookmark  } from "../services/bookmarks.service.js";
 
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
 

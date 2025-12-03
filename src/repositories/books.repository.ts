@@ -84,12 +84,19 @@ export const linkBookGenre = async (bookId: number, genreId: number): Promise<vo
 };
 
 // 북마크 추가
+// books.repository.ts
 export const insertBookmark = async (userId: number, bookId: number): Promise<number> => {
-    const [result] = await pool.query<ResultSetHeader>(
-        `INSERT IGNORE INTO bookmark (user_id, book_id) VALUES (?, ?)`,
-        [userId, bookId],
-    );
+    try {
+        const [result] = await pool.query<ResultSetHeader>(
+            `INSERT INTO bookmark (user_id, book_id) VALUES (?, ?)`,
+            [userId, bookId]
+        );
 
-    return result.insertId;
+        return result.insertId;
+    } catch (err: any) {
+        if (err.code === "ER_DUP_ENTRY") {
+            throw new Error("DUPLICATE_BOOKMARK");
+        }
+        throw err;
+    }
 };
-
