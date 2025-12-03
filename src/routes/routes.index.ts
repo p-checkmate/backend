@@ -7,6 +7,7 @@ import {
     handleLogout,
     handleWithdrawUser,
 } from "../controllers/auth.controller.js";
+import { handleModifyUser } from "../controllers/users.controller.js";
 
 export const routing: Routing = {
     api: {
@@ -20,6 +21,9 @@ export const routing: Routing = {
                 signup: handleSignup,
                 logout: handleLogout,
                 me: handleWithdrawUser,
+            },
+            users: {
+                me: handleModifyUser,
             },
         },
     },
