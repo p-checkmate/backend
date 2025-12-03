@@ -1,5 +1,9 @@
-import { searchBooksFromAladin, getBookDetailFromAladin } from "../repositories/aladin.repository.js";
-import { BookSearchResponse, AladinBookItem } from "../schemas/aladin.schema.js";
+import {
+    searchBooksFromAladin,
+    getBookDetailFromAladin,
+    viewBestsellersFromAladin,
+} from "../repositories/aladin.repository.js";
+import { BookSearchResponse, AladinBookItem, AladinApiResponse } from "../schemas/aladin.schema.js";
 import { BookDetailResponse, BookRow, Genre } from "../schemas/books.schema.js";
 import {
     findBookByItemId,
@@ -10,17 +14,10 @@ import {
 } from "../repositories/books.repository.js";
 import HttpErrors from "http-errors";
 
-
-// 도서 검색 서비스(ItemSearch API 호출)
-export const searchBooks = async (
-    query: string,
-    start: number = 1,
-    maxResults: number = 30
-): Promise<BookSearchResponse> => {
-
-    const aladinResponse = await searchBooksFromAladin(query, start, maxResults);
-
+// searchBooks(), viewBestsellers()의 공통 로직을 처리하는 내부 헬퍼 함수
+const processBookSearchResponse = (aladinResponse: AladinApiResponse): BookSearchResponse => {
     const items: AladinBookItem[] = (aladinResponse.item ?? []).map((item) => {
+        // 카테고리 파싱 (">" 구분자로 분리 및 정제)
         const categoryNames = (item.categoryName ?? "")
             .split(">")
             .map((c) => c.trim())
@@ -54,7 +51,15 @@ export const searchBooks = async (
     };
 };
 
-
+// 도서 검색 서비스(ItemSearch API 호출)
+export const searchBooks = async (
+    query: string,
+    start: number = 1,
+    maxResults: number = 30
+): Promise<BookSearchResponse> => {
+    const aladinResponse = await searchBooksFromAladin(query, start, maxResults);
+    return processBookSearchResponse(aladinResponse);
+};
 
 // 도서 상세 조회 서비스
 export const getBookDetail = async (bookId: number): Promise<BookDetailResponse> => {
@@ -96,7 +101,7 @@ export const getBookDetail = async (bookId: number): Promise<BookDetailResponse>
         finalBookId = existingBook.book_id;
         savedGenres = await findGenresByBookId(existingBook.book_id);
     } else {
-        //DB에 책 저장 
+        //DB에 책 저장
         finalBookId = await insertBook(bookItem, page);
 
         //장르 저장 및 연결
@@ -109,7 +114,7 @@ export const getBookDetail = async (bookId: number): Promise<BookDetailResponse>
         }
     }
 
-    //응답 반환 
+    //응답 반환
     return {
         bookId: finalBookId,
         itemId: bookItem.itemId.toString(),
@@ -122,4 +127,10 @@ export const getBookDetail = async (bookId: number): Promise<BookDetailResponse>
         page,
         genres: savedGenres,
     };
+};
+
+// 베스트셀러 조회 서비스 (ItemList API 호출)
+export const viewBestsellers = async (start: number = 1, maxResults: number = 30): Promise<BookSearchResponse> => {
+    const aladinResponse = await viewBestsellersFromAladin(start, maxResults);
+    return processBookSearchResponse(aladinResponse);
 };
