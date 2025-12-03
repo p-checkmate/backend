@@ -4,13 +4,14 @@ import {
     viewBestsellersFromAladin,
 } from "../repositories/aladin.repository.js";
 import { BookSearchResponse, AladinBookItem, AladinApiResponse } from "../schemas/aladin.schema.js";
-import { BookDetailResponse, BookRow, Genre } from "../schemas/books.schema.js";
+import { BookDetailResponse, BookRow, Genre, BookmarkResponse } from "../schemas/books.schema.js";
+
 import {
     findBookByItemId,
     insertBook,
     findGenresByBookId,
     findOrCreateGenre,
-    linkBookGenre,
+    linkBookGenre,  
 } from "../repositories/books.repository.js";
 import HttpErrors from "http-errors";
 

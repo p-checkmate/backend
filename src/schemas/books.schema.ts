@@ -23,6 +23,7 @@ export const bookDetailResponseSchema = z.object({
 // TypeScript 타입 추출
 export type Genre = z.infer<typeof genreSchema>;
 export type BookDetailResponse = z.infer<typeof bookDetailResponseSchema>;
+export type BookmarkResponse = z.infer<typeof bookmarkResponseSchema>;
 
 //DB 조회 결과 Row 타입(Repository 전용)
 export interface BookRow {
@@ -41,3 +42,11 @@ export interface GenreRow {
     genre_id: number;
     genre_name: string;
 }
+
+// 북마크 응답 스키마
+export const bookmarkResponseSchema = z.object({
+    bookmarkId: z.number(),
+    userId: z.number(),
+    bookId: z.number(),
+});
+

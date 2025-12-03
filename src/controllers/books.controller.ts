@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { defaultEndpointsFactory } from "express-zod-api";
 import { bookSearchResponseSchema } from "../schemas/aladin.schema.js";
-import { bookDetailResponseSchema } from "../schemas/books.schema.js";
+import { bookDetailResponseSchema, bookmarkResponseSchema } from "../schemas/books.schema.js";
 import { searchBooks, getBookDetail, viewBestsellers } from "../services/books.service.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js"; 
+import { addBookmark  } from "../services/bookmarks.service.js";
 
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
 
@@ -13,16 +14,8 @@ export const handleSearchBooks = authEndpointsFactory.build({
     method: "get",
     input: z.object({
         q: z.string().min(1),
-        start: z
-            .string()
-            .optional()
-            .default("1")
-            .transform((val) => parseInt(val, 10)),
-        maxResults: z
-            .string()
-            .optional()
-            .default("30")
-            .transform((val) => parseInt(val, 10)),
+        start: z.string().optional().default("1").transform((val) => parseInt(val, 10)),
+        maxResults: z.string().optional().default("30").transform((val) => parseInt(val, 10)),
     }),
     output: bookSearchResponseSchema,
     handler: async ({ input }) => {
@@ -64,3 +57,17 @@ export const handleViewBestsellers = authEndpointsFactory.build({
         return await viewBestsellers(input.start, input.maxResults);
     },
 });
+
+// POST /api/v1/books/:bookId/bookmark
+// 북마크 추가
+export const handleAddBookmark = authEndpointsFactory.build({
+    method: "post",
+    input: z.object({
+        bookId: z.string().transform((val) => parseInt(val, 10)), 
+    }),
+    output: bookmarkResponseSchema,
+    handler: async ({ input, options }) => {
+        const userId = options.user.user_id;
+        return await addBookmark(userId, input.bookId);
+    },
+}); 

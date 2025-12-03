@@ -83,5 +83,3 @@ export const linkBookGenre = async (bookId: number, genreId: number): Promise<vo
     );
 };
 
-
-
