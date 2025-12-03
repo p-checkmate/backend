@@ -3,6 +3,7 @@ import HttpError from "http-errors";
 import {
     LoginInput,
     LoginOutput,
+    ModifyUserInput,
     RefreshTokenInput,
     RefreshTokenOutput,
     SignupOutput,
@@ -14,6 +15,7 @@ import {
     deleteRefreshToken,
     createUser,
     deleteUser,
+    updateUser,
 } from "../repositories/users.repository.js";
 import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
 
@@ -154,5 +156,15 @@ export const userWithdrawal = async (userId: number): Promise<string> => {
         return "회원탈퇴가 완료되었습니다.";
     } else {
         throw HttpError(404, "사용자를 찾을 수 없습니다. 회원탈퇴에 실패했습니다.");
+    }
+};
+
+export const modifyUser = async (input: ModifyUserInput, userId: number): Promise<string> => {
+    const rows = await updateUser(input.nickname, userId);
+
+    if (rows === 1) {
+        return "닉네임 수정이 완료되었습니다.";
+    } else {
+        throw HttpError(404, "사용자를 찾을 수 없습니다. 닉네임 수정에 실패했습니다.");
     }
 };

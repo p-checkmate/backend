@@ -58,3 +58,10 @@ export const deleteUser = async (userId: number): Promise<number> => {
     const resultSetHeader = results as { affectedRows: number };
     return resultSetHeader.affectedRows;
 };
+
+// 회원 정보 수정(닉네임)
+export const updateUser = async (nickname: string, userId: number): Promise<number> => {
+    const [results] = await pool.query("UPDATE user SET nickname = ? WHERE user_id = ?", [nickname, userId]);
+    const resultSetHeader = results as { affectedRows: number };
+    return resultSetHeader.affectedRows;
+};
