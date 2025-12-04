@@ -1,6 +1,11 @@
 import { Routing } from "express-zod-api";
-import { handleSearchBooks, handleGetBookDetail, handleViewBestsellers, handleAddBookmark } from "../controllers/books.controller.js";
-
+import { 
+    handleSearchBooks, 
+    handleGetBookDetail, 
+    handleViewBestsellers, 
+    handleAddBookmark, 
+    handleDeleteBookmark 
+} from "../controllers/books.controller.js";
 
 import {
     handleLogin,
@@ -19,6 +24,7 @@ export const routing: Routing = {
                 bestsellers: handleViewBestsellers,
                 ":bookId": handleGetBookDetail,  
                 ":bookId/bookmark": handleAddBookmark,
+                "delete /:bookId/bookmark": handleDeleteBookmark,
             },
             auth: {
                 login: handleLogin,
