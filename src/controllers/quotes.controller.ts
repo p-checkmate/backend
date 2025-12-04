@@ -1,0 +1,121 @@
+import { z } from "zod";
+import { defaultEndpointsFactory } from "express-zod-api";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
+import {
+  createQuoteService,
+  getQuoteService,
+  getQuotesByBookService,
+  updateQuoteService,
+  deleteQuoteService,
+  likeQuoteService,
+  unlikeQuoteService,
+} from "../services/quotes.service.js";
+import { quoteSchema } from "../schemas/quotes.schema.js";
+
+const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
+
+//인용구 생성
+export const handleCreateQuote = authEndpointsFactory.build({
+  method: "post",
+  input: z.object({
+    bookId: z.coerce.number().int().positive(),
+    content: z.string().min(1).max(500),
+  }),
+  output: z.object({ quote_id: z.number() }),
+
+  handler: async ({ input, options }) => {
+    const userId = options.user.user_id;
+    const quoteId = await createQuoteService(userId, input.bookId, input.content);
+    return { quote_id: quoteId };
+  },
+});
+
+//인용구 조회
+export const handleGetQuote = authEndpointsFactory.build({
+  method: "get",
+  input: z.object({
+    quoteId: z.coerce.number().int().positive(),
+  }),
+  output: quoteSchema,
+
+  handler: async ({ input }) => {
+    return await getQuoteService(input.quoteId);
+  },
+});
+
+//인용구 수정
+export const handleUpdateQuote = authEndpointsFactory.build({
+  method: "patch",
+  input: z.object({
+    quoteId: z.coerce.number().int().positive(),
+    content: z.string().min(1).max(500),
+  }),
+  output: z.object({ success: z.boolean() }),
+
+  handler: async ({ input, options }) => {
+    const userId = options.user.user_id;
+    const success = await updateQuoteService(input.quoteId, input.content, userId);
+    return { success };
+  },
+});
+
+//인용구 삭제
+export const handleDeleteQuote = authEndpointsFactory.build({
+  method: "delete",
+  input: z.object({
+    quoteId: z.coerce.number().int().positive(),
+  }),
+  output: z.object({ success: z.boolean() }),
+
+  handler: async ({ input, options }) => {
+    const userId = options.user.user_id;
+    const success = await deleteQuoteService(input.quoteId, userId);
+    return { success };
+  },
+});
+
+//인용구 좋아요
+export const handleLikeQuote = authEndpointsFactory.build({
+  method: "post",
+  input: z.object({
+    quoteId: z.coerce.number().int().positive(),
+  }),
+  output: z.object({ success: z.boolean() }),
+
+  handler: async ({ input, options }) => {
+    const userId = options.user.user_id;
+    await likeQuoteService(input.quoteId, userId);
+    return { success: true };
+  },
+});
+
+//인용구 좋아요 취소
+export const handleUnlikeQuote = authEndpointsFactory.build({
+  method: "delete",
+  input: z.object({
+    quoteId: z.coerce.number().int().positive(),
+  }),
+  output: z.object({ success: z.boolean() }),
+
+  handler: async ({ input, options }) => {
+    const userId = options.user.user_id;
+    await unlikeQuoteService(input.quoteId, userId);
+    return { success: true };
+  },
+});
+
+//도서별 인용구 조회
+export const handleGetQuotesByBook = authEndpointsFactory.build({
+  method: "get",
+  input: z.object({
+    bookId: z.coerce.number().int().positive(),
+  }),
+  output: z.object({
+    data: z.array(quoteSchema),
+  }),
+
+  handler: async ({ input }) => {
+    const quotes = await getQuotesByBookService(input.bookId);
+    return { data: quotes };
+  },
+});
