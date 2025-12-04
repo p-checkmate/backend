@@ -1,5 +1,6 @@
 import HttpError from "http-errors";
 import { MypageOutput } from "../schemas/mypage.schema.js";
+import { MyQuoteRow } from "../schemas/quotes.schema.js";
 import { UserBookmarksResponse, BookmarkItem } from "../schemas/books.schema.js";
 import {
     getUserById,
@@ -12,6 +13,9 @@ import {
     getBookmarksWithPagination,
 } from "../repositories/bookmarks.repository.js";
 import { findGenresByBookId } from "../repositories/books.repository.js";
+import {
+    getQuotesByUserId,
+    countQuotesByUserId} from "../repositories/quotes.repository.js";
 
 // 마이페이지 전체 정보 조회
 export const getMyPageInfo = async (userId: number): Promise<MypageOutput> => {
@@ -93,4 +97,54 @@ export const getUserBookmarks = async (
         has_next: safePage * safeLimit < totalCount,
         bookmarks,
     };
+};
+
+// 내가 작성한 인용구 조회 (페이지네이션)
+export const getMyQuotesService = async (
+    userId: number,
+    page: number,
+    limit: number
+) => {
+    const offset = (page - 1) * limit;
+
+    try {
+        const [quotes, total] = await Promise.all([
+            getQuotesByUserId(userId, limit, offset),
+            countQuotesByUserId(userId),
+        ]);
+
+        const data = quotes.map((row: MyQuoteRow) => {
+            const date = new Date(row.created_at);
+            const yy = String(date.getFullYear()).slice(-2);
+            const mm = String(date.getMonth() + 1).padStart(2, "0");
+            const dd = String(date.getDate()).padStart(2, "0");
+
+            return {
+                quote_id: row.quote_id,
+                content: row.content,
+                like_count: row.like_count,
+                created_at: `${yy}.${mm}.${dd}`,
+                book: {
+                    book_id: row.book_id,
+                    title: row.book_title,
+                    genres: row.genre_names ? row.genre_names.split(",") : [],
+                },
+                user: {
+                    nickname: row.nickname,
+                },
+            };
+        });
+
+        return {
+            page,
+            limit,
+            total_count: total,
+            total_pages: Math.ceil(total / limit),
+            has_next: page * limit < total,
+            quotes: data,
+        };
+    } catch (err) {
+        console.error(err);
+        throw HttpError(500, "내 인용구 조회에 실패했습니다.");
+    }
 };
