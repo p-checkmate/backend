@@ -7,7 +7,6 @@ import {
     handleAddBookmark, 
     handleDeleteBookmark
 } from "../controllers/books.controller.js";
-
 import {
     handleLogin,
     handleRefreshToken,
@@ -15,7 +14,6 @@ import {
     handleLogout,
     handleWithdrawUser,
 } from "../controllers/auth.controller.js";
-
 import { handleModifyUser } from "../controllers/users.controller.js";
 import {
     handleCreateQuote,
@@ -26,6 +24,7 @@ import {
     handleUnlikeQuote,
     handleGetQuotesByBook,
 } from "../controllers/quotes.controller.js";
+import { handleSelectFavoriteBooks } from "../controllers/onboarding.controller.js";
 
 
 
@@ -75,4 +74,3 @@ export const routing: Routing = {
         },
     },
 };
-

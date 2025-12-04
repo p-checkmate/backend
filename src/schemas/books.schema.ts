@@ -16,7 +16,7 @@ export const bookDetailResponseSchema = z.object({
     publishedDate: z.string().nullable(),
     description: z.string().nullable(),
     thumbnailUrl: z.string().nullable(),
-    page: z.number().nullable(),  
+    page: z.number().nullable(),
     genres: z.array(genreSchema),
 });
 
@@ -33,9 +33,10 @@ export interface BookRow {
     author: string | null;
     publisher: string | null;
     published_date: Date | null;
-    page: number | null; 
+    page: number | null;
     description: string | null;
     thumbnail_url: string | null;
+    page_count: number | null;
 }
 
 export interface GenreRow {
@@ -49,4 +50,3 @@ export const bookmarkResponseSchema = z.object({
     userId: z.number(),
     bookId: z.number(),
 });
-
