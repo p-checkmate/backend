@@ -1,9 +1,10 @@
 import { Routing } from "express-zod-api";
-import {
-  handleSearchBooks,
-  handleGetBookDetail,
-  handleViewBestsellers,
-  handleAddBookmark,
+import { 
+  handleSearchBooks, 
+  handleGetBookDetail, 
+  handleViewBestsellers, 
+  handleAddBookmark, 
+  handleDeleteBookmark
 } from "../controllers/books.controller.js";
 
 import {
@@ -32,15 +33,17 @@ export const routing: Routing = {
       books: {
         search: handleSearchBooks,
         bestsellers: handleViewBestsellers,
-        ":bookId": {
-          get: handleGetBookDetail,
-          bookmark: handleAddBookmark,
-          quotes: {
-            get: handleGetQuotesByBook,
-            post: handleCreateQuote,
-          },
+
+        ":bookId": handleGetBookDetail,
+        ":bookId/bookmark": handleAddBookmark,
+        "delete /:bookId/bookmark": handleDeleteBookmark,
+
+        ":bookId/quotes": {
+          get: handleGetQuotesByBook,
+          post: handleCreateQuote,
         },
       },
+
       auth: {
         login: handleLogin,
         refresh: handleRefreshToken,
@@ -48,9 +51,11 @@ export const routing: Routing = {
         logout: handleLogout,
         me: handleWithdrawUser,
       },
+
       users: {
         me: handleModifyUser,
       },
+
       quotes: {
         ":quoteId": {
           get: handleGetQuote,
@@ -65,3 +70,4 @@ export const routing: Routing = {
     },
   },
 };
+
