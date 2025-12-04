@@ -1,7 +1,12 @@
 import { Routing } from "express-zod-api";
-import { handleSearchBooks, handleGetBookDetail, handleViewBestsellers, handleAddBookmark } from "../controllers/books.controller.js";
 import { handleGetMyPage } from "../controllers/mypage.controller.js";
-
+import { 
+    handleSearchBooks, 
+    handleGetBookDetail, 
+    handleViewBestsellers, 
+    handleAddBookmark, 
+    handleDeleteBookmark
+} from "../controllers/books.controller.js";
 import {
     handleLogin,
     handleRefreshToken,
@@ -10,6 +15,15 @@ import {
     handleWithdrawUser,
 } from "../controllers/auth.controller.js";
 import { handleModifyUser } from "../controllers/users.controller.js";
+import {
+    handleCreateQuote,
+    handleGetQuote,
+    handleUpdateQuote,
+    handleDeleteQuote,
+    handleLikeQuote,
+    handleUnlikeQuote,
+    handleGetQuotesByBook,
+} from "../controllers/quotes.controller.js";
 
 export const routing: Routing = {
     api: {
@@ -17,9 +31,17 @@ export const routing: Routing = {
             books: {
                 search: handleSearchBooks,
                 bestsellers: handleViewBestsellers,
-                ":bookId": handleGetBookDetail,  
+
+                ":bookId": handleGetBookDetail,
                 ":bookId/bookmark": handleAddBookmark,
+                "delete /:bookId/bookmark": handleDeleteBookmark,
+
+                ":bookId/quotes": {
+                    get: handleGetQuotesByBook,
+                    post: handleCreateQuote,
+                },
             },
+
             auth: {
                 login: handleLogin,
                 refresh: handleRefreshToken,
@@ -27,11 +49,27 @@ export const routing: Routing = {
                 logout: handleLogout,
                 me: handleWithdrawUser,
             },
+
             users: {
                 mypage: handleGetMyPage,
-                me: handleWithdrawUser,
+                me: handleModifyUser,
+            
+            },
+
+            quotes: {
+                ":quoteId": {
+                    get: handleGetQuote,
+                    patch: handleUpdateQuote,
+                    delete: handleDeleteQuote,
+
+                    like: {
+                        post: handleLikeQuote,
+                        delete: handleUnlikeQuote,
+                    },
+                },
             },
         
         },
     },
 };
+
