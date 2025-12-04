@@ -75,7 +75,7 @@ export const getBookDetail = async (bookId: number): Promise<BookDetailResponse>
     if (existingBook) {
         finalBookId = existingBook.book_id;
         savedGenres = await findGenresByBookId(existingBook.book_id);
-        page = existingBook.page ?? null;
+        page = existingBook.page_count ?? null;
 
         const publishedDateValue = existingBook.published_date ?? "";
         let finalDateString: string;
