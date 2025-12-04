@@ -39,8 +39,10 @@ export const removeBookmark = async (userId: number, aladinItemId: number) => {
         throw HttpError(404, "북마크가 존재하지 않습니다.");
     }
 };
+
+// 온보딩 시 좋아하는 책 북마크
 export const selectFavoriteBooks = async (aladinItemIds: number[], userId: number): Promise<number[]> => {
-    let bookIds: number[] = [];
+    let bookmarkIds: number[] = [];
 
     for (let itemId of aladinItemIds) {
         let bookInfo = await getBookDetail(itemId);
@@ -49,7 +51,7 @@ export const selectFavoriteBooks = async (aladinItemIds: number[], userId: numbe
         if (!insertId) {
             throw HttpError(500, "북마크 추가에 실패했습니다.");
         }
-        bookIds.push(insertId);
+        bookmarkIds.push(insertId);
     }
-    return bookIds;
+    return bookmarkIds;
 };

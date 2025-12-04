@@ -13,10 +13,10 @@ export const handleSelectFavoriteBooks = authEndpointsFactory.build({
         itemIds: z.array(z.number()),
     }),
     output: z.object({
-        bookIds: z.array(z.number()),
+        bookmarkIds: z.array(z.number()),
     }),
     handler: async ({ input, options }) => {
-        const bookIds = await selectFavoriteBooks(input.itemIds, options.user.user_id);
-        return { bookIds };
+        const bookmarkIds = await selectFavoriteBooks(input.itemIds, options.user.user_id);
+        return { bookmarkIds };
     },
 });
