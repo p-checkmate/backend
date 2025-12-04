@@ -4,6 +4,7 @@ import {
     handleGetBookDetail,
     handleViewBestsellers,
     handleAddBookmark,
+    handleDeleteBookmark,
 } from "../controllers/books.controller.js";
 import {
     handleLogin,
@@ -13,6 +14,15 @@ import {
     handleWithdrawUser,
 } from "../controllers/auth.controller.js";
 import { handleModifyUser } from "../controllers/users.controller.js";
+import {
+    handleCreateQuote,
+    handleGetQuote,
+    handleUpdateQuote,
+    handleDeleteQuote,
+    handleLikeQuote,
+    handleUnlikeQuote,
+    handleGetQuotesByBook,
+} from "../controllers/quotes.controller.js";
 import { handleSelectFavoriteBooks } from "../controllers/onboarding.controller.js";
 
 export const routing: Routing = {
@@ -21,9 +31,17 @@ export const routing: Routing = {
             books: {
                 search: handleSearchBooks,
                 bestsellers: handleViewBestsellers,
+
                 ":bookId": handleGetBookDetail,
                 ":bookId/bookmark": handleAddBookmark,
+                "delete /:bookId/bookmark": handleDeleteBookmark,
+
+                ":bookId/quotes": {
+                    get: handleGetQuotesByBook,
+                    post: handleCreateQuote,
+                },
             },
+
             auth: {
                 login: handleLogin,
                 refresh: handleRefreshToken,
@@ -31,9 +49,23 @@ export const routing: Routing = {
                 logout: handleLogout,
                 me: handleWithdrawUser,
             },
+
             users: {
                 me: handleModifyUser,
             },
+
+            quotes: {
+                ":quoteId": {
+                    get: handleGetQuote,
+                    patch: handleUpdateQuote,
+                    delete: handleDeleteQuote,
+                    like: {
+                        post: handleLikeQuote,
+                        delete: handleUnlikeQuote,
+                    },
+                },
+            },
+
             onboarding: {
                 "favorite-books": handleSelectFavoriteBooks,
             },
