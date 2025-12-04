@@ -67,7 +67,6 @@ export interface User extends RowDataPacket {
     email: string;
     password: string;
     nickname: string;
-    profile_url: string;
     created_at: Date;
 }
 
