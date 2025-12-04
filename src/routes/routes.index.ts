@@ -1,7 +1,10 @@
 import { Routing } from "express-zod-api";
-import { handleSearchBooks, handleGetBookDetail, handleViewBestsellers, handleAddBookmark } from "../controllers/books.controller.js";
-
-
+import {
+    handleSearchBooks,
+    handleGetBookDetail,
+    handleViewBestsellers,
+    handleAddBookmark,
+} from "../controllers/books.controller.js";
 import {
     handleLogin,
     handleRefreshToken,
@@ -10,6 +13,7 @@ import {
     handleWithdrawUser,
 } from "../controllers/auth.controller.js";
 import { handleModifyUser } from "../controllers/users.controller.js";
+import { handleSelectFavoriteBooks } from "../controllers/onboarding.controller.js";
 
 export const routing: Routing = {
     api: {
@@ -17,7 +21,7 @@ export const routing: Routing = {
             books: {
                 search: handleSearchBooks,
                 bestsellers: handleViewBestsellers,
-                ":bookId": handleGetBookDetail,  
+                ":bookId": handleGetBookDetail,
                 ":bookId/bookmark": handleAddBookmark,
             },
             auth: {
@@ -29,6 +33,9 @@ export const routing: Routing = {
             },
             users: {
                 me: handleModifyUser,
+            },
+            onboarding: {
+                "favorite-books": handleSelectFavoriteBooks,
             },
         },
     },
