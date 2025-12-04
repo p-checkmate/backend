@@ -4,7 +4,7 @@ import { getMyPageInfo, getUserBookmarks } from "../services/mypage.service.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { mypageOutputSchema } from "../schemas/mypage.schema.js";
 import { userBookmarksResponseSchema } from "../schemas/books.schema.js";
-import { myQuoteSchema, paginationSchema } from "../schemas/quotes.schema.js";
+import { myQuotesResponseSchema } from "../schemas/quotes.schema.js";
 import { getMyQuotesService } from "../services/mypage.service.js";
 
 // 인증이 필요한 엔드포인트용 팩토리
@@ -21,20 +21,12 @@ export const handleGetMyPage = authEndpointsFactory.build({
     },
 });
 
-// 나의 책장 전체 목록 조회 (무한 스크롤)
+// 나의 책장 전체 목록 조회 
 export const handleGetMyBookshelf = authEndpointsFactory.build({
     method: "get",
     input: z.object({
-        page: z
-            .string()
-            .optional()
-            .default("1")
-            .transform((val) => parseInt(val, 10)),
-        limit: z
-            .string()
-            .optional()
-            .default("10")
-            .transform((val) => parseInt(val, 10)),
+        page: z.coerce.number().int().positive().default(1),
+        limit: z.coerce.number().int().positive().max(50).default(10),
     }),
     output: userBookmarksResponseSchema,
     handler: async ({ input, options }) => {
@@ -50,14 +42,7 @@ export const handleGetMyQuotes = authEndpointsFactory.build({
         page: z.coerce.number().int().positive().default(1),
         limit: z.coerce.number().int().positive().max(50).default(10),
     }),
-    output: z.object({
-        page: z.number(),
-        limit: z.number(),
-        total_count: z.number(),
-        total_pages: z.number(),
-        has_next: z.boolean(),
-        quotes: z.array(myQuoteSchema),
-    }),
+    output: myQuotesResponseSchema,
     handler: async ({ input, options }) => {
         const userId = options.user.user_id;
         return await getMyQuotesService(userId, input.page, input.limit);

@@ -37,14 +37,19 @@ export const myQuoteSchema = z.object({
 export const paginationSchema = z.object({
   page: z.number().int(),
   limit: z.number().int(),
-  total: z.number().int(),
+  total_count: z.number().int(),
   total_pages: z.number().int(),
   has_next: z.boolean(),
 });
+
+export const myQuotesResponseSchema = paginationSchema.extend({
+  quotes: z.array(myQuoteSchema),
+});
+
 // TypeScript 타입 추출
 export type QuoteData = z.infer<typeof quoteSchema>;
 export type MyQuote = z.infer<typeof myQuoteSchema>;
-export type Pagination = z.infer<typeof paginationSchema>;
+export type MyQuotesResponse = z.infer<typeof myQuotesResponseSchema>;
 
 // MySQL Row 타입
 export interface QuoteRow extends RowDataPacket {
