@@ -39,6 +39,7 @@ export const handleSelectFavoriteGenres = authEndpointsFactory.build({
     },
 });
 
+// 온보딩 장르 조회
 export const handleGetGenres = authEndpointsFactory.build({
     method: "get",
     input: z.object({

@@ -76,10 +76,8 @@ export const routing: Routing = {
 
             onboarding: {
                 "favorite-books": handleSelectFavoriteBooks,
-                "favorite-genres": {
-                    post: handleSelectFavoriteGenres,
-                    get: handleGetGenres,
-                },
+                "post favorite-genres": handleSelectFavoriteGenres,
+                "get favorite-genres": handleGetGenres,
             },
         },
     },
