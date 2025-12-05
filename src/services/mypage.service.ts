@@ -3,9 +3,8 @@ import { MypageOutput } from "../schemas/mypage.schema.js";
 import { MyQuoteRow } from "../schemas/quotes.schema.js";
 import { findGenresByBookId } from "../repositories/books.repository.js";
 import { UserBookmarksResponse, BookmarkItem } from "../schemas/books.schema.js";
-import { countBookmarksByUserId, getBookmarksWithPagination, } from "../repositories/bookmarks.repository.js";
+import { countBookmarksByUserId, getBookmarksWithPagination } from "../repositories/bookmarks.repository.js";
 import { getQuotesByUserId, countQuotesByUserId } from "../repositories/quotes.repository.js";
-
 import {
     getUserById,
     getExpByUserId,
@@ -13,9 +12,22 @@ import {
     getBookmarksByUserId,
 } from "../repositories/mypage.repository.js";
 
+// 페이지네이션 입력값 검증 및 메타데이터 계산 헬퍼 함수
+const processPagination = (page: number, limit: number, totalCount: number) => {
+    const safePage = page > 0 ? page : 1;
+    const safeLimit = limit > 0 ? limit : 10;
+    const totalPages = totalCount === 0 ? 0 : Math.ceil(totalCount / safeLimit);
+    const offset = (safePage - 1) * safeLimit;
+    const hasNext = safePage * safeLimit < totalCount;
 
-
-
+    return {
+        safePage,
+        safeLimit,
+        totalPages,
+        offset,
+        hasNext,
+    };
+};
 
 // 마이페이지 전체 정보 조회
 export const getMyPageInfo = async (userId: number): Promise<MypageOutput> => {
@@ -49,24 +61,15 @@ export const getMyPageInfo = async (userId: number): Promise<MypageOutput> => {
     };
 };
 
-
 // 나의 책장 전체 목록 조회 (무한 스크롤)
 export const getUserBookmarks = async (
     userId: number,
     page: number,
     limit: number
 ): Promise<UserBookmarksResponse> => {
-    // page / limit 기본값 및 안전한 값으로 보정
-    const safePage = page > 0 ? page : 1;
-    const safeLimit = limit > 0 ? limit : 10;
-
-    // 전체 북마크 개수 조회 
     const totalCount = await countBookmarksByUserId(userId);
+    const { safePage, safeLimit, totalPages, hasNext } = processPagination(page, limit, totalCount);
 
-    // 전체 페이지 수 계산
-    const totalPages = totalCount === 0 ? 0 : Math.ceil(totalCount / safeLimit);
-
-    // 현재 페이지 기준으로 북마크 목록 가져오기
     const bookmarkRows = await getBookmarksWithPagination(userId, safePage, safeLimit);
 
     const bookmarks: BookmarkItem[] = await Promise.all(
@@ -85,13 +88,12 @@ export const getUserBookmarks = async (
         })
     );
 
-    // 응답 반환
     return {
         page: safePage,
         limit: safeLimit,
         total_count: totalCount,
         total_pages: totalPages,
-        has_next: safePage * safeLimit < totalCount,
+        has_next: hasNext,
         bookmarks,
     };
 };
@@ -102,13 +104,11 @@ export const getMyQuotesService = async (
     page: number,
     limit: number
 ) => {
-    const offset = (page - 1) * limit;
+    const totalCount = await countQuotesByUserId(userId);
+    const { safePage, safeLimit, totalPages, offset, hasNext } = processPagination(page, limit, totalCount);
 
     try {
-        const [quotes, total] = await Promise.all([
-            getQuotesByUserId(userId, limit, offset),
-            countQuotesByUserId(userId),
-        ]);
+        const quotes = await getQuotesByUserId(userId, safeLimit, offset);
 
         const data = quotes.map((row: MyQuoteRow) => {
             const date = new Date(row.created_at);
@@ -133,11 +133,11 @@ export const getMyQuotesService = async (
         });
 
         return {
-            page,
-            limit,
-            total_count: total,
-            total_pages: Math.ceil(total / limit),
-            has_next: page * limit < total,
+            page: safePage,
+            limit: safeLimit,
+            total_count: totalCount,
+            total_pages: totalPages,
+            has_next: hasNext,
             quotes: data,
         };
     } catch (err) {

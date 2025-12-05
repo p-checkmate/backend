@@ -27,8 +27,6 @@ import {
 } from "../controllers/quotes.controller.js";
 import { handleSelectFavoriteBooks } from "../controllers/onboarding.controller.js";
 
-
-
 export const routing: Routing = {
     api: {
         v1: {
