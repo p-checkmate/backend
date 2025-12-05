@@ -6,6 +6,8 @@ import { mypageOutputSchema } from "../schemas/mypage.schema.js";
 import { userBookmarksResponseSchema } from "../schemas/books.schema.js";
 import { myQuotesResponseSchema } from "../schemas/quotes.schema.js";
 import { getMyQuotesService } from "../services/mypage.service.js";
+import { myDiscussionsResponseSchema } from "../schemas/discussions.schema.js";
+import { getMyDiscussionsService } from "../services/mypage.service.js";
 
 // 인증이 필요한 엔드포인트용 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
@@ -46,5 +48,19 @@ export const handleGetMyQuotes = authEndpointsFactory.build({
     handler: async ({ input, options }) => {
         const userId = options.user.user_id;
         return await getMyQuotesService(userId, input.page, input.limit);
+    },
+});
+
+// 내가 작성한 토론 조회
+export const handleGetMyDiscussions = authEndpointsFactory.build({
+    method: "get",
+    input: z.object({
+        page: z.coerce.number().int().positive().default(1),
+        limit: z.coerce.number().int().positive().max(50).default(10),
+    }),
+    output: myDiscussionsResponseSchema,
+    handler: async ({ input, options }) => {
+        const userId = options.user.user_id;
+        return await getMyDiscussionsService(userId, input.page, input.limit);
     },
 });
