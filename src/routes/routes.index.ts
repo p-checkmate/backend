@@ -25,7 +25,11 @@ import {
     handleUnlikeQuote,
     handleGetQuotesByBook,
 } from "../controllers/quotes.controller.js";
-import { handleSelectFavoriteBooks } from "../controllers/onboarding.controller.js";
+import {
+    handleSelectFavoriteBooks,
+    handleSelectFavoriteGenres,
+    handleGetGenres,
+} from "../controllers/onboarding.controller.js";
 
 export const routing: Routing = {
     api: {
@@ -72,10 +76,12 @@ export const routing: Routing = {
                     },
                 },
             },
+
             onboarding: {
                 "favorite-books": handleSelectFavoriteBooks,
+                "post favorite-genres": handleSelectFavoriteGenres,
+                "get favorite-genres": handleGetGenres,
             },
-            
         },
     },
 };

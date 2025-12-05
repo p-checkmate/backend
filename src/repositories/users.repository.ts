@@ -1,5 +1,5 @@
 import { pool } from "../config/db.config.js";
-import { User, RefreshToken } from "../schemas/users.schema.js";
+import { User, RefreshToken, OnboardingGenre } from "../schemas/users.schema.js";
 import { ResultSetHeader } from "mysql2/promise";
 // 이메일로 사용자 조회
 export const getUserByEmail = async (userEmail: string): Promise<User | null> => {
@@ -54,14 +54,37 @@ export const createUser = async (userEmail: string, password: string): Promise<U
 
 // 회원탈퇴
 export const deleteUser = async (userId: number): Promise<number> => {
-    const [results] = await pool.query("DELETE FROM user WHERE user_id = ?", [userId]);
-    const resultSetHeader = results as { affectedRows: number };
-    return resultSetHeader.affectedRows;
+    const [result] = await pool.query<ResultSetHeader>("DELETE FROM user WHERE user_id = ?", [userId]);
+    return result.affectedRows;
 };
 
 // 회원 정보 수정(닉네임)
 export const updateUser = async (nickname: string, userId: number): Promise<number> => {
-    const [results] = await pool.query("UPDATE user SET nickname = ? WHERE user_id = ?", [nickname, userId]);
-    const resultSetHeader = results as { affectedRows: number };
-    return resultSetHeader.affectedRows;
+    const [result] = await pool.query<ResultSetHeader>("UPDATE user SET nickname = ? WHERE user_id = ?", [
+        nickname,
+        userId,
+    ]);
+    return result.affectedRows;
+};
+
+export const createUserGenres = async (genreId: number, userId: number): Promise<number> => {
+    const [result] = await pool.query<ResultSetHeader>(
+        `INSERT INTO user_genre (user_id, onboarding_genre_id) VALUES (?, ?);`,
+        [userId, genreId]
+    );
+    return result.insertId;
+};
+
+// 온보딩 장르 조회
+export const getOnboardingGenres = async (parentId: number | null): Promise<OnboardingGenre[]> => {
+    const sql =
+        parentId === null
+            ? "SELECT * FROM onboarding_genre WHERE parent_id IS NULL" // 대분류 요청
+            : "SELECT * FROM onboarding_genre WHERE parent_id = ?"; // 소분류 요청
+
+    const params = parentId !== null ? [parentId] : [];
+
+    const [rows] = await pool.query<OnboardingGenre[]>(sql, params);
+
+    return rows;
 };
