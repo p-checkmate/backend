@@ -67,11 +67,7 @@ export const getUserBookmarks = async (
     const bookmarks: BookmarkItem[] = await Promise.all(
         bookmarkRows.map(async (row) => {
             const allGenres = await findGenresByBookId(row.book_id);
-
-            // 뒤에서 2개만 사용
-            const genres = allGenres
-                .slice(-2)
-                .map((g) => g.genreName);
+            const genres = allGenres.map((g) => g.genreName);
 
             return {
                 bookmark_id: row.bookmark_id,
