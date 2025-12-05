@@ -5,6 +5,11 @@ import { findGenresByBookId } from "../repositories/books.repository.js";
 import { UserBookmarksResponse, BookmarkItem } from "../schemas/books.schema.js";
 import { countBookmarksByUserId, getBookmarksWithPagination } from "../repositories/bookmarks.repository.js";
 import { getQuotesByUserId, countQuotesByUserId } from "../repositories/quotes.repository.js";
+import { MyDiscussionRow, MyDiscussionsResponse } from "../schemas/discussions.schema.js";
+import {
+    getDiscussionsByUserId,
+    countDiscussionsByUserId,
+} from "../repositories/discussions.repository.js";
 import {
     getUserById,
     getExpByUserId,
@@ -143,5 +148,55 @@ export const getMyQuotesService = async (
     } catch (err) {
         console.error(err);
         throw HttpError(500, "내 인용구 조회에 실패했습니다.");
+    }
+};
+
+// 내가 작성한 토론 조회 (페이지네이션)
+export const getMyDiscussionsService = async (
+    userId: number,
+    page: number,
+    limit: number
+): Promise<MyDiscussionsResponse> => {
+    const totalCount = await countDiscussionsByUserId(userId);
+    const { safePage, safeLimit, totalPages, offset, hasNext } = processPagination(page, limit, totalCount);
+
+    try {
+        const discussions = await getDiscussionsByUserId(userId, safeLimit, offset);
+
+        const data = discussions.map((row: MyDiscussionRow) => {
+            const date = new Date(row.created_at);
+            const yy = String(date.getFullYear()).slice(-2);
+            const mm = String(date.getMonth() + 1).padStart(2, "0");
+            const dd = String(date.getDate()).padStart(2, "0");
+
+            return {
+                discussion_id: row.discussion_id,
+                title: row.title,
+                content: row.content,
+                view_count: row.view_count,
+                like_count: row.like_count,
+                comment_count: row.comment_count,
+                created_at: `${yy}.${mm}.${dd}`,
+                book: {
+                    book_id: row.book_id,
+                    title: row.book_title,
+                },
+                user: {
+                    nickname: row.nickname,
+                },
+            };
+        });
+
+        return {
+            page: safePage,
+            limit: safeLimit,
+            total_count: totalCount,
+            total_pages: totalPages,
+            has_next: hasNext,
+            discussions: data,
+        };
+    } catch (err) {
+        console.error(err);
+        throw HttpError(500, "내 토론 조회에 실패했습니다.");
     }
 };
