@@ -4,6 +4,7 @@ import {
     LoginInput,
     LoginOutput,
     ModifyUserInput,
+    OnboardingGenreOutput,
     RefreshTokenInput,
     RefreshTokenOutput,
     SignupOutput,
@@ -16,6 +17,7 @@ import {
     createUser,
     deleteUser,
     updateUser,
+    getOnboardingGenres,
 } from "../repositories/users.repository.js";
 import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
 
@@ -167,4 +169,18 @@ export const modifyUser = async (input: ModifyUserInput, userId: number): Promis
     } else {
         throw HttpError(404, "사용자를 찾을 수 없습니다. 닉네임 수정에 실패했습니다.");
     }
+};
+
+export const viewGenres = async (parentId: number | null): Promise<OnboardingGenreOutput> => {
+    const rows = await getOnboardingGenres(parentId);
+
+    // 스키마에 맞게 데이터 매핑
+    const transformedGenres = rows.map((row) => ({
+        id: row.onboarding_genre_id,
+        genre: row.genre_name,
+    }));
+
+    return {
+        genres: transformedGenres,
+    };
 };
