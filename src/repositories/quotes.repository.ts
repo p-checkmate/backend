@@ -156,12 +156,15 @@ export const unlikeQuote = async (quoteId: number, userId: number) => {
   }
 };
 
-// 사용자별 인용구 리스트 조회 (책 정보 포함)
-export const getQuotesByUserId = async (
+// 인용구 리스트 조회 헬퍼 함수 (내가 작성한 / 좋아요한 공통)
+const getQuotesWithDetails = async (
   userId: number,
   limit: number,
-  offset: number
+  offset: number,
+  type: "written" | "liked"
 ): Promise<MyQuoteRow[]> => {
+  const isLiked = type === "liked";
+
   const [rows] = await pool.query<MyQuoteRow[]>(
     `
         SELECT 
@@ -173,14 +176,15 @@ export const getQuotesByUserId = async (
             b.title AS book_title,
             GROUP_CONCAT(DISTINCT g.genre_name) AS genre_names,
             u.nickname
-        FROM quote q
+            ${isLiked ? ", MAX(ql.like_id) AS liked_at" : ""}
+        FROM ${isLiked ? "quote_like ql INNER JOIN quote q ON ql.quote_id = q.quote_id" : "quote q"}
         INNER JOIN book b ON q.book_id = b.book_id
         INNER JOIN user u ON q.user_id = u.user_id
         LEFT JOIN book_genre bg ON b.book_id = bg.book_id
         LEFT JOIN genre g ON bg.genre_id = g.genre_id
-        WHERE q.user_id = ?
+        WHERE ${isLiked ? "ql" : "q"}.user_id = ?
         GROUP BY q.quote_id
-        ORDER BY q.created_at DESC
+        ORDER BY ${isLiked ? "liked_at" : "q.created_at"} DESC
         LIMIT ? OFFSET ?
         `,
     [userId, limit, offset]
@@ -189,11 +193,40 @@ export const getQuotesByUserId = async (
   return rows;
 };
 
+// 사용자별 인용구 리스트 조회 (책 정보 포함)
+export const getQuotesByUserId = async (
+  userId: number,
+  limit: number,
+  offset: number
+): Promise<MyQuoteRow[]> => {
+  return getQuotesWithDetails(userId, limit, offset, "written");
+};
+
+// 사용자가 좋아요한 인용구 리스트 조회 (책 정보 포함)
+export const getLikedQuotesByUserId = async (
+  userId: number,
+  limit: number,
+  offset: number
+): Promise<MyQuoteRow[]> => {
+  return getQuotesWithDetails(userId, limit, offset, "liked");
+};
+
 // 사용자 인용구 총 개수 조회
 export const countQuotesByUserId = async (userId: number): Promise<number> => {
   const [rows] = await pool.query<any[]>(
     `SELECT COUNT(*) AS total FROM quote WHERE user_id = ?`,
     [userId]
   );
+
+  return rows[0].total;
+};
+
+// 사용자가 좋아요한 인용구 총 개수 조회
+export const countLikedQuotesByUserId = async (userId: number): Promise<number> => {
+  const [rows] = await pool.query<any[]>(
+    `SELECT COUNT(*) AS total FROM quote_like WHERE user_id = ?`,
+    [userId]
+  );
+
   return rows[0].total;
 };

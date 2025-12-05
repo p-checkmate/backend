@@ -13,7 +13,6 @@ export const getDiscussionsByUserId = async (
             d.discussion_id,
             d.title,
             d.content,
-            d.view_count,
             d.like_count,
             d.created_at,
             b.book_id,
