@@ -1,5 +1,5 @@
 import { pool } from "../config/db.config.js";
-import { User, RefreshToken } from "../schemas/users.schema.js";
+import { User, RefreshToken, OnboardingGenre } from "../schemas/users.schema.js";
 import { ResultSetHeader } from "mysql2/promise";
 // 이메일로 사용자 조회
 export const getUserByEmail = async (userEmail: string): Promise<User | null> => {
@@ -73,4 +73,18 @@ export const createUserGenres = async (genreId: number, userId: number): Promise
         [userId, genreId]
     );
     return result.insertId;
+};
+
+// 온보딩 장르 조회
+export const getOnboardingGenres = async (parentId: number | null): Promise<OnboardingGenre[]> => {
+    const sql =
+        parentId === null
+            ? "SELECT * FROM onboarding_genre WHERE parent_id IS NULL" // 대분류 요청
+            : "SELECT * FROM onboarding_genre WHERE parent_id = ?"; // 소분류 요청
+
+    const params = parentId !== null ? [parentId] : [];
+
+    const [rows] = await pool.query<OnboardingGenre[]>(sql, params);
+
+    return rows;
 };
