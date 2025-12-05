@@ -5,6 +5,7 @@ import { findGenresByBookId } from "../repositories/books.repository.js";
 import { UserBookmarksResponse, BookmarkItem } from "../schemas/books.schema.js";
 import { countBookmarksByUserId, getBookmarksWithPagination, } from "../repositories/bookmarks.repository.js";
 import { getQuotesByUserId, countQuotesByUserId } from "../repositories/quotes.repository.js";
+
 import {
     getUserById,
     getExpByUserId,
@@ -12,11 +13,8 @@ import {
     getBookmarksByUserId,
 } from "../repositories/mypage.repository.js";
 
-import {
-    normalizePageLimit,
-    calculatePagination,
-    formatDateToYYMMDD,    
-} from "../utils/data_utils.js";
+
+
 
 
 // 마이페이지 전체 정보 조회
@@ -56,23 +54,20 @@ export const getMyPageInfo = async (userId: number): Promise<MypageOutput> => {
 export const getUserBookmarks = async (
     userId: number,
     page: number,
-    limit: number,
+    limit: number
 ): Promise<UserBookmarksResponse> => {
-    const { safePage, safeLimit } = normalizePageLimit(page, limit);
+    // page / limit 기본값 및 안전한 값으로 보정
+    const safePage = page > 0 ? page : 1;
+    const safeLimit = limit > 0 ? limit : 10;
 
+    // 전체 북마크 개수 조회 
     const totalCount = await countBookmarksByUserId(userId);
 
-    const pagination = calculatePagination({
-        page: safePage,
-        limit: safeLimit,
-        totalCount,
-    });
+    // 전체 페이지 수 계산
+    const totalPages = totalCount === 0 ? 0 : Math.ceil(totalCount / safeLimit);
 
-    const bookmarkRows = await getBookmarksWithPagination(
-        userId,
-        safePage,
-        safeLimit,
-    );
+    // 현재 페이지 기준으로 북마크 목록 가져오기
+    const bookmarkRows = await getBookmarksWithPagination(userId, safePage, safeLimit);
 
     const bookmarks: BookmarkItem[] = await Promise.all(
         bookmarkRows.map(async (row) => {
@@ -87,57 +82,62 @@ export const getUserBookmarks = async (
                 thumbnail_url: row.thumbnail_url,
                 genres,
             };
-        }),
+        })
     );
 
+    // 응답 반환
     return {
-        ...pagination, 
+        page: safePage,
+        limit: safeLimit,
+        total_count: totalCount,
+        total_pages: totalPages,
+        has_next: safePage * safeLimit < totalCount,
         bookmarks,
     };
 };
 
-
-// 내가 작성한 인용구 조회 
+// 내가 작성한 인용구 조회 (페이지네이션)
 export const getMyQuotesService = async (
     userId: number,
     page: number,
-    limit: number,
+    limit: number
 ) => {
-    // 공통 page/limit 보정 사용
-    const { safePage, safeLimit } = normalizePageLimit(page, limit);
-
-    // OFFSET 계산
-    const offset = (safePage - 1) * safeLimit;
+    const offset = (page - 1) * limit;
 
     try {
-        const [quotes, totalCount] = await Promise.all([
-            getQuotesByUserId(userId, safeLimit, offset),
+        const [quotes, total] = await Promise.all([
+            getQuotesByUserId(userId, limit, offset),
             countQuotesByUserId(userId),
         ]);
 
-        const data = quotes.map((row: MyQuoteRow) => ({
-            quote_id: row.quote_id,
-            content: row.content,
-            like_count: row.like_count,
-            created_at: formatDateToYYMMDD(row.created_at),
-            book: {
-                book_id: row.book_id,
-                title: row.book_title,
-                genres: row.genre_names ? row.genre_names.split(",") : [],
-            },
-            user: {
-                nickname: row.nickname,
-            },
-        }));
+        const data = quotes.map((row: MyQuoteRow) => {
+            const date = new Date(row.created_at);
+            const yy = String(date.getFullYear()).slice(-2);
+            const mm = String(date.getMonth() + 1).padStart(2, "0");
+            const dd = String(date.getDate()).padStart(2, "0");
 
-        const pagination = calculatePagination({
-            page: safePage,
-            limit: safeLimit,
-            totalCount,
+            return {
+                quote_id: row.quote_id,
+                content: row.content,
+                like_count: row.like_count,
+                created_at: `${yy}.${mm}.${dd}`,
+                book: {
+                    book_id: row.book_id,
+                    title: row.book_title,
+                    genres: row.genre_names ? row.genre_names.split(",") : [],
+                },
+                user: {
+                    nickname: row.nickname,
+                },
+            };
         });
 
         return {
-            ...pagination,
+            page,
+            limit,
+            total_count: total,
+            total_pages: Math.ceil(total / limit),
+            has_next: page * limit < total,
             quotes: data,
         };
     } catch (err) {
