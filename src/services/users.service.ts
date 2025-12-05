@@ -17,6 +17,7 @@ import {
     createUser,
     deleteUser,
     updateUser,
+    createUserGenres,
     getOnboardingGenres,
 } from "../repositories/users.repository.js";
 import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
@@ -169,6 +170,21 @@ export const modifyUser = async (input: ModifyUserInput, userId: number): Promis
     } else {
         throw HttpError(404, "사용자를 찾을 수 없습니다. 닉네임 수정에 실패했습니다.");
     }
+};
+
+export const selectFavoriteGenres = async (genreIds: number[], userId: number): Promise<number[]> => {
+    let finalGenreIds: number[] = [];
+
+    for (let genreId of genreIds) {
+        const insertId = await createUserGenres(genreId, userId);
+
+        if (insertId) {
+            finalGenreIds.push(genreId);
+        } else {
+            throw HttpError(500, "user_genre 생성에 실패했습니다.");
+        }
+    }
+    return finalGenreIds;
 };
 
 export const viewGenres = async (parentId: number | null): Promise<OnboardingGenreOutput> => {

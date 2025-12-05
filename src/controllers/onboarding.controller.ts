@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { defaultEndpointsFactory } from "express-zod-api";
 import { selectFavoriteBooks } from "../services/bookmarks.service.js";
+import { selectFavoriteGenres } from "../services/users.service.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { onboardingGenreOutputSchema } from "../schemas/users.schema.js";
 import { viewGenres } from "../services/users.service.js";
@@ -20,6 +21,21 @@ export const handleSelectFavoriteBooks = authEndpointsFactory.build({
     handler: async ({ input, options }) => {
         const bookmarkIds = await selectFavoriteBooks(input.itemIds, options.user.user_id);
         return { bookmarkIds };
+    },
+});
+
+// 좋아하는 장르 선택
+export const handleSelectFavoriteGenres = authEndpointsFactory.build({
+    method: "post",
+    input: z.object({
+        genreIds: z.array(z.number()),
+    }),
+    output: z.object({
+        genreIds: z.array(z.number()),
+    }),
+    handler: async ({ input, options }) => {
+        const genreIds = await selectFavoriteGenres(input.genreIds, options.user.user_id);
+        return { genreIds };
     },
 });
 
