@@ -65,3 +65,11 @@ export const updateUser = async (nickname: string, userId: number): Promise<numb
     const resultSetHeader = results as { affectedRows: number };
     return resultSetHeader.affectedRows;
 };
+
+export const createUserGenres = async (genreId: number, userId: number): Promise<number> => {
+    const [result] = await pool.query<ResultSetHeader>(
+        `INSERT INTO user_genre (user_id, onboarding_genre_id) VALUES (?, ?);`,
+        [userId, genreId]
+    );
+    return result.insertId;
+};
