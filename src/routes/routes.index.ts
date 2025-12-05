@@ -1,11 +1,11 @@
 import { Routing } from "express-zod-api";
-import { handleGetMyPage } from "../controllers/mypage.controller.js";
-import {
-    handleSearchBooks,
-    handleGetBookDetail,
-    handleViewBestsellers,
-    handleAddBookmark,
-    handleDeleteBookmark,
+import { handleGetMyPage, handleGetMyBookshelf } from "../controllers/mypage.controller.js";
+import { 
+    handleSearchBooks, 
+    handleGetBookDetail, 
+    handleViewBestsellers, 
+    handleAddBookmark, 
+    handleDeleteBookmark
 } from "../controllers/books.controller.js";
 import {
     handleLogin,
@@ -54,6 +54,7 @@ export const routing: Routing = {
             users: {
                 mypage: handleGetMyPage,
                 me: handleModifyUser,
+                "bookmarks/books": handleGetMyBookshelf,
             },
 
             quotes: {
