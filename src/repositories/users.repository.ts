@@ -54,16 +54,17 @@ export const createUser = async (userEmail: string, password: string): Promise<U
 
 // 회원탈퇴
 export const deleteUser = async (userId: number): Promise<number> => {
-    const [results] = await pool.query("DELETE FROM user WHERE user_id = ?", [userId]);
-    const resultSetHeader = results as { affectedRows: number };
-    return resultSetHeader.affectedRows;
+    const [result] = await pool.query<ResultSetHeader>("DELETE FROM user WHERE user_id = ?", [userId]);
+    return result.affectedRows;
 };
 
 // 회원 정보 수정(닉네임)
 export const updateUser = async (nickname: string, userId: number): Promise<number> => {
-    const [results] = await pool.query("UPDATE user SET nickname = ? WHERE user_id = ?", [nickname, userId]);
-    const resultSetHeader = results as { affectedRows: number };
-    return resultSetHeader.affectedRows;
+    const [result] = await pool.query<ResultSetHeader>("UPDATE user SET nickname = ? WHERE user_id = ?", [
+        nickname,
+        userId,
+    ]);
+    return result.affectedRows;
 };
 
 export const createUserGenres = async (genreId: number, userId: number): Promise<number> => {
