@@ -1,0 +1,157 @@
+import { pool } from "../config/db.config.js";
+import { QuoteRow } from "../schemas/quotes.schema.js";
+
+//인용구생성
+export const createQuote = async (
+  userId: number,
+  bookId: number,
+  content: string
+): Promise<number> => {
+  const [result] = await pool.query<any>(
+    `
+      INSERT INTO quote (user_id, book_id, content)
+      VALUES (?, ?, ?)
+    `,
+    [userId, bookId, content]
+  );
+
+  return result.insertId;
+};
+
+//인용구 단건 조회
+export const getQuoteById = async (
+  quoteId: number
+): Promise<QuoteRow | null> => {
+  const [rows] = await pool.query<QuoteRow[]>(
+    `SELECT * FROM quote WHERE quote_id = ?`,
+    [quoteId]
+  );
+  return rows[0] || null;
+};
+
+//책별 인용구 리스트 조회
+export const getQuotesByBookId = async (
+  bookId: number
+): Promise<QuoteRow[]> => {
+  const [rows] = await pool.query<QuoteRow[]>(
+    `
+      SELECT *
+      FROM quote
+      WHERE book_id = ?
+      ORDER BY created_at DESC
+    `,
+    [bookId]
+  );
+
+  return rows; // 없으면 빈 배열 []
+};
+
+//인용구 수정(본인만)
+export const updateQuote = async (
+  quoteId: number,
+  content: string,
+  userId: number
+): Promise<boolean> => {
+  const [result] = await pool.query<any>(
+    `
+      UPDATE quote
+      SET content = ?, updated_at = NOW()
+      WHERE quote_id = ? AND user_id = ?
+    `,
+    [content, quoteId, userId]
+  );
+  return result.affectedRows > 0;
+};
+
+//인용구 삭제(본인만)
+export const deleteQuote = async (
+  quoteId: number,
+  userId: number
+): Promise<boolean> => {
+  const [result] = await pool.query<any>(
+    `
+      DELETE FROM quote
+      WHERE quote_id = ? AND user_id = ?
+    `,
+    [quoteId, userId]
+  );
+  return result.affectedRows > 0;
+};
+
+// 좋아요 증가
+export const likeQuote = async (quoteId: number, userId: number) => {
+  const conn = await pool.getConnection();
+
+  try {
+    await conn.beginTransaction();
+
+    // 좋아요 중복 여부 확인
+    const [rows] = await conn.query<any[]>(
+      `SELECT * FROM quote_like WHERE quote_id = ? AND user_id = ?`,
+      [quoteId, userId]
+    );
+
+    if (rows.length > 0) {
+      await conn.rollback();
+      return;
+    }
+
+    await conn.query(
+      `INSERT INTO quote_like (quote_id, user_id) VALUES (?, ?)`,
+      [quoteId, userId]
+    );
+
+    await conn.query(
+      `UPDATE quote SET like_count = like_count + 1 WHERE quote_id = ?`,
+      [quoteId]
+    );
+
+    await conn.commit();
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
+};
+
+
+// 좋아요 삭제
+export const unlikeQuote = async (quoteId: number, userId: number) => {
+  const conn = await pool.getConnection();
+
+  try {
+    await conn.beginTransaction();
+
+    // 좋아요 여부 확인
+    const [rows] = await conn.query<any[]>(
+      `SELECT * FROM quote_like WHERE quote_id = ? AND user_id = ?`,
+      [quoteId, userId]
+    );
+
+    // 좋아요가 없으면 취소 불가 
+    if (rows.length === 0) {
+      await conn.rollback();
+      return;
+    }
+
+    // 좋아요 삭제
+    await conn.query(
+      `DELETE FROM quote_like WHERE quote_id = ? AND user_id = ?`,
+      [quoteId, userId]
+    );
+
+    // like_count 감소 (음수방지)
+    await conn.query(
+      `UPDATE quote SET like_count = like_count - 1 WHERE quote_id = ? AND like_count > 0`,
+      [quoteId]
+    );
+
+    await conn.commit();
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
+};
