@@ -6,7 +6,6 @@ export const myDiscussionSchema = z.object({
     discussion_id: z.number().int(),
     title: z.string(),
     content: z.string().nullable(),
-    view_count: z.number().int(),
     like_count: z.number().int(),
     comment_count: z.number().int(),
     created_at: z.string(),
