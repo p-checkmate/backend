@@ -26,6 +26,8 @@ import {
 } from "../controllers/quotes.controller.js";
 import { handleSelectFavoriteBooks, handleSelectFavoriteGenres } from "../controllers/onboarding.controller.js";
 
+import { handleCreateDiscussion } from "../controllers/discussions.controller.js";
+
 export const routing: Routing = {
     api: {
         v1: {
@@ -40,6 +42,10 @@ export const routing: Routing = {
                 ":bookId/quotes": {
                     get: handleGetQuotesByBook,
                     post: handleCreateQuote,
+                },
+
+                ":bookId/discussions": {
+                    post: handleCreateDiscussion,
                 },
             },
 
