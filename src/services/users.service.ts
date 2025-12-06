@@ -4,6 +4,7 @@ import {
     LoginInput,
     LoginOutput,
     ModifyUserInput,
+    OnboardingGenreOutput,
     RefreshTokenInput,
     RefreshTokenOutput,
     SignupOutput,
@@ -17,6 +18,7 @@ import {
     deleteUser,
     updateUser,
     createUserGenres,
+    getOnboardingGenres,
 } from "../repositories/users.repository.js";
 import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
 
@@ -183,4 +185,18 @@ export const selectFavoriteGenres = async (genreIds: number[], userId: number): 
         }
     }
     return finalGenreIds;
+};
+
+export const viewGenres = async (parentId: number | null): Promise<OnboardingGenreOutput> => {
+    const rows = await getOnboardingGenres(parentId);
+
+    // 스키마에 맞게 데이터 매핑
+    const transformedGenres = rows.map((row) => ({
+        id: row.onboarding_genre_id,
+        genre: row.genre_name,
+    }));
+
+    return {
+        genres: transformedGenres,
+    };
 };

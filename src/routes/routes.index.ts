@@ -1,5 +1,6 @@
 import { Routing } from "express-zod-api";
-import { handleGetMyPage, handleGetMyBookshelf } from "../controllers/mypage.controller.js";
+import { handleGetMyPage, handleGetMyBookshelf, handleGetMyQuotes, handleGetMyDiscussions, } from "../controllers/mypage.controller.js";
+
 import { 
     handleSearchBooks, 
     handleGetBookDetail, 
@@ -24,7 +25,11 @@ import {
     handleUnlikeQuote,
     handleGetQuotesByBook,
 } from "../controllers/quotes.controller.js";
-import { handleSelectFavoriteBooks, handleSelectFavoriteGenres } from "../controllers/onboarding.controller.js";
+import {
+    handleSelectFavoriteBooks,
+    handleSelectFavoriteGenres,
+    handleGetGenres,
+} from "../controllers/onboarding.controller.js";
 
 import { handleCreateDiscussion } from "../controllers/discussions.controller.js";
 
@@ -61,6 +66,8 @@ export const routing: Routing = {
                 mypage: handleGetMyPage,
                 me: handleModifyUser,
                 "bookmarks/books": handleGetMyBookshelf,
+                "my-quotes": handleGetMyQuotes,
+                "my-discussions": handleGetMyDiscussions,
             },
 
             quotes: {
@@ -78,7 +85,8 @@ export const routing: Routing = {
 
             onboarding: {
                 "favorite-books": handleSelectFavoriteBooks,
-                "favorite-genres": handleSelectFavoriteGenres,
+                "post favorite-genres": handleSelectFavoriteGenres,
+                "get favorite-genres": handleGetGenres,
             },
         },
     },

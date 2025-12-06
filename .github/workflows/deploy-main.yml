@@ -46,7 +46,7 @@ jobs:
                       --env-file /opt/app/.env \
                       --name checkmate-migrate \
                       ${{ secrets.DOCKER_USERNAME }}/checkmate-server \
-                      npm run migrate
+                      npm run migrate:prod
                       
                     sudo docker stop checkmate || true
                     sudo docker rm checkmate || true
