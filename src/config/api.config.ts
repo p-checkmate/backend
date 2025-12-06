@@ -40,7 +40,14 @@ export const apiConfig = createConfig({
             })
         );
     },
-    cors: true,
+    cors: ({ defaultHeaders }) => {
+        return {
+            ...defaultHeaders,
+            // 'Authorization' 헤더가 포함된 요청을 허용하도록 명시
+            "Access-Control-Allow-Headers": "Authorization, Content-Type",
+            "Access-Control-Max-Age": "5000",
+        };
+    },
     logger: {
         level: process.env.NODE_ENV === "production" ? "warn" : "debug",
         color: true,
