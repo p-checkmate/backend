@@ -33,3 +33,15 @@ export const discussionSchema = z.object({
   created_at: z.string(),
   updated_at: z.string().nullable(),
 });
+
+// 마이페이지가 요청하는 myDiscussionsResponseSchema
+export const myDiscussionsResponseSchema = z.object({
+  discussions: z.array(z.any()),   // 아무 형태나 허용
+  total: z.number(),               // 전체 개수
+});
+
+// 좋아요한 토론 목록 스키마도 필요할 수 있음
+export const likedDiscussionsResponseSchema = z.object({
+  discussions: z.array(z.any()),
+  total: z.number(),
+});
