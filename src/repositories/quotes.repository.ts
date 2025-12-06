@@ -1,5 +1,6 @@
 import { pool } from "../config/db.config.js";
 import { QuoteRow } from "../schemas/quotes.schema.js";
+import { QuoteRow, MyQuoteRow } from "../schemas/quotes.schema.js";
 
 //인용구생성
 export const createQuote = async (
@@ -154,4 +155,46 @@ export const unlikeQuote = async (quoteId: number, userId: number) => {
   } finally {
     conn.release();
   }
+};
+
+// 사용자별 인용구 리스트 조회 (책 정보 포함)
+export const getQuotesByUserId = async (
+  userId: number,
+  limit: number,
+  offset: number
+): Promise<MyQuoteRow[]> => {
+  const [rows] = await pool.query<MyQuoteRow[]>(
+    `
+        SELECT 
+            q.quote_id,
+            q.content,
+            q.like_count,
+            q.created_at,
+            b.book_id,
+            b.title AS book_title,
+            GROUP_CONCAT(DISTINCT g.genre_name) AS genre_names,
+            u.nickname
+        FROM quote q
+        INNER JOIN book b ON q.book_id = b.book_id
+        INNER JOIN user u ON q.user_id = u.user_id
+        LEFT JOIN book_genre bg ON b.book_id = bg.book_id
+        LEFT JOIN genre g ON bg.genre_id = g.genre_id
+        WHERE q.user_id = ?
+        GROUP BY q.quote_id
+        ORDER BY q.created_at DESC
+        LIMIT ? OFFSET ?
+        `,
+    [userId, limit, offset]
+  );
+
+  return rows;
+};
+
+// 사용자 인용구 총 개수 조회
+export const countQuotesByUserId = async (userId: number): Promise<number> => {
+  const [rows] = await pool.query<any[]>(
+    `SELECT COUNT(*) AS total FROM quote WHERE user_id = ?`,
+    [userId]
+  );
+  return rows[0].total;
 };

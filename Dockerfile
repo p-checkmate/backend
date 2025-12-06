@@ -27,6 +27,8 @@ COPY --from=builder /app/node_modules ./node_modules
 # 2. 컴파일된 코드 및 필요한 파일 복사
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
+# migration 폴더 복사
+COPY --from=builder /app/migrations ./migrations
 
 # 3. 포트 노출
 EXPOSE 3000
