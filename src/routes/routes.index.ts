@@ -1,5 +1,12 @@
 import { Routing } from "express-zod-api";
-import { handleGetMyPage, handleGetMyBookshelf, handleGetMyQuotes, handleGetMyDiscussions, handleGetLikedQuotes } from "../controllers/mypage.controller.js";
+import {
+    handleGetMyPage,
+    handleGetMyBookshelf,
+    handleGetMyQuotes,
+    handleGetMyDiscussions,
+    handleGetLikedQuotes,
+    handleGetLikedDiscussions,
+} from "../controllers/mypage.controller.js";
 
 import { 
     handleSearchBooks, 
@@ -63,6 +70,7 @@ export const routing: Routing = {
                 "my-quotes": handleGetMyQuotes,
                 "my-discussions": handleGetMyDiscussions,
                 "like/quotes": handleGetLikedQuotes,
+                "like/discussions": handleGetLikedDiscussions,
             },
 
             quotes: {

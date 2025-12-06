@@ -6,7 +6,8 @@ import { userBookmarksResponseSchema } from "../schemas/books.schema.js";
 import { myQuotesResponseSchema } from "../schemas/quotes.schema.js";
 import { getMyQuotesService } from "../services/mypage.service.js";
 import { myDiscussionsResponseSchema } from "../schemas/discussions.schema.js";
-import { getMyPageInfo, getUserBookmarks, getLikedQuotesService, getMyDiscussionsService } from "../services/mypage.service.js";
+
+import { getMyPageInfo, getUserBookmarks, getLikedQuotesService, getMyDiscussionsService, getLikedDiscussionsService, } from "../services/mypage.service.js";
 
 // 인증이 필요한 엔드포인트용 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
@@ -75,5 +76,19 @@ export const handleGetLikedQuotes = authEndpointsFactory.build({
     handler: async ({ input, options }) => {
         const userId = options.user.user_id;
         return await getLikedQuotesService(userId, input.page, input.limit);
+    },
+});
+
+// 내가 좋아요한 토론 조회
+export const handleGetLikedDiscussions = authEndpointsFactory.build({
+    method: "get",
+    input: z.object({
+        page: z.coerce.number().int().positive().default(1),
+        limit: z.coerce.number().int().positive().max(50).default(10),
+    }),
+    output: myDiscussionsResponseSchema,
+    handler: async ({ input, options }) => {
+        const userId = options.user.user_id;
+        return await getLikedDiscussionsService(userId, input.page, input.limit);
     },
 });
