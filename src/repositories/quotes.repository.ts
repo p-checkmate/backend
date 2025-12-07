@@ -19,11 +19,25 @@ export const createQuote = async (
 };
 
 //인용구 단건 조회
+// <repository> 파일 내 getQuoteById 함수 수정
 export const getQuoteById = async (
   quoteId: number
 ): Promise<QuoteRow | null> => {
   const [rows] = await pool.query<QuoteRow[]>(
-    `SELECT * FROM quote WHERE quote_id = ?`,
+    `
+      SELECT 
+        q.quote_id,
+        q.user_id,
+        u.nickname,
+        q.book_id,
+        q.content,
+        q.like_count,
+        q.created_at,
+        q.updated_at
+      FROM quote q
+      INNER JOIN user u ON q.user_id = u.user_id 
+      WHERE q.quote_id = ?
+    `,
     [quoteId]
   );
   return rows[0] || null;
@@ -34,11 +48,20 @@ export const getQuotesByBookId = async (
   bookId: number
 ): Promise<QuoteRow[]> => {
   const [rows] = await pool.query<QuoteRow[]>(
-    `
-      SELECT *
-      FROM quote
-      WHERE book_id = ?
-      ORDER BY created_at DESC
+   `
+      SELECT 
+        q.quote_id,
+        q.user_id,
+        u.nickname,
+        q.book_id,
+        q.content,
+        q.like_count,
+        q.created_at,
+        q.updated_at
+      FROM quote q
+      INNER JOIN user u ON q.user_id = u.user_id
+      WHERE q.book_id = ?
+      ORDER BY q.created_at DESC
     `,
     [bookId]
   );

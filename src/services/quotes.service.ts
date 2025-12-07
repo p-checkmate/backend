@@ -23,18 +23,30 @@ export const createQuoteService = async (userId: number, bookId: number, content
 export const getQuoteService = async (quoteId: number) => {
   const quote = await getQuoteById(quoteId);
   if (!quote) throw HttpError(404, "존재하지 않는 인용구입니다.");
-  return quote;
+
+return {
+    ...quote,
+    created_at: quote.created_at.toISOString(),
+    updated_at: quote.updated_at ? quote.updated_at.toISOString() : null,
+  };
 };
 
 // READ by book
 export const getQuotesByBookService = async (bookId: number) => {
   try {
-    return await getQuotesByBookId(bookId);
+    const rows = await getQuotesByBookId(bookId);
+
+    return rows.map((row: any) => ({
+      ...row,
+      created_at: row.created_at.toISOString(),
+      updated_at: row.updated_at ? row.updated_at.toISOString() : null,
+    }));
   } catch (err) {
     console.error(err);
     throw HttpError(500, "도서별 인용구 조회 실패");
   }
 };
+
 
 // UPDATE
 export const updateQuoteService = async (quoteId: number, content: string, userId: number) => {
