@@ -7,7 +7,7 @@ import {
 } from "../repositories/reading_groups.repository.js";
 import { getBookById } from "../repositories/books.repository.js";
 
-// POST /api/reading-groups/create - 관리자용 함께 읽기 생성 서비스
+// POST /api/reading-groups/create - 관리자용 함께 읽기 생성
 export const createReadingGroupService = async (
     bookId: number,
     startDate: string,
