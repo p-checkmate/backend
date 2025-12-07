@@ -1,7 +1,7 @@
 import { Routing } from "express-zod-api";
 import { 
   handleSearchBooks, 
-  handleGetBookDetail, 
+  handleGetBookDetail,
   handleViewBestsellers, 
   handleAddBookmark, 
   handleDeleteBookmark
@@ -33,11 +33,10 @@ export const routing: Routing = {
   api: {
     v1: {
       books: {
+
         search: handleSearchBooks,
         bestsellers: handleViewBestsellers,
-
-        ":bookId": handleGetBookDetail,
-        ":bookId/bookmark": handleAddBookmark,
+":bookId/bookmark": handleAddBookmark,
         "delete /:bookId/bookmark": handleDeleteBookmark,
 
         ":bookId/quotes": {
@@ -48,7 +47,10 @@ export const routing: Routing = {
         ":bookId/discussions": {
           post: handleCreateDiscussion,
         },
+
+        ":bookId": handleGetBookDetail,
       },
+        
 
       auth: {
         login: handleLogin,
@@ -67,6 +69,7 @@ export const routing: Routing = {
           get: handleGetQuote,
           patch: handleUpdateQuote,
           delete: handleDeleteQuote,
+
           like: {
             post: handleLikeQuote,
             delete: handleUnlikeQuote,

@@ -40,7 +40,7 @@ export const myDiscussionsResponseSchema = z.object({
   total: z.number(),               // 전체 개수
 });
 
-// 좋아요한 토론 목록 스키마도 필요할 수 있음
+// 좋아요한 토론 목록 스키마
 export const likedDiscussionsResponseSchema = z.object({
   discussions: z.array(z.any()),
   total: z.number(),

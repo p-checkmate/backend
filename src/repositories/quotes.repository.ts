@@ -1,5 +1,4 @@
 import { pool } from "../config/db.config.js";
-import { QuoteRow } from "../schemas/quotes.schema.js";
 import { QuoteRow, MyQuoteRow } from "../schemas/quotes.schema.js";
 
 //인용구생성

@@ -44,17 +44,17 @@ export const createDiscussion = async (payload: {
 };
 
 export const getDiscussionsByUserId = async () => {
-    return []; // 더미 데이터
+    return []; 
 };
 
 export const countDiscussionsByUserId = async () => {
-    return 0; // 더미 개수
+    return 0; 
 };
 
 export const getLikedDiscussionsByUserId = async () => {
-    return []; // 팀원 코드가 import하는 함수
+  return []; 
 };
 
 export const countLikedDiscussionsByUserId = async () => {
-    return 0; // 팀원 코드에서 사용함
+    return 0; 
 };
