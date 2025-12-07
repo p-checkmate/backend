@@ -1,4 +1,6 @@
 import { Routing } from "express-zod-api";
+import { handleGetReadingGroupList } from "../controllers/reading_groups.controller.js";
+
 import {
     handleGetMyPage,
     handleGetMyBookshelf,
@@ -90,6 +92,9 @@ export const routing: Routing = {
                 "favorite-books": handleSelectFavoriteBooks,
                 "post favorite-genres": handleSelectFavoriteGenres,
                 "get favorite-genres": handleGetGenres,
+            },
+            "reading-groups": {
+                list: handleGetReadingGroupList,
             },
         },
     },
