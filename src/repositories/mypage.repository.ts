@@ -33,9 +33,9 @@ export const getExpByUserId = async (userId: number): Promise<ExpRow | null> => 
 // 사용자 선호 장르 조회 
 export const getPreferredGenresByUserId = async (userId: number): Promise<string[]> => {
     const [rows] = await pool.query<GenreRow[]>(
-        `SELECT DISTINCT g.genre_name
+        `SELECT DISTINCT og.genre_name
         FROM user_genre ug
-        INNER JOIN genre g ON ug.genre_id = g.genre_id
+        INNER JOIN onboarding_genre og ON ug.onboarding_genre_id = og.onboarding_genre_id
         WHERE ug.user_id = ?`,
         [userId]
     );
