@@ -20,7 +20,7 @@ export const getActiveReadingGroups = async (): Promise<ReadingGroupWithBookRow[
             b.title AS book_title,
             b.thumbnail_url,
             b.page_count,
-            (SELECT COUNT(*) FROM reading_group_participant WHERE reading_group_id = rg.reading_group_id) AS participant_count,
+            (SELECT COUNT(*) FROM reading_group_member WHERE reading_group_id = rg.reading_group_id) AS participant_count,
             rg.start_date,
             rg.end_date
         FROM reading_group rg
@@ -43,7 +43,7 @@ export const getReadingGroupById = async (
             b.title AS book_title,
             b.thumbnail_url,
             b.page_count,
-            (SELECT COUNT(*) FROM reading_group_participant WHERE reading_group_id = rg.reading_group_id) AS participant_count,
+            (SELECT COUNT(*) FROM reading_group_member WHERE reading_group_id = rg.reading_group_id) AS participant_count,
             rg.start_date,
             rg.end_date
         FROM reading_group rg
@@ -81,13 +81,13 @@ export const getParticipantByUserAndGroup = async (
 ): Promise<ParticipantRow | null> => {
     const [rows] = await pool.query<ParticipantRow[]>(
         `SELECT 
-            participant_id,
+            member_id,
             reading_group_id,
             user_id,
             current_page,
             memo,
             joined_at
-        FROM reading_group_participant
+        FROM reading_group_member
         WHERE user_id = ? AND reading_group_id = ?`,
         [userId, groupId]
     );
@@ -106,13 +106,13 @@ export const getParticipantsByUserAndGroups = async (
 
     const [rows] = await pool.query<ParticipantRow[]>(
         `SELECT 
-            participant_id,
+            member_id,
             reading_group_id,
             user_id,
             current_page,
             memo,
             joined_at
-        FROM reading_group_participant
+        FROM reading_group_member
         WHERE user_id = ? AND reading_group_id IN (?)`,
         [userId, groupIds]
     );
@@ -126,13 +126,13 @@ export const getParticipantsByGroupId = async (
 ): Promise<ParticipantWithUserRow[]> => {
     const [rows] = await pool.query<ParticipantWithUserRow[]>(
         `SELECT 
-            rgp.participant_id,
+            rgp.member_id,
             rgp.reading_group_id,
             rgp.user_id,
             u.nickname,
             rgp.current_page,
             rgp.memo
-        FROM reading_group_participant rgp
+        FROM reading_group_member rgp
         INNER JOIN user u ON rgp.user_id = u.user_id
         WHERE rgp.reading_group_id = ?
         ORDER BY rgp.current_page DESC`,
@@ -149,7 +149,7 @@ export const insertParticipant = async (
 ): Promise<number> => {
     try {
         const [result] = await pool.query<ResultSetHeader>(
-            `INSERT INTO reading_group_participant (reading_group_id, user_id, current_page, memo)
+            `INSERT INTO reading_group_member (reading_group_id, user_id, current_page, memo)
             VALUES (?, ?, 0, NULL)`,
             [groupId, userId]
         );
@@ -171,7 +171,7 @@ export const updateParticipantProgress = async (
     memo?: string
 ): Promise<boolean> => {
     const [result] = await pool.query<ResultSetHeader>(
-        `UPDATE reading_group_participant
+        `UPDATE reading_group_member
         SET current_page = ?, memo = COALESCE(?, memo), updated_at = NOW()
         WHERE reading_group_id = ? AND user_id = ?`,
         [currentPage, memo ?? null, groupId, userId]
@@ -189,7 +189,7 @@ export const getUserRankInGroup = async (
         `SELECT 
             user_id,
             RANK() OVER (ORDER BY current_page DESC) AS rank_num
-        FROM reading_group_participant
+        FROM reading_group_member
         WHERE reading_group_id = ?`,
         [groupId]
     );

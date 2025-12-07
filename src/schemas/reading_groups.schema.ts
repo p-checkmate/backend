@@ -79,7 +79,7 @@ export const membersProgressResponseSchema = z.object({
 // ============================================
 
 export const joinReadingGroupResponseSchema = z.object({
-    participant_id: z.number().int(),
+    member_id: z.number().int(),
     reading_group_id: z.number().int(),
     user_id: z.number().int(),
 });
@@ -156,7 +156,7 @@ export interface ReadingGroupWithBookRow extends RowDataPacket {
 }
 
 export interface ParticipantRow extends RowDataPacket {
-    participant_id: number;
+    member_id: number;
     reading_group_id: number;
     user_id: number;
     current_page: number;
@@ -165,7 +165,7 @@ export interface ParticipantRow extends RowDataPacket {
 }
 
 export interface ParticipantWithUserRow extends RowDataPacket {
-    participant_id: number;
+    member_id: number;
     reading_group_id: number;
     user_id: number;
     nickname: string | null;
