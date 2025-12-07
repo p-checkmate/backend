@@ -2,7 +2,7 @@ import { z } from "zod";
 import { defaultEndpointsFactory } from "express-zod-api";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { readingGroupListResponseSchema } from "../schemas/reading_groups.schema.js";
-import { getReadingGroupListService } from "../services/reading_groups.service.js";
+import { getReadingGroupList } from "../services/reading_groups.service.js";
 
 // 인증이 필요한 엔드포인트용 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
@@ -14,6 +14,6 @@ export const handleGetReadingGroupList = authEndpointsFactory.build({
     output: readingGroupListResponseSchema,
     handler: async ({ options }) => {
         const userId = options.user.user_id;
-        return await getReadingGroupListService(userId);
+        return await getReadingGroupList(userId);
     },
 });
