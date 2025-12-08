@@ -2,7 +2,7 @@ import HttpError from "http-errors";
 
 import { getBookById } from "../repositories/books.repository.js";
 
-import{
+import {
     ReadingGroupListResponse,
     ReadingGroupListItem,
     ReadingGroupOverviewResponse,
@@ -13,7 +13,7 @@ import {
     getActiveReadingGroups,
     getMembersByUserAndGroups,
     getUserRankInGroup,
-    getReadingGroupById,          
+    getReadingGroupById,
     getMemberByUserAndGroup,
 } from "../repositories/reading_groups.repository.js";
 
@@ -179,7 +179,7 @@ export const getReadingGroupOverview = async (
         reading_group_id: group.reading_group_id,
         title: group.book_title,
 
-        participant_count: group.member_count,
+        member_count: group.member_count, 
         days_left: daysLeft,
         total_pages: group.page_count,
 
