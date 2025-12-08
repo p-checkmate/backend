@@ -10,6 +10,7 @@
         "start": "node dist/index.js",
         "docs": "tsx scripts/generate-openapi.ts",
         "migrate": "tsx src/config/migrator.config.ts up",
+        "migrate:prod": "node dist/config/migrator.config.js up",
         "migrate:down": "tsx src/config/migrator.config.ts down",
         "migrate:create": "tsx src/config/migrator.config.ts create --name"
     },

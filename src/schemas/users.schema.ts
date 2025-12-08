@@ -52,6 +52,18 @@ export const modifyUserInputSchema = userSchema.pick({
     nickname: true,
 });
 
+// onboarding genre output 스키마
+// 단일 장르 객체의 형태
+export const singleGenreSchema = z.object({
+    id: z.number(),
+    genre: z.string(),
+});
+
+// API 최종 응답 (Output) 스키마 정의
+export const onboardingGenreOutputSchema = z.object({
+    genres: z.array(singleGenreSchema),
+});
+
 // TypeScript 타입 추출
 export type UserData = z.infer<typeof userSchema>;
 export type LoginInput = z.infer<typeof loginInputSchema>;
@@ -60,6 +72,7 @@ export type RefreshTokenInput = z.infer<typeof refreshInputSchema>;
 export type RefreshTokenOutput = z.infer<typeof refreshOutputSchema>;
 export type SignupOutput = z.infer<typeof signupOutputSchema>;
 export type ModifyUserInput = z.infer<typeof modifyUserInputSchema>;
+export type OnboardingGenreOutput = z.infer<typeof onboardingGenreOutputSchema>;
 
 // MySQL2용 타입 (Repositories에서 사용)
 export interface User extends RowDataPacket {
@@ -76,4 +89,10 @@ export interface RefreshToken extends RowDataPacket {
     user_id: number;
     token: string;
     created_at: Date;
+}
+
+export interface OnboardingGenre extends RowDataPacket {
+    onboarding_genre_id: number;
+    genre_name: string;
+    parent_id: number | null;
 }

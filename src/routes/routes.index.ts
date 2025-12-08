@@ -1,66 +1,102 @@
 import { Routing } from "express-zod-api";
+import { handleGetReadingGroupList } from "../controllers/reading_groups.controller.js";
 
 import {
-  handleSearchBooks,
-  handleGetBookDetail,
-  handleViewBestsellers,
-  handleAddBookmark,
+    handleGetMyPage,
+    handleGetMyBookshelf,
+    handleGetMyQuotes,
+    handleGetMyDiscussions,
+    handleGetLikedQuotes,
+    handleGetLikedDiscussions,
+} from "../controllers/mypage.controller.js";
+
+import { 
+    handleSearchBooks, 
+    handleGetBookDetail, 
+    handleViewBestsellers, 
+    handleAddBookmark, 
+    handleDeleteBookmark
 } from "../controllers/books.controller.js";
 
 import {
-  handleLogin,
-  handleRefreshToken,
-  handleSignup,
-  handleLogout,
-  handleWithdrawUser,
+    handleLogin,
+    handleRefreshToken,
+    handleSignup,
+    handleLogout,
+    handleWithdrawUser,
 } from "../controllers/auth.controller.js";
 
 import { handleModifyUser } from "../controllers/users.controller.js";
 
 import {
-  handleCreateQuote,
-  handleGetQuote,
-  handleUpdateQuote,
-  handleDeleteQuote,
-  handleLikeQuote,
-  handleUnlikeQuote,
-  handleGetQuotesByBook,
+    handleCreateQuote,
+    handleGetQuote,
+    handleUpdateQuote,
+    handleDeleteQuote,
+    handleLikeQuote,
+    handleUnlikeQuote,
+    handleGetQuotesByBook,
 } from "../controllers/quotes.controller.js";
 
+import {
+    handleSelectFavoriteBooks,
+    handleSelectFavoriteGenres,
+    handleGetGenres,
+} from "../controllers/onboarding.controller.js";
+
 export const routing: Routing = {
-  api: {
-    v1: {
-      books: {
-        search: handleSearchBooks,
-        bestsellers: handleViewBestsellers,
+    api: {
+        v1: {
+            books: {
+                search: handleSearchBooks,
+                bestsellers: handleViewBestsellers,
 
-        ":bookId": {
-          get: handleGetBookDetail,
-          "post bookmark": handleAddBookmark,
-          "get quotes": handleGetQuotesByBook,
-          "post quotes": handleCreateQuote,
+                ":bookId": handleGetBookDetail,
+                ":bookId/bookmark": handleAddBookmark,
+                "delete /:bookId/bookmark": handleDeleteBookmark,
+
+                ":bookId/quotes": {
+                    get: handleGetQuotesByBook,
+                    post: handleCreateQuote,
+                },
+            },
+
+            auth: {
+                login: handleLogin,
+                refresh: handleRefreshToken,
+                signup: handleSignup,
+                logout: handleLogout,
+                me: handleWithdrawUser,
+            },
+
+            users: {
+                mypage: handleGetMyPage,
+                me: handleModifyUser,
+                "bookmarks/books": handleGetMyBookshelf,
+                "my-quotes": handleGetMyQuotes,
+                "my-discussions": handleGetMyDiscussions,
+                "like/quotes": handleGetLikedQuotes,
+                "like/discussions": handleGetLikedDiscussions,
+            },
+
+            quotes: {
+                "get :quoteId": handleGetQuote,
+                "patch :quoteId": handleUpdateQuote,
+                "delete :quoteId": handleDeleteQuote,
+
+                "post :quoteId/like": handleLikeQuote,
+                "delete :quoteId/like": handleUnlikeQuote,
+            },
+
+            onboarding: {
+                "favorite-books": handleSelectFavoriteBooks,
+                "post favorite-genres": handleSelectFavoriteGenres,
+                "get favorite-genres": handleGetGenres,
+            },
+
+            "reading-groups": {
+                list: handleGetReadingGroupList,
+            },
         },
-      },
-
-      auth: {
-        "post login": handleLogin,
-        "post refresh": handleRefreshToken,
-        "post signup": handleSignup,
-        "post logout": handleLogout,
-        "delete me": handleWithdrawUser,
-      },
-
-      users: {
-        "patch me": handleModifyUser,
-      },
-
-      quotes: {
-        "get :quoteId": handleGetQuote,
-        "patch :quoteId": handleUpdateQuote,
-        "delete :quoteId": handleDeleteQuote,
-        "post :quoteId/like": handleLikeQuote,
-        "delete :quoteId/like": handleUnlikeQuote,
-      },
     },
-  },
 };

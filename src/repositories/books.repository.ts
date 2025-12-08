@@ -83,3 +83,15 @@ export const linkBookGenre = async (bookId: number, genreId: number): Promise<vo
     );
 };
 
+// book_id로 책 조회
+export const getBookById = async (bookId: number): Promise<BookRow | null> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `SELECT book_id, aladin_item_id, title, author, publisher,
+                published_date, description, thumbnail_url, page_count
+        FROM book 
+        WHERE book_id = ?`,
+        [bookId]
+    );
+
+    return rows.length ? (rows[0] as BookRow) : null;
+};
