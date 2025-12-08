@@ -1,4 +1,5 @@
 import { Routing } from "express-zod-api";
+import { handleCreateReadingGroup, } from "../controllers/reading_groups.controller.js";
 import { handleGetReadingGroupList } from "../controllers/reading_groups.controller.js";
 
 import {
@@ -93,7 +94,9 @@ export const routing: Routing = {
                 "post favorite-genres": handleSelectFavoriteGenres,
                 "get favorite-genres": handleGetGenres,
             },
+            
             "reading-groups": {
+                create: handleCreateReadingGroup,
                 list: handleGetReadingGroupList,
             },
         },

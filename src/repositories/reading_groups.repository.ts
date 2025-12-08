@@ -6,6 +6,22 @@ import {
     RankRow,
 } from "../schemas/reading_groups.schema.js";
 
+// 함께 읽기 그룹 생성
+export const insertReadingGroup = async (
+    bookId: number,
+    startDate: string,
+    endDate: string
+): Promise<number> => {
+    const [result] = await pool.query<ResultSetHeader>(
+        `INSERT INTO reading_group (book_id, start_date, end_date)
+        VALUES (?, ?, ?)`,
+        [bookId, startDate, endDate]
+    );
+
+    return result.insertId;
+};
+
+
 // 현재 진행 중인 함께 읽기 그룹 목록 조회 (책 정보 포함)
 export const getActiveReadingGroups = async (): Promise<ReadingGroupWithBookRow[]> => {
     const [rows] = await pool.query<ReadingGroupWithBookRow[]>(
