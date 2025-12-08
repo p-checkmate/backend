@@ -1,5 +1,10 @@
 import { Routing } from "express-zod-api";
-import { handleCreateReadingGroup, handleGetReadingGroupOverview, handleGetReadingGroupList } from "../controllers/reading_groups.controller.js";
+import { 
+    handleCreateReadingGroup,
+    handleGetReadingGroupOverview, 
+    handleGetReadingGroupList, 
+    handleJoinReadingGroup, 
+} from "../controllers/reading_groups.controller.js";
 
 import {
     handleGetMyPage,
@@ -98,6 +103,7 @@ export const routing: Routing = {
                 create: handleCreateReadingGroup,
                 list: handleGetReadingGroupList,
                 ":groupId/overview": handleGetReadingGroupOverview, 
+                ":groupId/join": handleJoinReadingGroup, 
             },
         },
     },

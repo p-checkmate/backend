@@ -7,6 +7,7 @@ import {
     ReadingGroupListItem,
     ReadingGroupOverviewResponse,
     CreateReadingGroupResponse,
+    JoinReadingGroupResponse,
 } from "../schemas/reading_groups.schema.js";
 import {
     insertReadingGroup,
@@ -15,6 +16,7 @@ import {
     getUserRankInGroup,
     getReadingGroupById,
     getMemberByUserAndGroup,
+    insertReadingGroupMember,
 } from "../repositories/reading_groups.repository.js";
 
 
@@ -185,4 +187,37 @@ export const getReadingGroupOverview = async (
 
         my_progress: myProgress,
     };
+};
+
+// POST /api/reading-groups/:groupId/join - 함께 읽기 참여하기
+export const joinReadingGroup = async (
+    userId: number,
+    groupId: number
+): Promise<JoinReadingGroupResponse> => {
+    // 1) 그룹 존재 여부 확인
+    const group = await getReadingGroupById(groupId);
+    if (!group) {
+        throw HttpError(404, "함께 읽기 그룹을 찾을 수 없습니다.");
+    }
+
+    // 2) 이미 참여했는지 확인
+    const existingMember = await getMemberByUserAndGroup(userId, groupId);
+    if (existingMember) {
+        throw HttpError(409, "이미 이 함께 읽기에 참여하고 있습니다.");
+    }
+
+    // 3) 멤버 추가
+    try {
+        await insertReadingGroupMember(userId, groupId);
+
+        return {
+            reading_group_id: groupId,
+        };
+    } catch (err: any) {
+        if (err.status) {
+            throw err;
+        }
+        console.error(err);
+        throw HttpError(500, "함께 읽기 참여에 실패했습니다.");
+    }
 };
