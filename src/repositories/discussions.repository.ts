@@ -52,7 +52,7 @@ export const countDiscussionsByUserId = async () => {
 };
 
 export const getLikedDiscussionsByUserId = async () => {
-  return []; 
+    return []; 
 };
 
 export const countLikedDiscussionsByUserId = async () => {
