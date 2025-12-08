@@ -4,14 +4,17 @@ import { authMiddleware } from "../middlewares/auth.middleware.js";
 import {
     createReadingGroupInputSchema,
     createReadingGroupResponseSchema,
+    readingGroupListResponseSchema,
+    readingGroupOverviewResponseSchema,   
 } from "../schemas/reading_groups.schema.js";
 import {
-
     createReadingGroupService,
+    getReadingGroupList,
+    getReadingGroupOverview,              
 } from "../services/reading_groups.service.js";
 
-import { readingGroupListResponseSchema } from "../schemas/reading_groups.schema.js";
-import { getReadingGroupList } from "../services/reading_groups.service.js";
+
+
 
 // 인증이 필요한 엔드포인트용 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
@@ -37,5 +40,21 @@ export const handleGetReadingGroupList = authEndpointsFactory.build({
     handler: async ({ options }) => {
         const userId = options.user.user_id;
         return await getReadingGroupList(userId);
+    },
+});
+
+// GET /api/reading-groups/:groupId/overview - 함께 읽기 기본 정보 조회
+export const handleGetReadingGroupOverview = authEndpointsFactory.build({
+    method: "get",
+    input: z.object({
+        groupId: z
+            .string()
+            .regex(/^\d+$/)
+            .transform((v) => Number(v)),
+    }),
+    output: readingGroupOverviewResponseSchema,
+    handler: async ({ input, options }) => {
+        const userId = options.user.user_id;
+        return await getReadingGroupOverview(userId, input.groupId);
     },
 });

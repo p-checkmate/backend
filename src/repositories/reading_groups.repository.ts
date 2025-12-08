@@ -94,3 +94,29 @@ export const getUserRankInGroup = async (
     const userRank = rows.find((row) => row.user_id === userId);
     return userRank ? userRank.rank_num : null;
 };
+
+// 함께 읽기 그룹 1개 + 책 정보 조회
+export const getReadingGroupById = async (
+    groupId: number
+): Promise<ReadingGroupWithBookRow | null> => {
+    const [rows] = await pool.query<ReadingGroupWithBookRow[]>(
+        `SELECT 
+            rg.reading_group_id,
+            b.book_id,
+            b.title AS book_title,
+            b.thumbnail_url,
+            b.page_count,
+            (SELECT COUNT(*) 
+                FROM reading_group_member 
+                WHERE reading_group_id = rg.reading_group_id) AS member_count,
+            rg.start_date,
+            rg.end_date
+        FROM reading_group rg
+        INNER JOIN book b ON rg.book_id = b.book_id
+        WHERE rg.reading_group_id = ?`,
+        [groupId]
+    );
+
+    return rows[0] ?? null;
+};
+
