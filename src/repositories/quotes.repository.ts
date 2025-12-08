@@ -1,7 +1,8 @@
 import { pool } from "../config/db.config.js";
 import { QuoteRow, MyQuoteRow } from "../schemas/quotes.schema.js";
+import { RowDataPacket, ResultSetHeader } from "mysql2/promise";
 
-//인용구생성
+// 인용구 생성
 export const createQuote = async (
   userId: number,
   bookId: number,
@@ -18,35 +19,58 @@ export const createQuote = async (
   return result.insertId;
 };
 
-//인용구 단건 조회
+// 인용구 단건 조회
 export const getQuoteById = async (
   quoteId: number
 ): Promise<QuoteRow | null> => {
   const [rows] = await pool.query<QuoteRow[]>(
-    `SELECT * FROM quote WHERE quote_id = ?`,
+    `
+      SELECT 
+        q.quote_id,
+        q.user_id,
+        u.nickname,
+        q.book_id,
+        q.content,
+        q.like_count,
+        q.created_at,
+        q.updated_at
+      FROM quote q
+      INNER JOIN user u ON q.user_id = u.user_id 
+      WHERE q.quote_id = ?
+    `,
     [quoteId]
   );
+
   return rows[0] || null;
 };
 
-//책별 인용구 리스트 조회
+// 책별 인용구 리스트 조회
 export const getQuotesByBookId = async (
   bookId: number
 ): Promise<QuoteRow[]> => {
   const [rows] = await pool.query<QuoteRow[]>(
     `
-      SELECT *
-      FROM quote
-      WHERE book_id = ?
-      ORDER BY created_at DESC
+      SELECT 
+        q.quote_id,
+        q.user_id,
+        u.nickname,
+        q.book_id,
+        q.content,
+        q.like_count,
+        q.created_at,
+        q.updated_at
+      FROM quote q
+      INNER JOIN user u ON q.user_id = u.user_id
+      WHERE q.book_id = ?
+      ORDER BY q.created_at DESC
     `,
     [bookId]
   );
 
-  return rows; // 없으면 빈 배열 []
+  return rows;
 };
 
-//인용구 수정(본인만)
+// 인용구 수정
 export const updateQuote = async (
   quoteId: number,
   content: string,
@@ -60,10 +84,11 @@ export const updateQuote = async (
     `,
     [content, quoteId, userId]
   );
+
   return result.affectedRows > 0;
 };
 
-//인용구 삭제(본인만)
+// 인용구 삭제
 export const deleteQuote = async (
   quoteId: number,
   userId: number
@@ -75,6 +100,7 @@ export const deleteQuote = async (
     `,
     [quoteId, userId]
   );
+
   return result.affectedRows > 0;
 };
 
@@ -85,15 +111,14 @@ export const likeQuote = async (quoteId: number, userId: number) => {
   try {
     await conn.beginTransaction();
 
-    // 좋아요 중복 여부 확인
-    const [rows] = await conn.query<any[]>(
+    const [exists] = await conn.query<RowDataPacket[]>(
       `SELECT * FROM quote_like WHERE quote_id = ? AND user_id = ?`,
       [quoteId, userId]
     );
 
-    if (rows.length > 0) {
+    if (exists.length > 0) {
       await conn.rollback();
-      return;
+      return { inserted: false };
     }
 
     await conn.query(
@@ -107,6 +132,8 @@ export const likeQuote = async (quoteId: number, userId: number) => {
     );
 
     await conn.commit();
+    return { inserted: true };
+
   } catch (err) {
     await conn.rollback();
     throw err;
@@ -115,39 +142,32 @@ export const likeQuote = async (quoteId: number, userId: number) => {
   }
 };
 
-
-// 좋아요 삭제
+// 좋아요 감소
 export const unlikeQuote = async (quoteId: number, userId: number) => {
   const conn = await pool.getConnection();
 
   try {
     await conn.beginTransaction();
 
-    // 좋아요 여부 확인
-    const [rows] = await conn.query<any[]>(
-      `SELECT * FROM quote_like WHERE quote_id = ? AND user_id = ?`,
-      [quoteId, userId]
-    );
-
-    // 좋아요가 없으면 취소 불가 
-    if (rows.length === 0) {
-      await conn.rollback();
-      return;
-    }
-
-    // 좋아요 삭제
-    await conn.query(
+    const [result] = await conn.query<ResultSetHeader>(
       `DELETE FROM quote_like WHERE quote_id = ? AND user_id = ?`,
       [quoteId, userId]
     );
 
-    // like_count 감소 (음수방지)
-    await conn.query(
-      `UPDATE quote SET like_count = like_count - 1 WHERE quote_id = ? AND like_count > 0`,
-      [quoteId]
-    );
+    if (result.affectedRows > 0) {
+      await conn.query<ResultSetHeader>(
+        `
+        UPDATE quote 
+        SET like_count = like_count - 1 
+        WHERE quote_id = ? AND like_count > 0
+        `,
+        [quoteId]
+      );
+    }
 
     await conn.commit();
+    return result;
+
   } catch (err) {
     await conn.rollback();
     throw err;
@@ -167,26 +187,26 @@ const getQuotesWithDetails = async (
 
   const [rows] = await pool.query<MyQuoteRow[]>(
     `
-        SELECT 
-            q.quote_id,
-            q.content,
-            q.like_count,
-            q.created_at,
-            b.book_id,
-            b.title AS book_title,
-            GROUP_CONCAT(DISTINCT g.genre_name) AS genre_names,
-            u.nickname
-            ${isLiked ? ", MAX(ql.like_id) AS liked_at" : ""}
-        FROM ${isLiked ? "quote_like ql INNER JOIN quote q ON ql.quote_id = q.quote_id" : "quote q"}
-        INNER JOIN book b ON q.book_id = b.book_id
-        INNER JOIN user u ON q.user_id = u.user_id
-        LEFT JOIN book_genre bg ON b.book_id = bg.book_id
-        LEFT JOIN genre g ON bg.genre_id = g.genre_id
-        WHERE ${isLiked ? "ql" : "q"}.user_id = ?
-        GROUP BY q.quote_id
-        ORDER BY ${isLiked ? "liked_at" : "q.created_at"} DESC
-        LIMIT ? OFFSET ?
-        `,
+      SELECT 
+          q.quote_id,
+          q.content,
+          q.like_count,
+          q.created_at,
+          b.book_id,
+          b.title AS book_title,
+          GROUP_CONCAT(DISTINCT g.genre_name) AS genre_names,
+          u.nickname
+          ${isLiked ? ", MAX(ql.like_id) AS liked_at" : ""}
+      FROM ${isLiked ? "quote_like ql INNER JOIN quote q ON ql.quote_id = q.quote_id" : "quote q"}
+      INNER JOIN book b ON q.book_id = b.book_id
+      INNER INNER JOIN user u ON q.user_id = u.user_id
+      LEFT JOIN book_genre bg ON b.book_id = bg.book_id
+      LEFT JOIN genre g ON bg.genre_id = g.genre_id
+      WHERE ${isLiked ? "ql" : "q"}.user_id = ?
+      GROUP BY q.quote_id
+      ORDER BY ${isLiked ? "liked_at" : "q.created_at"} DESC
+      LIMIT ? OFFSET ?
+    `,
     [userId, limit, offset]
   );
 
@@ -211,22 +231,22 @@ export const getLikedQuotesByUserId = async (
   return getQuotesWithDetails(userId, limit, offset, "liked");
 };
 
-// 사용자 인용구 총 개수 조회
+// 사용자 인용구 개수 조회
 export const countQuotesByUserId = async (userId: number): Promise<number> => {
   const [rows] = await pool.query<any[]>(
     `SELECT COUNT(*) AS total FROM quote WHERE user_id = ?`,
     [userId]
   );
-
   return rows[0].total;
 };
 
-// 사용자가 좋아요한 인용구 총 개수 조회
-export const countLikedQuotesByUserId = async (userId: number): Promise<number> => {
+// 사용자가 좋아요한 인용구 개수
+export const countLikedQuotesByUserId = async (
+  userId: number
+): Promise<number> => {
   const [rows] = await pool.query<any[]>(
     `SELECT COUNT(*) AS total FROM quote_like WHERE user_id = ?`,
     [userId]
   );
-
   return rows[0].total;
 };
