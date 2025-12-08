@@ -1,4 +1,5 @@
 import { Routing } from "express-zod-api";
+
 import {
   handleSearchBooks,
   handleGetBookDetail,
@@ -29,38 +30,54 @@ import {
 export const routing: Routing = {
   api: {
     v1: {
+      // ------------------------
+      // 📚 BOOKS
+      // ------------------------
       books: {
         search: handleSearchBooks,
         bestsellers: handleViewBestsellers,
+
         ":bookId": {
           get: handleGetBookDetail,
-          bookmark: handleAddBookmark,
-          quotes: {
-            get: handleGetQuotesByBook,
-            post: handleCreateQuote,
-          },
+
+          // POST /api/v1/books/:bookId/bookmark
+          "post bookmark": handleAddBookmark,
+
+          // GET /api/v1/books/:bookId/quotes
+          "get quotes": handleGetQuotesByBook,
+
+          // POST /api/v1/books/:bookId/quotes
+          "post quotes": handleCreateQuote,
         },
       },
+
       auth: {
-        login: handleLogin,
-        refresh: handleRefreshToken,
-        signup: handleSignup,
-        logout: handleLogout,
-        me: handleWithdrawUser,
+        "post login": handleLogin,
+        "post refresh": handleRefreshToken,
+        "post signup": handleSignup,
+        "post logout": handleLogout,
+        "delete me": handleWithdrawUser,
       },
+
       users: {
-        me: handleModifyUser,
+        "patch me": handleModifyUser,
       },
+
       quotes: {
-        ":quoteId": {
-          get: handleGetQuote,
-          patch: handleUpdateQuote,
-          delete: handleDeleteQuote,
-          like: {
-            post: handleLikeQuote,
-            delete: handleUnlikeQuote,
-          },
-        },
+        // GET /api/v1/quotes/:quoteId
+        "get :quoteId": handleGetQuote,
+
+        // PATCH /api/v1/quotes/:quoteId
+        "patch :quoteId": handleUpdateQuote,
+
+        // DELETE /api/v1/quotes/:quoteId
+        "delete :quoteId": handleDeleteQuote,
+
+        // POST /api/v1/quotes/:quoteId/like
+        "post :quoteId/like": handleLikeQuote,
+
+        // DELETE /api/v1/quotes/:quoteId/like
+        "delete :quoteId/like": handleUnlikeQuote,
       },
     },
   },

@@ -12,7 +12,7 @@ export const quoteSchema = z.object({
   user_id: z.number().int(),
   nickname:z.string().nullable(),
   book_id: z.number().int(),
-  content: z.string(),
+  content:z.string(),
   like_count: z.number().int(),
   created_at: z.iso.datetime(),
   updated_at: z.iso.datetime().nullable(),

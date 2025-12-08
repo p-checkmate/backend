@@ -75,23 +75,23 @@ export const likeQuoteService = async (quoteId: number, userId: number) => {
   const quote = await getQuoteById(quoteId);
   if (!quote) throw HttpError(404, "존재하지 않는 인용구입니다.");
 
-  try {
-    await likeQuote(quoteId, userId);
-  } catch (err) {
-    console.error(err);
-    throw HttpError(500, "좋아요 처리 실패");
+  const result = await likeQuote(quoteId, userId);
+  if (!result.inserted) {
+    throw HttpError(400, "이미 좋아요를 누른 상태입니다.");
   }
+
+  return true;
 };
 
-// UNLIKE
+//UNLIKE
 export const unlikeQuoteService = async (quoteId: number, userId: number) => {
   const quote = await getQuoteById(quoteId);
   if (!quote) throw HttpError(404, "존재하지 않는 인용구입니다.");
-
-  try {
-    await unlikeQuote(quoteId, userId);
-  } catch (err) {
-    console.error(err);
-    throw HttpError(500, "좋아요 취소 실패");
+  
+  const result = await unlikeQuote(quoteId, userId);
+  if (!result || result.affectedRows === 0) {
+    throw HttpError(400, "좋아요한 기록이 없습니다.");
   }
+
+  return true;
 };

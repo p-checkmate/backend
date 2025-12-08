@@ -1,5 +1,7 @@
 import { pool } from "../config/db.config.js";
 import { QuoteRow } from "../schemas/quotes.schema.js";
+import { RowDataPacket, ResultSetHeader } from "mysql2/promise";
+
 
 //인용구생성
 export const createQuote = async (
@@ -107,27 +109,29 @@ export const likeQuote = async (quoteId: number, userId: number) => {
   try {
     await conn.beginTransaction();
 
-    // 존재 여부 체크
-    const [exists] = await conn.query(
+    const [exists] = await conn.query<RowDataPacket[]>(
       `SELECT * FROM quote_like WHERE quote_id = ? AND user_id = ?`,
       [quoteId, userId]
     );
+
+    // 이미 좋아요 눌렀다면 false 리턴
     if (exists.length > 0) {
       await conn.rollback();
-      return;
+      return { inserted: false };
     }
-
     await conn.query(
       `INSERT INTO quote_like (quote_id, user_id) VALUES (?, ?)`,
       [quoteId, userId]
     );
-
     await conn.query(
       `UPDATE quote SET like_count = like_count + 1 WHERE quote_id = ?`,
       [quoteId]
     );
 
     await conn.commit();
+
+    return { inserted: true };
+
   } catch (err) {
     await conn.rollback();
     throw err;
@@ -136,23 +140,32 @@ export const likeQuote = async (quoteId: number, userId: number) => {
   }
 };
 
-//좋아요감소
+
+// 좋아요 감소
 export const unlikeQuote = async (quoteId: number, userId: number) => {
   const conn = await pool.getConnection();
+
   try {
     await conn.beginTransaction();
 
-    await conn.query(
+    // 1. 좋아요 삭제 
+    const [result] = await conn.query<ResultSetHeader>(
       `DELETE FROM quote_like WHERE quote_id = ? AND user_id = ?`,
       [quoteId, userId]
     );
 
-    await conn.query(
-      `UPDATE quote SET like_count = like_count - 1 WHERE quote_id = ? AND like_count > 0`,
-      [quoteId]
-    );
+    // 2. 실제 삭제된 경우에만 like_count 감소
+    if (result.affectedRows > 0) {
+      await conn.query<ResultSetHeader>(
+        `UPDATE quote 
+         SET like_count = like_count - 1 
+         WHERE quote_id = ? AND like_count > 0`,
+        [quoteId]
+      );
+    }
 
     await conn.commit();
+    return result;  
   } catch (err) {
     await conn.rollback();
     throw err;
