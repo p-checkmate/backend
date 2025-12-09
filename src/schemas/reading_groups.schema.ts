@@ -85,13 +85,31 @@ export const joinReadingGroupResponseSchema = z.object({
     reading_group_id: z.number().int(),
 });
 
+// 내 독서 진행 / 메모 업데이트 요청 바디 스키마
+export const updateReadingProgressInputSchema = z.object({
+    // 안 보낼 수도 있으니 둘 다 optional 로 처리
+    current_page: z.number().int().nonnegative().optional(),
+    memo: z
+        .string()
+        .max(200, "메모는 최대 200자까지 가능합니다.")
+        .nullable()
+        .optional(),
+});
+
+// 내 독서 진행 / 메모 업데이트 응답 스키마
+export const updateReadingProgressResponseSchema = z.object({
+    reading_group_id: z.number().int(),
+    current_page: z.number().int(),
+    memo: z.string().nullable(),
+});
+
 // TypeScript 타입 추출
 export type BookInfo = z.infer<typeof bookInfoSchema>;
 export type ReadingGroupListItem = z.infer<typeof readingGroupListItemSchema>;
 export type ReadingGroupListResponse = z.infer<typeof readingGroupListResponseSchema>;
 export type ReadingGroupOverviewResponse = z.infer<typeof readingGroupOverviewResponseSchema>;
 export type JoinReadingGroupResponse = z.infer<typeof joinReadingGroupResponseSchema>;
-
+export type UpdateReadingProgressResponse = z.infer<typeof updateReadingProgressResponseSchema>;
 // MySQL Row 타입 (Repository용)
 export interface ReadingGroupRow extends RowDataPacket {
     reading_group_id: number;

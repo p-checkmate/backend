@@ -8,6 +8,7 @@ import {
     ReadingGroupOverviewResponse,
     CreateReadingGroupResponse,
     JoinReadingGroupResponse,
+    UpdateReadingProgressResponse,
 } from "../schemas/reading_groups.schema.js";
 import {
     insertReadingGroup,
@@ -17,6 +18,7 @@ import {
     getReadingGroupById,
     getMemberByUserAndGroup,
     insertReadingGroupMember,
+    updateReadingGroupMemberProgress,
 } from "../repositories/reading_groups.repository.js";
 
 
@@ -219,5 +221,66 @@ export const joinReadingGroup = async (
         }
         console.error(err);
         throw HttpError(500, "함께 읽기 참여에 실패했습니다.");
+    }
+};
+
+// 내 독서 진행 / 메모 업데이트
+export const updateReadingProgress = async (
+    userId: number,
+    groupId: number,
+    currentPage?: number,
+    memo?: string | null
+): Promise<UpdateReadingProgressResponse> => {
+    // 1. 업데이트할 값이 하나도 없을 때
+    if (currentPage === undefined && memo === undefined) {
+        throw HttpError(400, "변경할 내용이 없습니다.");
+    }
+
+    // 2. 그룹 존재 여부 확인
+    const group = await getReadingGroupById(groupId);
+    if (!group) {
+        throw HttpError(404, "함께 읽기 그룹을 찾을 수 없습니다.");
+    }
+
+    // 3. 멤버인지 확인
+    const member = await getMemberByUserAndGroup(userId, groupId);
+    if (!member) {
+        throw HttpError(403, "해당 함께 읽기 그룹의 멤버가 아닙니다.");
+    }
+
+    // 4. 페이지 범위 검증 (0 이상만)
+    if (currentPage !== undefined && currentPage < 0) {
+        throw HttpError(400, "읽은 페이지는 0 이상이어야 합니다.");
+    }
+
+    // TODO: 필요하면 여기서 책 전체 페이지 수보다 큰지 추가 검증
+
+    // 5. 실제로 저장할 값 결정 (보내지 않은 필드는 기존 값 유지)
+    const nextPage = currentPage ?? member.current_page;
+    const nextMemo = memo === undefined ? member.memo : memo;
+
+    try {
+        const affectedRows = await updateReadingGroupMemberProgress(
+            userId,
+            groupId,
+            nextPage,
+            nextMemo
+        );
+
+        if (affectedRows === 0) {
+            throw HttpError(404, "독서 진행 정보를 찾을 수 없습니다.");
+        }
+
+        return {
+            reading_group_id: groupId,
+            current_page: nextPage,
+            memo: nextMemo,
+        };
+    } catch (err: any) {
+        if (err.status) {
+            throw err;
+        }
+        console.error(err);
+        throw HttpError(500, "독서 진행 업데이트에 실패했습니다.");
     }
 };
