@@ -1,6 +1,7 @@
 import { pool } from "../config/db.config.js";
 import { User, RefreshToken, OnboardingGenre } from "../schemas/users.schema.js";
 import { ResultSetHeader } from "mysql2/promise";
+
 // 이메일로 사용자 조회
 export const getUserByEmail = async (userEmail: string): Promise<User | null> => {
     const [rows] = await pool.query<User[]>(`SELECT * FROM user WHERE email = ?;`, [userEmail]);
@@ -32,12 +33,12 @@ export const deleteRefreshToken = async (token: string): Promise<number> => {
 };
 
 // 사용자 생성
-export const createUser = async (userEmail: string, password: string): Promise<User | null> => {
+export const createUser = async (userEmail: string, password: string, nickname: string): Promise<User | null> => {
     // INSERT 쿼리 실행
-    const [result] = await pool.query<ResultSetHeader>("INSERT INTO user (email, password) VALUES (?, ?);", [
-        userEmail,
-        password,
-    ]);
+    const [result] = await pool.query<ResultSetHeader>(
+        "INSERT INTO user (email, password, nickname) VALUES (?, ?, ?);",
+        [userEmail, password, nickname]
+    );
 
     // 삽입 실패 또는 affectedRows가 0인 경우 처리
     if (result.affectedRows === 0) {
