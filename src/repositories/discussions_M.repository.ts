@@ -73,3 +73,29 @@ export const createDiscussion = async (
 
   return result.insertId;
 };
+
+// 특정 책 토론 목록 조회
+export const getDiscussionsByBook = async (
+  bookId: number
+): Promise<DiscussionRow[]> => {
+  const [rows] = await pool.query<RowDataPacket[]>(
+    `
+    SELECT 
+      d.discussion_id,
+      d.title,
+      d.content,
+      d.discussion_type,
+      d.option1,
+      d.option2,
+      d.created_at,
+      u.nickname
+    FROM discussion d
+    INNER JOIN user u ON d.user_id = u.user_id
+    WHERE d.book_id = ?
+    ORDER BY d.created_at DESC
+    `,
+    [bookId]
+  );
+
+  return rows as DiscussionRow[];
+};

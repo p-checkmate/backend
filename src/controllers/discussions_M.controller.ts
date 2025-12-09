@@ -8,6 +8,13 @@ import {
 
 import { createDiscussionService } from "../services/discussions_M.service.js";
 
+import {
+    getDiscussionsByBookInputSchema,
+    getDiscussionsByBookResponseSchema,
+} from "../schemas/discussions_M.schema.js";
+
+import { getDiscussionsByBookService } from "../services/discussions_M.service.js";
+
 // 인증된 API 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
 
@@ -31,5 +38,16 @@ export const handleCreateDiscussion = authEndpointsFactory.build({
         });
 
         return { discussion_id: discussionId };
+    },
+});
+
+export const handleGetDiscussionsByBook = defaultEndpointsFactory.build({
+    method: "get",
+    input: getDiscussionsByBookInputSchema,
+    output: getDiscussionsByBookResponseSchema,
+
+    handler: async ({ input }) => {
+    const discussions = await getDiscussionsByBookService(input.bookId);
+    return { discussions };
     },
 });

@@ -3,7 +3,8 @@ import {
   handleCreateReadingGroup,
   handleGetReadingGroupOverview,
   handleGetReadingGroupList,
-  handleJoinReadingGroup 
+  handleJoinReadingGroup,
+  handleUpdateReadingProgress,
 } from "../controllers/reading_groups.controller.js";
 
 import {
@@ -52,6 +53,8 @@ import {
 import { handleCreateDiscussion } from "../controllers/discussions_M.controller.js";
 
 
+import { handleGetDiscussionsByBook } from "../controllers/discussions_M.controller.js";
+
 export const routing: Routing = {
   api: {
     v1: {
@@ -73,8 +76,8 @@ export const routing: Routing = {
         "get :bookId/quotes": handleGetQuotesByBook,
         "post :bookId/quotes": handleCreateQuote,
         "post :bookId/discussions": handleCreateDiscussion,
+        "get :bookId/discussions": handleGetDiscussionsByBook,
       },
-
 
       auth: {
         login: handleLogin,
@@ -105,6 +108,7 @@ export const routing: Routing = {
         list: handleGetReadingGroupList,
         ":groupId/overview": handleGetReadingGroupOverview,
         ":groupId/join": handleJoinReadingGroup,
+        ":groupId/progress": handleUpdateReadingProgress,
       },
     },
   },
