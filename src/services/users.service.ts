@@ -7,6 +7,7 @@ import {
     OnboardingGenreOutput,
     RefreshTokenInput,
     RefreshTokenOutput,
+    SignupInput,
     SignupOutput,
 } from "../schemas/users.schema.js";
 import {
@@ -115,7 +116,7 @@ export const userLogout = async (input: RefreshTokenInput): Promise<string> => {
     }
 };
 
-export const userSignup = async (input: LoginInput): Promise<SignupOutput> => {
+export const userSignup = async (input: SignupInput): Promise<SignupOutput> => {
     // 사용자 중복 검사
     const isDuplicated = await getUserByEmail(input.email);
     if (isDuplicated) {
@@ -124,7 +125,7 @@ export const userSignup = async (input: LoginInput): Promise<SignupOutput> => {
 
     const password = await bcrypt.hash(input.password, 10);
 
-    const user = await createUser(input.email, password);
+    const user = await createUser(input.email, password, input.nickname);
 
     if (!user) {
         throw HttpError(500, "사용자 생성에 실패했습니다.");
@@ -148,6 +149,7 @@ export const userSignup = async (input: LoginInput): Promise<SignupOutput> => {
         user: {
             user_id: user.user_id,
             email: user.email,
+            nickname: user.nickname,
         },
     };
 };
