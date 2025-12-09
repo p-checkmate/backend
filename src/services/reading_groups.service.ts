@@ -231,31 +231,50 @@ export const updateReadingProgress = async (
     currentPage?: number,
     memo?: string | null
 ): Promise<UpdateReadingProgressResponse> => {
-    // 1. 업데이트할 값이 하나도 없을 때
+    // 업데이트할 값이 하나도 없을 때
     if (currentPage === undefined && memo === undefined) {
         throw HttpError(400, "변경할 내용이 없습니다.");
     }
 
-    // 2. 그룹 존재 여부 확인
+    // 그룹 존재 여부 확인
     const group = await getReadingGroupById(groupId);
     if (!group) {
         throw HttpError(404, "함께 읽기 그룹을 찾을 수 없습니다.");
     }
 
-    // 3. 멤버인지 확인
+    // 멤버인지 확인
     const member = await getMemberByUserAndGroup(userId, groupId);
     if (!member) {
         throw HttpError(403, "해당 함께 읽기 그룹의 멤버가 아닙니다.");
     }
 
-    // 4. 페이지 범위 검증 (0 이상만)
+    // 페이지 범위 검증 (0 이상만)
     if (currentPage !== undefined && currentPage < 0) {
         throw HttpError(400, "읽은 페이지는 0 이상이어야 합니다.");
     }
 
-    // TODO: 필요하면 여기서 책 전체 페이지 수보다 큰지 추가 검증
+    if (currentPage !== undefined) {
+        const book = await getBookById(group.book_id);
 
-    // 5. 실제로 저장할 값 결정 (보내지 않은 필드는 기존 값 유지)
+        if (!book) {
+            throw HttpError(404, "책 정보를 찾을 수 없습니다.");
+        }
+
+        const totalPage = book.page ?? book.page_count ?? null;
+
+        if (!totalPage) {
+            throw HttpError(500, "책 전체 페이지 정보를 찾을 수 없습니다.");
+        }
+
+        if (currentPage > totalPage) {
+            throw HttpError(
+                400,
+                `읽은 페이지는 전체 페이지(${totalPage}p)를 초과할 수 없습니다.`
+            );
+        }
+    }
+
+    // 실제로 저장할 값 결정
     const nextPage = currentPage ?? member.current_page;
     const nextMemo = memo === undefined ? member.memo : memo;
 
