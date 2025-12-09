@@ -7,12 +7,15 @@ import {
     readingGroupListResponseSchema,
     readingGroupOverviewResponseSchema,
     joinReadingGroupResponseSchema,
+    updateReadingProgressInputSchema,      
+    updateReadingProgressResponseSchema,
 } from "../schemas/reading_groups.schema.js";
 import {
     createReadingGroupService,
     getReadingGroupList,
     joinReadingGroup,  
-    getReadingGroupOverview,              
+    getReadingGroupOverview, 
+    updateReadingProgress,
 } from "../services/reading_groups.service.js";
 
 // 인증이 필요한 엔드포인트용 팩토리
@@ -71,5 +74,29 @@ export const handleJoinReadingGroup = authEndpointsFactory.build({
     handler: async ({ input, options }) => {
         const userId = options.user.user_id;
         return await joinReadingGroup(userId, input.groupId);
+    },
+});
+
+// PATCH /api/reading-groups/:groupId/progress - 내 독서 진행/메모 업데이트
+export const handleUpdateReadingProgress = authEndpointsFactory.build({
+    method: "patch",
+    input: updateReadingProgressInputSchema.extend({
+        groupId: z
+            .string()
+            .regex(/^\d+$/)
+            .transform((v) => Number(v)),
+    }),
+    output: updateReadingProgressResponseSchema,
+    handler: async ({ input, options }) => {
+        const userId = options.user.user_id;
+
+        const { groupId, current_page, memo } = input;
+
+        return await updateReadingProgress(
+            userId,
+            groupId,
+            current_page,
+            memo ?? null
+        );
     },
 });

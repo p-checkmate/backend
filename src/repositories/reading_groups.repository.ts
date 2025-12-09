@@ -137,3 +137,22 @@ export const insertReadingGroupMember = async (
 
     return result.insertId;
 };
+
+// 함께 읽기 멤버 독서 진행/메모 업데이트
+export const updateReadingGroupMemberProgress = async (
+    userId: number,
+    groupId: number,
+    currentPage: number,
+    memo: string | null
+): Promise<number> => {
+    const [result] = await pool.query<ResultSetHeader>(
+        `UPDATE reading_group_member
+        SET current_page = ?, 
+            memo = ?, 
+            updated_at = CURRENT_TIMESTAMP
+        WHERE reading_group_id = ? AND user_id = ?`,
+        [currentPage, memo, groupId, userId]
+    );
+
+    return result.affectedRows;
+};
