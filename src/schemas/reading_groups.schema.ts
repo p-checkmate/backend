@@ -97,7 +97,6 @@ export const readingGroupMemberItemSchema = z.object({
     nickname: z.string().nullable(),
     level: z.number().int().min(1).max(5),
     current_page: z.number().int(),
-    progress_percent: z.number().int().min(0).max(100),
     memo: z.string().nullable(),
     is_current_user: z.boolean(),
 });
@@ -162,18 +161,12 @@ export interface memberWithUserRow extends RowDataPacket {
     current_page: number;
     memo: string | null;
 }
+
 export interface RankRow extends RowDataPacket {
     user_id: number;
     rank_num: number;
 }
 
-export interface ReadingGroupRow extends RowDataPacket {
-    reading_group_id: number;
-    book_id: number;
-    start_date: string;
-    end_date: string;
-    created_at: string;
-}
 export interface MemberWithLevelRow extends RowDataPacket {
     member_id: number;
     reading_group_id: number;

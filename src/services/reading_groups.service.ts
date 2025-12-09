@@ -341,20 +341,12 @@ export const getReadingGroupMembers = async (
 
         // 응답 데이터 변환
         const members: ReadingGroupMemberItem[] = memberRows.map((row) => {
-            // 진행률 계산 (전체 페이지가 없으면 0%)
-            let progressPercent = 0;
-            if (totalPageCount && totalPageCount > 0) {
-                progressPercent = Math.round((row.current_page / totalPageCount) * 100);
-                progressPercent = Math.min(progressPercent, 100);
-            }
-
             return {
                 member_id: row.member_id,
                 user_id: row.user_id,
                 nickname: row.nickname,
                 level: row.level,
                 current_page: row.current_page,
-                progress_percent: progressPercent,
                 memo: row.memo,
                 is_current_user: row.user_id === userId,
             };
