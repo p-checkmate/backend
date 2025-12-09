@@ -9,7 +9,7 @@ export const createDiscussionInputSchema = z.object({
   content: z.string().min(1),
   discussion_type: discussionTypeEnum,
   option1: z.string().optional(),
-  option2: z.string().optional(),
+  option2: z.string().optional(),   
 })
 .refine(
   (data) => {
@@ -57,6 +57,8 @@ export const discussionListItemSchema = z.object({
   option2: z.string().nullable(),
   created_at: z.date(),
   nickname: z.string(),
+  like_count: z.number(),
+  comment_count: z.number(),
 });
 
 export const getDiscussionsByBookResponseSchema = z.object({

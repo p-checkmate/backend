@@ -1,3 +1,4 @@
+import { NumberLiteralType } from "typescript";
 import { pool } from "../config/db.config.js";
 import { RowDataPacket, ResultSetHeader } from "mysql2/promise";
 
@@ -14,6 +15,8 @@ export interface DiscussionRow extends RowDataPacket {
   created_at: Date;
   updated_at: Date;
   nickname: string; 
+  comment_count: number;
+  like_count: number; 
 }
 
 //책 존재여부 확인
@@ -41,6 +44,7 @@ export interface CreateDiscussionPayload {
   discussion_type: "FREE" | "VS";
   option1: string | null;
   option2: string | null;
+
 }
 
 export const createDiscussion = async (
@@ -89,10 +93,14 @@ export const getDiscussionsByBook = async (
       d.option1,
       d.option2,
       d.created_at,
-      u.nickname
+      d.like_count,
+      u.nickname,
+      COUNT(dc.comment_id) AS comment_count
     FROM discussion d
     INNER JOIN user u ON d.user_id = u.user_id
+    LEFT JOIN discussion_comment dc ON dc.discussion_id = d.discussion_id
     WHERE d.book_id = ?
+    GROUP BY d.discussion_id
     ORDER BY d.created_at DESC
     `,
     [bookId]
