@@ -120,3 +120,20 @@ export const getReadingGroupById = async (
     return rows[0] ?? null;
 };
 
+// 함께 읽기 그룹 멤버 추가
+export const insertReadingGroupMember = async (
+    userId: number,
+    groupId: number
+): Promise<number> => {
+    const [result] = await pool.query<ResultSetHeader>(
+        `INSERT INTO reading_group_member (
+            reading_group_id,
+            user_id,
+            current_page,
+            memo
+        ) VALUES (?, ?, 0, NULL)`,
+        [groupId, userId]
+    );
+
+    return result.insertId;
+};

@@ -80,11 +80,17 @@ export const readingGroupOverviewResponseSchema = z.object({
         .nullable(),
 });
 
+// 함께 읽기 참여 응답 스키마
+export const joinReadingGroupResponseSchema = z.object({
+    reading_group_id: z.number().int(),
+});
+
 // TypeScript 타입 추출
 export type BookInfo = z.infer<typeof bookInfoSchema>;
 export type ReadingGroupListItem = z.infer<typeof readingGroupListItemSchema>;
 export type ReadingGroupListResponse = z.infer<typeof readingGroupListResponseSchema>;
 export type ReadingGroupOverviewResponse = z.infer<typeof readingGroupOverviewResponseSchema>;
+export type JoinReadingGroupResponse = z.infer<typeof joinReadingGroupResponseSchema>;
 
 // MySQL Row 타입 (Repository용)
 export interface ReadingGroupRow extends RowDataPacket {
