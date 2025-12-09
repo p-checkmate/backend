@@ -63,9 +63,7 @@ export const getDiscussionsByBookResponseSchema = z.object({
   discussions: z.array(discussionListItemSchema),
 });
 
-// ======================
 // 토론 상세조회 스키마
-// ======================
 export const getDiscussionDetailInputSchema = z.object({
   discussionId: z.coerce.number().int().positive(),
 });
