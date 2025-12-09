@@ -75,7 +75,6 @@ export const routing: Routing = {
         "post :bookId/discussions": handleCreateDiscussion,
       },
 
-
       auth: {
         login: handleLogin,
         refresh: handleRefreshToken,

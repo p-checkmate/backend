@@ -8,7 +8,7 @@ import {
 
 import { createDiscussionService } from "../services/discussions_M.service.js";
 
-// 인증된 API용 팩토리
+// 인증된 API 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
 
 export const handleCreateDiscussion = authEndpointsFactory.build({
@@ -18,16 +18,16 @@ export const handleCreateDiscussion = authEndpointsFactory.build({
 
     handler: async ({ input, options }) => {
         const userId = options.user.user_id;
-        const bookId = input.bookId;
+        const bookId = input.bookId; // URL params
 
         const discussionId = await createDiscussionService({
             user_id: userId,
             book_id: bookId,
-            title: input.body.title,
-            content: input.body.content,
-            discussion_type: input.body.discussion_type,
-            option1: input.body.option1 ?? null,
-            option2: input.body.option2 ?? null,
+            title: input.title,
+            content: input.content,
+            discussion_type: input.discussion_type,
+            option1: input.option1 ?? null,
+            option2: input.option2 ?? null,
         });
 
         return { discussion_id: discussionId };

@@ -1,7 +1,7 @@
 import { pool } from "../config/db.config.js";
 import { RowDataPacket, ResultSetHeader } from "mysql2/promise";
 
-//DiscussionRow 타입 (DB 스키마 기반)
+// DiscussionRow 타입 (DB 구조 기반)
 export interface DiscussionRow extends RowDataPacket {
   discussion_id: number;
   user_id: number;
@@ -15,12 +15,13 @@ export interface DiscussionRow extends RowDataPacket {
   updated_at: Date;
 }
 
-// 책 존재 여부 확인
-export const getBookById = async (bookId: number): Promise<{ book_id: number } | null> => {
+//책 존재여부 확인
+export const getBookById = async (
+  bookId: number
+): Promise<{ book_id: number } | null> => {
   const [rows] = await pool.query<RowDataPacket[]>(
     `
-    SELECT 
-      book_id
+    SELECT book_id
     FROM book
     WHERE book_id = ?
     `,
@@ -30,7 +31,7 @@ export const getBookById = async (bookId: number): Promise<{ book_id: number } |
   return rows.length ? (rows[0] as { book_id: number }) : null;
 };
 
-//토론 생성 (FREE / VS 공통)
+//토론 생성 
 export interface CreateDiscussionPayload {
   user_id: number;
   book_id: number;
