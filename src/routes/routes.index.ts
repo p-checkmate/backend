@@ -1,5 +1,5 @@
 import { Routing } from "express-zod-api";
-import { handleGetReadingGroupList } from "../controllers/reading_groups.controller.js";
+import { handleCreateReadingGroup, handleGetReadingGroupOverview, handleGetReadingGroupList } from "../controllers/reading_groups.controller.js";
 
 import {
   handleGetMyPage,
@@ -52,43 +52,42 @@ export const routing: Routing = {
           "get": handleGetQuote,
           "patch": handleUpdateQuote,
           "delete": handleDeleteQuote,
-
           "post like": handleLikeQuote,
           "delete like": handleUnlikeQuote,
         },
       },
 
       books: {
-                search: handleSearchBooks,
-                bestsellers: handleViewBestsellers,
+        search: handleSearchBooks,
+        bestsellers: handleViewBestsellers,
 
-                ":bookId": handleGetBookDetail,
-                ":bookId/bookmark": handleAddBookmark,
-                "delete /:bookId/bookmark": handleDeleteBookmark,
+        ":bookId": handleGetBookDetail,
+        ":bookId/bookmark": handleAddBookmark,
+        "delete /:bookId/bookmark": handleDeleteBookmark,
 
-                ":bookId/quotes": {
-                    get: handleGetQuotesByBook,
-                    post: handleCreateQuote,
-                },
-            },
+        ":bookId/quotes": {
+          get: handleGetQuotesByBook,
+          post: handleCreateQuote,
+        },
+      },
 
       auth: {
-                login: handleLogin,
-                refresh: handleRefreshToken,
-                signup: handleSignup,
-                logout: handleLogout,
-                me: handleWithdrawUser,
-            },
+        login: handleLogin,
+        refresh: handleRefreshToken,
+        signup: handleSignup,
+        logout: handleLogout,
+        me: handleWithdrawUser,
+      },
 
       users: {
-                mypage: handleGetMyPage,
-                me: handleModifyUser,
-                "bookmarks/books": handleGetMyBookshelf,
-                "my-quotes": handleGetMyQuotes,
-                "my-discussions": handleGetMyDiscussions,
-                "like/quotes": handleGetLikedQuotes,
-                "like/discussions": handleGetLikedDiscussions,
-            },
+        mypage: handleGetMyPage,
+        me: handleModifyUser,
+        "bookmarks/books": handleGetMyBookshelf,
+        "my-quotes": handleGetMyQuotes,
+        "my-discussions": handleGetMyDiscussions,
+        "like/quotes": handleGetLikedQuotes,
+        "like/discussions": handleGetLikedDiscussions,
+      },
 
       onboarding: {
         "favorite-books": handleSelectFavoriteBooks,
@@ -96,10 +95,12 @@ export const routing: Routing = {
         "get favorite-genres": handleGetGenres,
       },
 
-      
       "reading-groups": {
+        create: handleCreateReadingGroup,
         list: handleGetReadingGroupList,
+        ":groupId/overview": handleGetReadingGroupOverview,
       },
     },
   },
-};
+}
+

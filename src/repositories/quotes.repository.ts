@@ -199,7 +199,7 @@ const getQuotesWithDetails = async (
           ${isLiked ? ", MAX(ql.like_id) AS liked_at" : ""}
       FROM ${isLiked ? "quote_like ql INNER JOIN quote q ON ql.quote_id = q.quote_id" : "quote q"}
       INNER JOIN book b ON q.book_id = b.book_id
-      INNER INNER JOIN user u ON q.user_id = u.user_id
+      INNER JOIN user u ON q.user_id = u.user_id
       LEFT JOIN book_genre bg ON b.book_id = bg.book_id
       LEFT JOIN genre g ON bg.genre_id = g.genre_id
       WHERE ${isLiked ? "ql" : "q"}.user_id = ?

@@ -5,7 +5,7 @@ import type { RowDataPacket } from "mysql2/promise";
 //함꼐 읽기 생성 요청 바디 스키마
 export const createReadingGroupInputSchema = z.object({
     book_id: z.number().int().positive(),
-    start_date: z.string(), 
+    start_date: z.string(),
     end_date: z.string(),
 });
 
@@ -25,9 +25,9 @@ export type CreateReadingGroupResponse = z.infer<typeof createReadingGroupRespon
 export interface ReadingGroupRow extends RowDataPacket {
     reading_group_id: number;
     book_id: number;
-    start_date: string; 
-    end_date: string;  
-    created_at: string;  
+    start_date: string;
+    end_date: string;
+    created_at: string;
 }
 
 // 책 기본 정보 스키마
@@ -63,10 +63,28 @@ export const readingGroupListResponseSchema = z.object({
     reading_groups: z.array(readingGroupListItemSchema),
 });
 
+// 함께 읽기 상세(overview) 응답 스키마
+export const readingGroupOverviewResponseSchema = z.object({
+    reading_group_id: z.number().int(),
+    title: z.string(),
+
+    member_count: z.number().int(),
+    days_left: z.number().int(),
+    total_pages: z.number().int().nullable(),
+
+    my_progress: z
+        .object({
+            current_page: z.number().int(),
+            memo: z.string().nullable(),
+        })
+        .nullable(),
+});
+
 // TypeScript 타입 추출
 export type BookInfo = z.infer<typeof bookInfoSchema>;
 export type ReadingGroupListItem = z.infer<typeof readingGroupListItemSchema>;
 export type ReadingGroupListResponse = z.infer<typeof readingGroupListResponseSchema>;
+export type ReadingGroupOverviewResponse = z.infer<typeof readingGroupOverviewResponseSchema>;
 
 // MySQL Row 타입 (Repository용)
 export interface ReadingGroupRow extends RowDataPacket {

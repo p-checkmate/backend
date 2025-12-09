@@ -1,20 +1,20 @@
 import HttpError from "http-errors";
+
+import { getBookById } from "../repositories/books.repository.js";
+
 import {
+    ReadingGroupListResponse,
+    ReadingGroupListItem,
+    ReadingGroupOverviewResponse,
     CreateReadingGroupResponse,
 } from "../schemas/reading_groups.schema.js";
 import {
     insertReadingGroup,
-} from "../repositories/reading_groups.repository.js";
-import { getBookById } from "../repositories/books.repository.js";
-
-import{
-    ReadingGroupListResponse,
-    ReadingGroupListItem,
-} from "../schemas/reading_groups.schema.js";
-import {
     getActiveReadingGroups,
     getMembersByUserAndGroups,
     getUserRankInGroup,
+    getReadingGroupById,
+    getMemberByUserAndGroup,
 } from "../repositories/reading_groups.repository.js";
 
 
@@ -148,4 +148,41 @@ export const createReadingGroupService = async (
         console.error(err);
         throw HttpError(500, "함께 읽기 생성에 실패했습니다.");
     }
+};
+
+// GET /api/reading-groups/:groupId/overview - 함께 읽기 기본 정보 + 내 진행
+export const getReadingGroupOverview = async (
+    userId: number,
+    groupId: number
+): Promise<ReadingGroupOverviewResponse> => {
+    // 1) 그룹 + 책 정보 조회
+    const group = await getReadingGroupById(groupId);
+    if (!group) {
+        throw HttpError(404, "함께 읽기 그룹을 찾을 수 없습니다.");
+    }
+
+    // 2) 내 참여 정보 조회 (없으면 null)
+    const member = await getMemberByUserAndGroup(userId, groupId);
+
+    // 3) days_left 계산 (list에서 쓰는 헬퍼 재사용)
+    const daysLeft = calcDaysLeft(group.end_date);
+
+    // 4) 내 진행 정보 구성 (참여 안 했으면 null)
+    const myProgress = member
+        ? {
+            current_page: member.current_page,
+            memo: member.memo,
+        }
+        : null;
+
+    return {
+        reading_group_id: group.reading_group_id,
+        title: group.book_title,
+
+        member_count: group.member_count, 
+        days_left: daysLeft,
+        total_pages: group.page_count,
+
+        my_progress: myProgress,
+    };
 };
