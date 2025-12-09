@@ -1,9 +1,10 @@
 import { pool } from "../config/db.config.js";
-import { ResultSetHeader } from "mysql2/promise";
+import { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import {
     ReadingGroupWithBookRow,
     memberRow,
     RankRow,
+    MemberWithLevelRow,
 } from "../schemas/reading_groups.schema.js";
 
 // 함께 읽기 그룹 생성
@@ -20,7 +21,6 @@ export const insertReadingGroup = async (
 
     return result.insertId;
 };
-
 
 // 현재 진행 중인 함께 읽기 그룹 목록 조회 (책 정보 포함)
 export const getActiveReadingGroups = async (): Promise<ReadingGroupWithBookRow[]> => {
@@ -155,4 +155,43 @@ export const updateReadingGroupMemberProgress = async (
     );
 
     return result.affectedRows;
+};
+
+// 특정 그룹의 참여자 총 수 조회
+export const countMembersByGroupId = async (groupId: number): Promise<number> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `SELECT COUNT(*) AS total_count
+        FROM reading_group_member
+        WHERE reading_group_id = ?`,
+        [groupId]
+    );
+
+    return rows[0].total_count;
+};
+
+// 특정 그룹의 참여자 목록 조회 (레벨 정보 포함, 페이지네이션)
+export const getMembersWithLevelByGroupId = async (
+    groupId: number,
+    limit: number,
+    offset: number
+): Promise<MemberWithLevelRow[]> => {
+    const [rows] = await pool.query<MemberWithLevelRow[]>(
+        `SELECT 
+            rgm.member_id,
+            rgm.reading_group_id,
+            rgm.user_id,
+            u.nickname,
+            rgm.current_page,
+            rgm.memo,
+            COALESCE(ue.level, 1) AS level
+        FROM reading_group_member rgm
+        INNER JOIN user u ON rgm.user_id = u.user_id
+        LEFT JOIN user_exp ue ON rgm.user_id = ue.user_id
+        WHERE rgm.reading_group_id = ?
+        ORDER BY rgm.current_page DESC, rgm.joined_at ASC
+        LIMIT ? OFFSET ?`,
+        [groupId, limit, offset]
+    );
+
+    return rows;
 };
