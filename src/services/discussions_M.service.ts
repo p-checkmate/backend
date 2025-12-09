@@ -1,6 +1,7 @@
 import HttpError from "http-errors";
 import { getBookById } from "../repositories/books.repository.js";
 import { createDiscussion } from "../repositories/discussions_M.repository.js";
+import { getDiscussionsByBook } from "../repositories/discussions_M.repository.js";
 
 export const createDiscussionService = async (payload: {
     user_id: number;
@@ -45,4 +46,16 @@ export const createDiscussionService = async (payload: {
         console.error(err);
         throw HttpError(500, "토론 생성 중 오류가 발생했습니다.");
     }
+};
+
+// 특정 책 토론 목록 조회
+export const getDiscussionsByBookService = async (bookId: number) => {
+  // 책 존재 여부 검증
+    const book = await getBookById(bookId);
+    if (!book) {
+    throw HttpError(404, "해당 도서를 찾을 수 없습니다.");
+    }
+
+    const discussions = await getDiscussionsByBook(bookId);
+    return discussions;
 };
