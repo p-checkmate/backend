@@ -1,60 +1,77 @@
 import { pool } from "../config/db.config.js";
-import { RowDataPacket, ResultSetHeader } from "mysql2";
+import { MyDiscussionRow } from "../schemas/discussions.schema.js";
 
-/* 책 존재 여부 확인 */
-export const getBookById = async (bookId: number) => {
-    const [rows] = await pool.query<RowDataPacket[]>(
-        `SELECT * FROM book WHERE book_id = ?`,
-        [bookId]
-    );
-    return rows[0] || null;
-};
+// 토론 리스트 조회 헬퍼 함수 (내가 작성한 / 좋아요한 공통)
+const getDiscussionsWithDetails = async (
+    userId: number,
+    limit: number,
+    offset: number,
+    type: "written" | "liked"
+): Promise<MyDiscussionRow[]> => {
+    const isLiked = type === "liked";
 
-/* 토론 생성 */
-export const createDiscussion = async (payload: {
-    user_id: number;
-    book_id: number;
-    title: string;
-    content: string;
-    discussion_type: "FREE" | "VS";
-    option1: string | null;
-    option2: string | null;
-}): Promise<number> => {
-
-    const {
-        user_id,
-        book_id,
-        title,
-        content,
-        discussion_type,
-        option1,
-        option2,
-    } = payload;
-
-    const [result] = await pool.query<ResultSetHeader>(
+    const [rows] = await pool.query<MyDiscussionRow[]>(
         `
-        INSERT INTO discussion
-            (user_id, book_id, title, content, discussion_type, option1, option2)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        SELECT 
+            d.discussion_id,
+            d.title,
+            d.content,
+            d.view_count,
+            d.like_count,
+            d.created_at,
+            b.book_id,
+            b.title AS book_title,
+            u.nickname,
+            (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id) AS comment_count
+            ${isLiked ? ", MAX(dl.like_id) AS liked_at" : ""}
+        FROM ${isLiked ? "discussion_like dl INNER JOIN discussion d ON dl.discussion_id = d.discussion_id" : "discussion d"}
+        INNER JOIN book b ON d.book_id = b.book_id
+        INNER JOIN user u ON d.user_id = u.user_id
+        WHERE ${isLiked ? "dl" : "d"}.user_id = ?
+        GROUP BY d.discussion_id
+        ORDER BY ${isLiked ? "liked_at" : "d.created_at"} DESC
+        LIMIT ? OFFSET ?
         `,
-        [user_id, book_id, title, content, discussion_type, option1, option2]
+        [userId, limit, offset]
     );
 
-    return result.insertId;
+    return rows;
 };
 
-export const getDiscussionsByUserId = async () => {
-    return []; 
+// 사용자별 토론 리스트 조회 (책 정보, 댓글 수 포함)
+export const getDiscussionsByUserId = async (
+    userId: number,
+    limit: number,
+    offset: number
+): Promise<MyDiscussionRow[]> => {
+    return getDiscussionsWithDetails(userId, limit, offset, "written");
 };
 
-export const countDiscussionsByUserId = async () => {
-    return 0; 
+// 사용자가 좋아요한 토론 리스트 조회 (책 정보, 댓글 수 포함)
+export const getLikedDiscussionsByUserId = async (
+    userId: number,
+    limit: number,
+    offset: number
+): Promise<MyDiscussionRow[]> => {
+    return getDiscussionsWithDetails(userId, limit, offset, "liked");
 };
 
-export const getLikedDiscussionsByUserId = async () => {
-    return []; 
+// 사용자 토론 총 개수 조회
+export const countDiscussionsByUserId = async (userId: number): Promise<number> => {
+    const [rows] = await pool.query<any[]>(
+        `SELECT COUNT(*) AS total FROM discussion WHERE user_id = ?`,
+        [userId]
+    );
+
+    return rows[0].total;
 };
 
-export const countLikedDiscussionsByUserId = async () => {
-    return 0; 
+// 사용자가 좋아요한 토론 총 개수 조회
+export const countLikedDiscussionsByUserId = async (userId: number): Promise<number> => {
+    const [rows] = await pool.query<any[]>(
+        `SELECT COUNT(*) AS total FROM discussion_like WHERE user_id = ?`,
+        [userId]
+    );
+
+    return rows[0].total;
 };

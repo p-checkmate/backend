@@ -1,3 +1,4 @@
+
 import { Routing } from "express-zod-api";
 import { handleGetReadingGroupList } from "../controllers/reading_groups.controller.js";
 
@@ -44,6 +45,9 @@ import {
   handleGetGenres,
 } from "../controllers/onboarding.controller.js";
 
+import { handleCreateDiscussion } from "../controllers/discussions_M.controller.js";
+
+
 export const routing: Routing = {
   api: {
     v1: {
@@ -52,11 +56,9 @@ export const routing: Routing = {
   "get :quoteId": handleGetQuote,
   "patch :quoteId": handleUpdateQuote,
   "delete :quoteId": handleDeleteQuote,
-
   "post :quoteId/like": handleLikeQuote,
   "delete :quoteId/like": handleUnlikeQuote,
 },
-
 
       books: {
                 search: handleSearchBooks,
@@ -67,6 +69,7 @@ export const routing: Routing = {
                 "delete /:bookId/bookmark": handleDeleteBookmark,
                 "get :bookId/quotes": handleGetQuotesByBook,
                 "post :bookId/quotes": handleCreateQuote,
+                "post :bookId/discussions": handleCreateDiscussion,
       },
 
       auth: {
@@ -93,7 +96,6 @@ export const routing: Routing = {
         "get favorite-genres": handleGetGenres,
       },
 
-      
       "reading-groups": {
         list: handleGetReadingGroupList,
       },

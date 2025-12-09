@@ -1,47 +1,47 @@
 import { z } from "zod";
-import { RowDataPacket } from "mysql2";
+import { RowDataPacket } from "mysql2/promise";
 
-//MySQL SELECT 결과 타입
-export interface DiscussionRow extends RowDataPacket {
-  discussion_id: number;
-  user_id: number;
-  book_id: number;
-  title: string;
-  content: string;
-  discussion_type: "FREE" | "VS";
-  option1: string | null;
-  option2: string | null;
-  view_count: number;
-  like_count: number;
-  created_at: string;
-  updated_at: string | null;
-}
-
-
-//Discussion 출력용 zod 스키마
-export const discussionSchema = z.object({
-  discussion_id: z.number(),
-  user_id: z.number(),
-  book_id: z.number(),
-  title: z.string(),
-  content: z.string(),
-  discussion_type: z.enum(["FREE", "VS"]),
-  option1: z.string().nullable(),
-  option2: z.string().nullable(),
-  view_count: z.number(),
-  like_count: z.number(),
-  created_at: z.string(),
-  updated_at: z.string().nullable(),
+// 내 토론 목록용 스키마
+export const myDiscussionSchema = z.object({
+    discussion_id: z.number().int(),
+    title: z.string(),
+    content: z.string().nullable(),
+    like_count: z.number().int(),
+    comment_count: z.number().int(),
+    created_at: z.string(),
+    book: z.object({
+        book_id: z.number().int(),
+        title: z.string(),
+    }),
+    user: z.object({
+        nickname: z.string().nullable(),
+    }),
 });
 
-// 마이페이지가 요청하는 myDiscussionsResponseSchema
+// 페이지네이션 포함 응답 스키마
 export const myDiscussionsResponseSchema = z.object({
-  discussions: z.array(z.any()),   // 아무 형태나 허용
-  total: z.number(),               // 전체 개수
+    page: z.number().int(),
+    limit: z.number().int(),
+    total_count: z.number().int(),
+    total_pages: z.number().int(),
+    has_next: z.boolean(),
+    discussions: z.array(myDiscussionSchema),
 });
 
-// 좋아요한 토론 목록 스키마
-export const likedDiscussionsResponseSchema = z.object({
-  discussions: z.array(z.any()),
-  total: z.number(),
-});
+// TypeScript 타입 추출
+export type MyDiscussion = z.infer<typeof myDiscussionSchema>;
+export type MyDiscussionsResponse = z.infer<typeof myDiscussionsResponseSchema>;
+
+// MySQL Row 타입
+export interface MyDiscussionRow extends RowDataPacket {
+    discussion_id: number;
+    title: string;
+    content: string | null;
+    view_count: number;
+    like_count: number;
+    comment_count: number;
+    created_at: string;
+    book_id: number;
+    book_title: string;
+    nickname: string | null;
+}

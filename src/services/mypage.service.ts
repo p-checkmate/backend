@@ -1,14 +1,21 @@
 import HttpError from "http-errors";
 import { MypageOutput } from "../schemas/mypage.schema.js";
-import { MyQuoteRow } from "../schemas/quotes.schema.js";
-import { findGenresByBookId } from "../repositories/books.repository.js";
 import { UserBookmarksResponse, BookmarkItem } from "../schemas/books.schema.js";
-import { countBookmarksByUserId, getBookmarksWithPagination } from "../repositories/bookmarks.repository.js";
-import { getQuotesByUserId, countQuotesByUserId } from "../repositories/quotes.repository.js";
+import { MyQuoteRow } from "../schemas/quotes.schema.js";
 import { MyDiscussionRow, MyDiscussionsResponse } from "../schemas/discussions.schema.js";
+import { findGenresByBookId } from "../repositories/books.repository.js";
+import { countBookmarksByUserId, getBookmarksWithPagination } from "../repositories/bookmarks.repository.js";
+import {
+    getQuotesByUserId,
+    countQuotesByUserId,
+    getLikedQuotesByUserId,
+    countLikedQuotesByUserId,
+} from "../repositories/quotes.repository.js";
 import {
     getDiscussionsByUserId,
     countDiscussionsByUserId,
+    getLikedDiscussionsByUserId,
+    countLikedDiscussionsByUserId,
 } from "../repositories/discussions.repository.js";
 import {
     getUserById,
@@ -31,6 +38,54 @@ const processPagination = (page: number, limit: number, totalCount: number) => {
         totalPages,
         offset,
         hasNext,
+    };
+};
+
+// 인용구 데이터 변환 헬퍼 함수
+const transformQuoteData = (row: MyQuoteRow) => {
+    const date = new Date(row.created_at);
+    const yy = String(date.getFullYear()).slice(-2);
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+
+    return {
+        quote_id: row.quote_id,
+        content: row.content,
+        like_count: row.like_count,
+        created_at: `${yy}.${mm}.${dd}`,
+        book: {
+            book_id: row.book_id,
+            title: row.book_title,
+            genres: row.genre_names ? row.genre_names.split(",") : [],
+        },
+        user: {
+            nickname: row.nickname,
+        },
+    };
+};
+
+// 토론 데이터 변환 헬퍼 함수
+const transformDiscussionData = (row: MyDiscussionRow) => {
+    const date = new Date(row.created_at);
+    const yy = String(date.getFullYear()).slice(-2);
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+
+    return {
+        discussion_id: row.discussion_id,
+        title: row.title,
+        content: row.content,
+        view_count: row.view_count,
+        like_count: row.like_count,
+        comment_count: row.comment_count,
+        created_at: `${yy}.${mm}.${dd}`,
+        book: {
+            book_id: row.book_id,
+            title: row.book_title,
+        },
+        user: {
+            nickname: row.nickname,
+        },
     };
 };
 
@@ -114,28 +169,7 @@ export const getMyQuotesService = async (
 
     try {
         const quotes = await getQuotesByUserId(userId, safeLimit, offset);
-
-        const data = quotes.map((row: MyQuoteRow) => {
-            const date = new Date(row.created_at);
-            const yy = String(date.getFullYear()).slice(-2);
-            const mm = String(date.getMonth() + 1).padStart(2, "0");
-            const dd = String(date.getDate()).padStart(2, "0");
-
-            return {
-                quote_id: row.quote_id,
-                content: row.content,
-                like_count: row.like_count,
-                created_at: `${yy}.${mm}.${dd}`,
-                book: {
-                    book_id: row.book_id,
-                    title: row.book_title,
-                    genres: row.genre_names ? row.genre_names.split(",") : [],
-                },
-                user: {
-                    nickname: row.nickname,
-                },
-            };
-        });
+        const data = quotes.map(transformQuoteData);
 
         return {
             page: safePage,
@@ -162,30 +196,7 @@ export const getMyDiscussionsService = async (
 
     try {
         const discussions = await getDiscussionsByUserId(userId, safeLimit, offset);
-
-        const data = discussions.map((row: MyDiscussionRow) => {
-            const date = new Date(row.created_at);
-            const yy = String(date.getFullYear()).slice(-2);
-            const mm = String(date.getMonth() + 1).padStart(2, "0");
-            const dd = String(date.getDate()).padStart(2, "0");
-
-            return {
-                discussion_id: row.discussion_id,
-                title: row.title,
-                content: row.content,
-                view_count: row.view_count,
-                like_count: row.like_count,
-                comment_count: row.comment_count,
-                created_at: `${yy}.${mm}.${dd}`,
-                book: {
-                    book_id: row.book_id,
-                    title: row.book_title,
-                },
-                user: {
-                    nickname: row.nickname,
-                },
-            };
-        });
+        const data = discussions.map(transformDiscussionData);
 
         return {
             page: safePage,
@@ -198,5 +209,59 @@ export const getMyDiscussionsService = async (
     } catch (err) {
         console.error(err);
         throw HttpError(500, "내 토론 조회에 실패했습니다.");
+    }
+};
+
+// 내가 좋아요한 인용구 조회 (페이지네이션)
+export const getLikedQuotesService = async (
+    userId: number,
+    page: number,
+    limit: number
+) => {
+    const totalCount = await countLikedQuotesByUserId(userId);
+    const { safePage, safeLimit, totalPages, offset, hasNext } = processPagination(page, limit, totalCount);
+
+    try {
+        const quotes = await getLikedQuotesByUserId(userId, safeLimit, offset);
+        const data = quotes.map(transformQuoteData);
+
+        return {
+            page: safePage,
+            limit: safeLimit,
+            total_count: totalCount,
+            total_pages: totalPages,
+            has_next: hasNext,
+            quotes: data,
+        };
+    } catch (err) {
+        console.error(err);
+        throw HttpError(500, "좋아요한 인용구 조회에 실패했습니다.");
+    }
+};
+
+// 내가 좋아요한 토론 조회 (페이지네이션)
+export const getLikedDiscussionsService = async (
+    userId: number,
+    page: number,
+    limit: number
+): Promise<MyDiscussionsResponse> => {
+    const totalCount = await countLikedDiscussionsByUserId(userId);
+    const { safePage, safeLimit, totalPages, offset, hasNext } = processPagination(page, limit, totalCount);
+
+    try {
+        const discussions = await getLikedDiscussionsByUserId(userId, safeLimit, offset);
+        const data = discussions.map(transformDiscussionData);
+
+        return {
+            page: safePage,
+            limit: safeLimit,
+            total_count: totalCount,
+            total_pages: totalPages,
+            has_next: hasNext,
+            discussions: data,
+        };
+    } catch (err) {
+        console.error(err);
+        throw HttpError(500, "좋아요한 토론 조회에 실패했습니다.");
     }
 };
