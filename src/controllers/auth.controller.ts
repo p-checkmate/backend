@@ -5,6 +5,7 @@ import {
     loginOutputSchema,
     refreshInputSchema,
     refreshOutputSchema,
+    signupInputSchema,
     signupOutputSchema,
 } from "../schemas/users.schema.js";
 import { refreshAccessToken, userLogin, userSignup, userLogout, userWithdrawal } from "../services/users.service.js";
@@ -36,7 +37,7 @@ export const handleRefreshToken = defaultEndpointsFactory.build({
 // 회원가입
 export const handleSignup = defaultEndpointsFactory.build({
     method: "post",
-    input: loginInputSchema,
+    input: signupInputSchema,
     output: signupOutputSchema,
     handler: async ({ input }) => {
         return await userSignup(input);

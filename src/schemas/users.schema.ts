@@ -37,6 +37,13 @@ export const refreshOutputSchema = z.object({
     accessToken: z.string(),
 });
 
+// Signup Input 스키마
+export const signupInputSchema = userSchema.pick({
+    email: true,
+    password: true,
+    nickname: true,
+});
+
 // Signup Output 스키마
 export const signupOutputSchema = z.object({
     accessToken: z.string(),
@@ -44,6 +51,7 @@ export const signupOutputSchema = z.object({
     user: userSchema.pick({
         user_id: true,
         email: true,
+        nickname: true,
     }),
 });
 
@@ -70,6 +78,7 @@ export type LoginInput = z.infer<typeof loginInputSchema>;
 export type LoginOutput = z.infer<typeof loginOutputSchema>;
 export type RefreshTokenInput = z.infer<typeof refreshInputSchema>;
 export type RefreshTokenOutput = z.infer<typeof refreshOutputSchema>;
+export type SignupInput = z.infer<typeof signupInputSchema>;
 export type SignupOutput = z.infer<typeof signupOutputSchema>;
 export type ModifyUserInput = z.infer<typeof modifyUserInputSchema>;
 export type OnboardingGenreOutput = z.infer<typeof onboardingGenreOutputSchema>;
