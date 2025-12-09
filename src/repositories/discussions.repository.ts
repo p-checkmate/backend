@@ -134,7 +134,7 @@ export const addUserExp = async (
 
         // 현재 경험치 조회
         const [rows] = await conn.query<RowDataPacket[]>(
-            `SELECT exp_id, exp, level
+            `SELECT exp_id, exp
             FROM user_exp
             WHERE user_id = ?
             FOR UPDATE`,
@@ -150,17 +150,13 @@ export const addUserExp = async (
             );
         } else {
             // 기존 경험치에 추가
-            const currentExp = rows[0].exp;
-            const newExp = currentExp + expAmount;
-
-            // 레벨업 로직 (100 경험치당 1레벨, 최대 5레벨)
-            const newLevel = Math.min(Math.floor(newExp / 100) + 1, 5);
+            const newExp = rows[0].exp + expAmount;
 
             await conn.query<ResultSetHeader>(
                 `UPDATE user_exp
-                SET exp = ?, level = ?
+                SET exp = ?
                 WHERE user_id = ?`,
-                [newExp, newLevel, userId]
+                [newExp, userId]
             );
         }
 
