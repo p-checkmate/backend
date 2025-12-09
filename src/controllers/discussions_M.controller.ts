@@ -15,6 +15,9 @@ import {
 
 import { getDiscussionsByBookService } from "../services/discussions_M.service.js";
 
+import { getDiscussionDetailInputSchema, getDiscussionDetailResponseSchema } from "../schemas/discussions_M.schema.js";
+import { getDiscussionDetailService } from "../services/discussions_M.service.js";
+
 // 인증된 API 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
 
@@ -41,7 +44,7 @@ export const handleCreateDiscussion = authEndpointsFactory.build({
     },
 });
 
-export const handleGetDiscussionsByBook = defaultEndpointsFactory.build({
+export const handleGetDiscussionsByBook = authEndpointsFactory.build({
     method: "get",
     input: getDiscussionsByBookInputSchema,
     output: getDiscussionsByBookResponseSchema,
@@ -52,15 +55,8 @@ export const handleGetDiscussionsByBook = defaultEndpointsFactory.build({
     },
 });
 
-import {
-    getDiscussionDetailInputSchema,
-    getDiscussionDetailResponseSchema,
-} from "../schemas/discussions_M.schema.js";
-
-import { getDiscussionDetailService } from "../services/discussions_M.service.js";
-
-// 토론 상세조회 — 인증 필요 없음 (FE 일반 사용자 접근 가능)
-export const handleGetDiscussionDetail = defaultEndpointsFactory.build({
+// 토론 상세조회 
+export const handleGetDiscussionDetail = authEndpointsFactory.build({
     method: "get",
     input: getDiscussionDetailInputSchema,
     output: getDiscussionDetailResponseSchema,

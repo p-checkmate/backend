@@ -60,14 +60,15 @@ export const getDiscussionsByBookService = async (bookId: number) => {
     return discussions;
 };
 
-import { getDiscussionById } from "../repositories/discussions_M.repository.js";
+
+import { getDiscussionDetail } from "../repositories/discussions_M.repository.js";
 
 export const getDiscussionDetailService = async (discussionId: number) => {
-    const discussion = await getDiscussionById(discussionId);
+    const discussion = await getDiscussionDetail(discussionId);
 
     if (!discussion) {
     throw HttpError(404, "해당 토론을 찾을 수 없습니다.");
-}
+    }
 
-return discussion;
+    return discussion;
 };

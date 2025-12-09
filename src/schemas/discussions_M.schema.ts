@@ -9,7 +9,7 @@ export const createDiscussionInputSchema = z.object({
   content: z.string().min(1),
   discussion_type: discussionTypeEnum,
   option1: z.string().optional(),
-  option2: z.string().optional(),
+  option2: z.string().optional(),   
 })
 .refine(
   (data) => {
@@ -57,19 +57,23 @@ export const discussionListItemSchema = z.object({
   option2: z.string().nullable(),
   created_at: z.date(),
   nickname: z.string(),
+  like_count: z.number(),
+  comment_count: z.number(),
 });
 
 export const getDiscussionsByBookResponseSchema = z.object({
   discussions: z.array(discussionListItemSchema),
 });
 
-// 토론 상세조회 스키마
+// 토론 상세조회 Input스키마
 export const getDiscussionDetailInputSchema = z.object({
   discussionId: z.coerce.number().int().positive(),
 });
 
+//토론 상세조회 Response스키마
 export const discussionDetailSchema = z.object({
   discussion_id: z.number(),
+  user_id: z.number(),
   book_id: z.number(),
   title: z.string(),
   content: z.string(),
@@ -78,6 +82,9 @@ export const discussionDetailSchema = z.object({
   option2: z.string().nullable(),
   created_at: z.date(),
   nickname: z.string(),
+
+  like_count: z.number(),
+  comment_count: z.number(),
 });
 
 export const getDiscussionDetailResponseSchema = z.object({
