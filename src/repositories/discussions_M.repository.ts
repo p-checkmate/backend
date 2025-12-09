@@ -100,3 +100,31 @@ export const getDiscussionsByBook = async (
 
   return rows as DiscussionRow[];
 };
+
+// ======================
+// 특정 토론 상세 조회
+// ======================
+export const getDiscussionById = async (
+  discussionId: number
+): Promise<DiscussionRow | null> => {
+  const [rows] = await pool.query<RowDataPacket[]>(
+    `
+    SELECT 
+      d.discussion_id,
+      d.book_id,
+      d.title,
+      d.content,
+      d.discussion_type,
+      d.option1,
+      d.option2,
+      d.created_at,
+      u.nickname
+    FROM discussion d
+    INNER JOIN user u ON d.user_id = u.user_id
+    WHERE d.discussion_id = ?
+    `,
+    [discussionId]
+  );
+
+  return rows.length ? (rows[0] as DiscussionRow) : null;
+};

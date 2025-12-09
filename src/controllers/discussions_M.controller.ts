@@ -51,3 +51,22 @@ export const handleGetDiscussionsByBook = defaultEndpointsFactory.build({
     return { discussions };
     },
 });
+
+import {
+    getDiscussionDetailInputSchema,
+    getDiscussionDetailResponseSchema,
+} from "../schemas/discussions_M.schema.js";
+
+import { getDiscussionDetailService } from "../services/discussions_M.service.js";
+
+// 토론 상세조회 — 인증 필요 없음 (FE 일반 사용자 접근 가능)
+export const handleGetDiscussionDetail = defaultEndpointsFactory.build({
+    method: "get",
+    input: getDiscussionDetailInputSchema,
+    output: getDiscussionDetailResponseSchema,
+
+    handler: async ({ input }) => {
+    const discussion = await getDiscussionDetailService(input.discussionId);
+    return { discussion };
+},
+});

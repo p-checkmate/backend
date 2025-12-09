@@ -62,3 +62,26 @@ export const discussionListItemSchema = z.object({
 export const getDiscussionsByBookResponseSchema = z.object({
   discussions: z.array(discussionListItemSchema),
 });
+
+// ======================
+// 토론 상세조회 스키마
+// ======================
+export const getDiscussionDetailInputSchema = z.object({
+  discussionId: z.coerce.number().int().positive(),
+});
+
+export const discussionDetailSchema = z.object({
+  discussion_id: z.number(),
+  book_id: z.number(),
+  title: z.string(),
+  content: z.string(),
+  discussion_type: discussionTypeEnum,
+  option1: z.string().nullable(),
+  option2: z.string().nullable(),
+  created_at: z.date(),
+  nickname: z.string(),
+});
+
+export const getDiscussionDetailResponseSchema = z.object({
+  discussion: discussionDetailSchema,
+});
