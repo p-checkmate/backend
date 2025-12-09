@@ -41,6 +41,16 @@ const processPagination = (page: number, limit: number, totalCount: number) => {
     };
 };
 
+// 경험치 기반 레벨 계산 헬퍼 함수
+const calculateLevel = (exp: number): number => {
+    if (exp >= 2000) return 5;
+    if (exp >= 1000) return 4;
+    if (exp >= 500) return 3;
+    if (exp >= 200) return 2;
+    if (exp >= 100) return 1;
+    return 1;
+};
+
 // 인용구 데이터 변환 헬퍼 함수
 const transformQuoteData = (row: MyQuoteRow) => {
     const date = new Date(row.created_at);
@@ -103,13 +113,16 @@ export const getMyPageInfo = async (userId: number): Promise<MypageOutput> => {
         getBookmarksByUserId(userId),
     ]);
 
+    const currentExp = expInfo?.exp ?? 0;
+    const calculatedLevel = calculateLevel(currentExp);
+
     return {
         user: {
             user_id: user.user_id,
             nickname: user.nickname,
             email: user.email,
-            exp: expInfo?.exp ?? 0,
-            level: expInfo?.level ?? 1,
+            exp: currentExp,
+            level: calculatedLevel,
             preferred_genres: preferredGenres,
         },
         my_bookshelf: bookmarks.map((bookmark) => ({
