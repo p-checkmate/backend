@@ -13,6 +13,7 @@ export interface DiscussionRow extends RowDataPacket {
   option2: string | null;
   created_at: Date;
   updated_at: Date;
+  nickname: string; 
 }
 
 //책 존재여부 확인
