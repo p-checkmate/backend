@@ -51,18 +51,18 @@ import {
   handleGetGenres,
 } from "../controllers/onboarding.controller.js";
 
+import { handleCreateDiscussion } from "../controllers/discussions_M.controller.js";
+
+
 export const routing: Routing = {
   api: {
     v1: {
       quotes: {
-        ":quoteId": {
-          "get": handleGetQuote,
-          "patch": handleUpdateQuote,
-          "delete": handleDeleteQuote,
-          "post like": handleLikeQuote,
-          "delete like": handleUnlikeQuote,
-          ":groupId/members": handleGetReadingGroupMembers,
-        },
+        "get :quoteId": handleGetQuote,
+        "patch :quoteId": handleUpdateQuote,
+        "delete :quoteId": handleDeleteQuote,
+        "post :quoteId/like": handleLikeQuote,
+        "delete :quoteId/like": handleUnlikeQuote,
       },
 
       books: {
@@ -72,11 +72,9 @@ export const routing: Routing = {
         ":bookId": handleGetBookDetail,
         ":bookId/bookmark": handleAddBookmark,
         "delete /:bookId/bookmark": handleDeleteBookmark,
-
-        ":bookId/quotes": {
-          get: handleGetQuotesByBook,
-          post: handleCreateQuote,
-        },
+        "get :bookId/quotes": handleGetQuotesByBook,
+        "post :bookId/quotes": handleCreateQuote,
+        "post :bookId/discussions": handleCreateDiscussion,
       },
 
       auth: {
@@ -114,4 +112,3 @@ export const routing: Routing = {
     },
   },
 }
-
