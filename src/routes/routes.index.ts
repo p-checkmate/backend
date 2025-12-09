@@ -3,7 +3,8 @@ import {
   handleCreateReadingGroup,
   handleGetReadingGroupOverview,
   handleGetReadingGroupList,
-  handleJoinReadingGroup 
+  handleJoinReadingGroup,
+  handleUpdateReadingProgress,
 } from "../controllers/reading_groups.controller.js";
 
 import {
@@ -104,6 +105,7 @@ export const routing: Routing = {
         list: handleGetReadingGroupList,
         ":groupId/overview": handleGetReadingGroupOverview,
         ":groupId/join": handleJoinReadingGroup,
+        ":groupId/progress": handleUpdateReadingProgress,
       },
     },
   },
