@@ -25,6 +25,7 @@ export const mypageOutputSchema = z.object({
     my_bookshelf: z.array(bookmarkBookSchema)
 });
 
+
 // TypeScript 타입 추출
 export type BookmarkBook = z.infer<typeof bookmarkBookSchema>;
 export type MypageUser = z.infer<typeof mypageUserSchema>;

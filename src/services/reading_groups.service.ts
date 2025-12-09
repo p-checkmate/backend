@@ -9,6 +9,8 @@ import {
     CreateReadingGroupResponse,
     JoinReadingGroupResponse,
     UpdateReadingProgressResponse,
+    ReadingGroupMembersResponse,
+    ReadingGroupMemberItem,
 } from "../schemas/reading_groups.schema.js";
 import {
     insertReadingGroup,
@@ -19,7 +21,10 @@ import {
     getMemberByUserAndGroup,
     insertReadingGroupMember,
     updateReadingGroupMemberProgress,
+    countMembersByGroupId,
+    getMembersWithLevelByGroupId,
 } from "../repositories/reading_groups.repository.js";
+
 
 
 // 날짜 포맷팅 헬퍼 함수 (YY.MM.DD)
@@ -301,5 +306,74 @@ export const updateReadingProgress = async (
         }
         console.error(err);
         throw HttpError(500, "독서 진행 업데이트에 실패했습니다.");
+    }
+}
+
+// GET /api/reading-groups/:groupId/members - 참여자 목록 조회 (무한 스크롤)
+export const getReadingGroupMembers = async (
+    userId: number,
+    groupId: number,
+    page: number,
+    limit: number
+): Promise<ReadingGroupMembersResponse> => {
+    // 그룹 존재 여부 확인
+    const group = await getReadingGroupById(groupId);
+    if (!group) {
+        throw HttpError(404, "함께 읽기 그룹을 찾을 수 없습니다.");
+    }
+
+    // 총 참여자 수 조회
+    const totalCount = await countMembersByGroupId(groupId);
+
+    // 페이지네이션 계산
+    const safePage = page > 0 ? page : 1;
+    const safeLimit = limit > 0 ? limit : 10;
+    const totalPages = totalCount === 0 ? 0 : Math.ceil(totalCount / safeLimit);
+    const offset = (safePage - 1) * safeLimit;
+    const hasNext = safePage * safeLimit < totalCount;
+
+    try {
+        // 참여자 목록 조회 (레벨 정보 포함)
+        const memberRows = await getMembersWithLevelByGroupId(groupId, safeLimit, offset);
+
+        // 전체 페이지 수 (책의 총 페이지)
+        const totalPageCount = group.page_count;
+
+        // 응답 데이터 변환
+        const members: ReadingGroupMemberItem[] = memberRows.map((row) => {
+            // 진행률 계산 (전체 페이지가 없으면 0%)
+            let progressPercent = 0;
+            if (totalPageCount && totalPageCount > 0) {
+                progressPercent = Math.round((row.current_page / totalPageCount) * 100);
+                progressPercent = Math.min(progressPercent, 100);
+            }
+
+            return {
+                member_id: row.member_id,
+                user_id: row.user_id,
+                nickname: row.nickname,
+                level: row.level,
+                current_page: row.current_page,
+                progress_percent: progressPercent,
+                memo: row.memo,
+                is_current_user: row.user_id === userId,
+            };
+        });
+
+        return {
+            page: safePage,
+            limit: safeLimit,
+            total_count: totalCount,
+            total_pages: totalPages,
+            has_next: hasNext,
+            total_page_count: totalPageCount,
+            members,
+        };
+    } catch (err: any) {
+        if (err.status) {
+            throw err;
+        }
+        console.error(err);
+        throw HttpError(500, "참여자 목록 조회에 실패했습니다.");
     }
 };

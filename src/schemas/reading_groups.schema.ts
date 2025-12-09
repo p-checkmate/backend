@@ -17,19 +17,6 @@ export const createReadingGroupResponseSchema = z.object({
     end_date: z.string(),
 });
 
-// TypeScript 타입 추출
-export type CreateReadingGroupInput = z.infer<typeof createReadingGroupInputSchema>;
-export type CreateReadingGroupResponse = z.infer<typeof createReadingGroupResponseSchema>;
-
-//reading_group 테이블 Row 타입
-export interface ReadingGroupRow extends RowDataPacket {
-    reading_group_id: number;
-    book_id: number;
-    start_date: string;
-    end_date: string;
-    created_at: string;
-}
-
 // 책 기본 정보 스키마
 export const bookInfoSchema = z.object({
     book_id: z.number().int(),
@@ -103,6 +90,29 @@ export const updateReadingProgressResponseSchema = z.object({
     memo: z.string().nullable(),
 });
 
+// 참여자 목록 개별 아이템 스키마
+export const readingGroupMemberItemSchema = z.object({
+    member_id: z.number().int(),
+    user_id: z.number().int(),
+    nickname: z.string().nullable(),
+    level: z.number().int().min(1).max(5),
+    current_page: z.number().int(),
+    progress_percent: z.number().int().min(0).max(100),
+    memo: z.string().nullable(),
+    is_current_user: z.boolean(),
+});
+
+// 참여자 목록 응답 스키마 (무한 스크롤용 페이지네이션)
+export const readingGroupMembersResponseSchema = z.object({
+    page: z.number().int(),
+    limit: z.number().int(),
+    total_count: z.number().int(),
+    total_pages: z.number().int(),
+    has_next: z.boolean(),
+    total_page_count: z.number().int().nullable(),
+    members: z.array(readingGroupMemberItemSchema),
+});
+
 // TypeScript 타입 추출
 export type BookInfo = z.infer<typeof bookInfoSchema>;
 export type ReadingGroupListItem = z.infer<typeof readingGroupListItemSchema>;
@@ -110,6 +120,11 @@ export type ReadingGroupListResponse = z.infer<typeof readingGroupListResponseSc
 export type ReadingGroupOverviewResponse = z.infer<typeof readingGroupOverviewResponseSchema>;
 export type JoinReadingGroupResponse = z.infer<typeof joinReadingGroupResponseSchema>;
 export type UpdateReadingProgressResponse = z.infer<typeof updateReadingProgressResponseSchema>;
+export type CreateReadingGroupInput = z.infer<typeof createReadingGroupInputSchema>;
+export type CreateReadingGroupResponse = z.infer<typeof createReadingGroupResponseSchema>;
+export type ReadingGroupMemberItem = z.infer<typeof readingGroupMemberItemSchema>;
+export type ReadingGroupMembersResponse = z.infer<typeof readingGroupMembersResponseSchema>;
+
 // MySQL Row 타입 (Repository용)
 export interface ReadingGroupRow extends RowDataPacket {
     reading_group_id: number;
@@ -150,4 +165,21 @@ export interface memberWithUserRow extends RowDataPacket {
 export interface RankRow extends RowDataPacket {
     user_id: number;
     rank_num: number;
+}
+
+export interface ReadingGroupRow extends RowDataPacket {
+    reading_group_id: number;
+    book_id: number;
+    start_date: string;
+    end_date: string;
+    created_at: string;
+}
+export interface MemberWithLevelRow extends RowDataPacket {
+    member_id: number;
+    reading_group_id: number;
+    user_id: number;
+    nickname: string | null;
+    current_page: number;
+    memo: string | null;
+    level: number;
 }
