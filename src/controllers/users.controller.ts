@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { defaultEndpointsFactory } from "express-zod-api";
 import { modifyUser } from "../services/users.service.js";
+import { getRecommendedBooks } from "../services/recommendations.service.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { modifyUserInputSchema } from "../schemas/users.schema.js";
 
@@ -16,6 +17,19 @@ export const handleModifyUser = authEndpointsFactory.build({
     }),
     handler: async ({ input, options }) => {
         const message = await modifyUser(input, options.user.user_id);
+        return { message };
+    },
+});
+
+// 사용자 정보 수정
+export const handleGetRecommendedBooks = authEndpointsFactory.build({
+    method: "get",
+    input: z.object({}),
+    output: z.object({
+        message: z.string(),
+    }),
+    handler: async ({ options }) => {
+        const message = await getRecommendedBooks(options.user.user_id);
         return { message };
     },
 });

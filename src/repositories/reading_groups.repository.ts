@@ -1,18 +1,9 @@
 import { pool } from "../config/db.config.js";
 import { ResultSetHeader, RowDataPacket } from "mysql2/promise";
-import {
-    ReadingGroupWithBookRow,
-    memberRow,
-    RankRow,
-    MemberWithLevelRow,
-} from "../schemas/reading_groups.schema.js";
+import { ReadingGroupWithBookRow, memberRow, RankRow, MemberWithLevelRow } from "../schemas/reading_groups.schema.js";
 
 // 함께 읽기 그룹 생성
-export const insertReadingGroup = async (
-    bookId: number,
-    startDate: string,
-    endDate: string
-): Promise<number> => {
+export const insertReadingGroup = async (bookId: number, startDate: string, endDate: string): Promise<number> => {
     const [result] = await pool.query<ResultSetHeader>(
         `INSERT INTO reading_group (book_id, start_date, end_date)
         VALUES (?, ?, ?)`,
@@ -43,11 +34,8 @@ export const getActiveReadingGroups = async (): Promise<ReadingGroupWithBookRow[
     return rows;
 };
 
-// 사용자의 여러 그룹 참여 정보 조회 
-export const getMembersByUserAndGroups = async (
-    userId: number,
-    groupIds: number[]
-): Promise<memberRow[]> => {
+// 사용자의 여러 그룹 참여 정보 조회
+export const getMembersByUserAndGroups = async (userId: number, groupIds: number[]): Promise<memberRow[]> => {
     if (groupIds.length === 0) {
         return [];
     }
@@ -69,19 +57,13 @@ export const getMembersByUserAndGroups = async (
 };
 
 // 사용자의 특정 그룹 참여 정보 조회
-export const getMemberByUserAndGroup = async (
-    userId: number,
-    groupId: number
-): Promise<memberRow | null> => {
+export const getMemberByUserAndGroup = async (userId: number, groupId: number): Promise<memberRow | null> => {
     const members = await getMembersByUserAndGroups(userId, [groupId]);
     return members[0] ?? null;
 };
 
 // 특정 그룹에서 사용자의 순위 조회
-export const getUserRankInGroup = async (
-    groupId: number,
-    userId: number
-): Promise<number | null> => {
+export const getUserRankInGroup = async (groupId: number, userId: number): Promise<number | null> => {
     const [rows] = await pool.query<RankRow[]>(
         `SELECT 
             user_id,
@@ -96,9 +78,7 @@ export const getUserRankInGroup = async (
 };
 
 // 함께 읽기 그룹 1개 + 책 정보 조회
-export const getReadingGroupById = async (
-    groupId: number
-): Promise<ReadingGroupWithBookRow | null> => {
+export const getReadingGroupById = async (groupId: number): Promise<ReadingGroupWithBookRow | null> => {
     const [rows] = await pool.query<ReadingGroupWithBookRow[]>(
         `SELECT 
             rg.reading_group_id,
@@ -121,10 +101,7 @@ export const getReadingGroupById = async (
 };
 
 // 함께 읽기 그룹 멤버 추가
-export const insertReadingGroupMember = async (
-    userId: number,
-    groupId: number
-): Promise<number> => {
+export const insertReadingGroupMember = async (userId: number, groupId: number): Promise<number> => {
     const [result] = await pool.query<ResultSetHeader>(
         `INSERT INTO reading_group_member (
             reading_group_id,
@@ -169,7 +146,6 @@ export const countMembersByGroupId = async (groupId: number): Promise<number> =>
     return rows[0].total_count;
 };
 
-// 특정 그룹의 참여자 목록 조회 (레벨 정보 포함, 페이지네이션)
 export const getMembersWithLevelByGroupId = async (
     groupId: number,
     limit: number,
@@ -194,4 +170,24 @@ export const getMembersWithLevelByGroupId = async (
     );
 
     return rows;
+};
+
+// 그룹 아이디를 통한 책 정보 조회
+export const getBookInfoByGroupId = async (groupId: number): Promise<ReadingGroupWithBookRow | null> => {
+    const [rows] = await pool.query<ReadingGroupWithBookRow[]>(
+        `SELECT 
+            b.book_id,
+            b.aladin_item_id,
+            b.title,
+            b.author,
+            b.publisher,
+            b.published_date,
+            b.description
+        FROM reading_group rg
+        INNER JOIN book b ON rg.book_id = b.book_id
+        WHERE rg.reading_group_id = ?`,
+        [groupId]
+    );
+
+    return rows[0] ?? null;
 };

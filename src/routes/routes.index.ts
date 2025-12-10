@@ -1,133 +1,134 @@
 import { Routing } from "express-zod-api";
 import {
-  handleCreateReadingGroup,
-  handleGetReadingGroupOverview,
-  handleGetReadingGroupList,
-  handleJoinReadingGroup,
-  handleUpdateReadingProgress,
-  handleGetReadingGroupMembers,
+    handleCreateReadingGroup,
+    handleGetReadingGroupOverview,
+    handleGetReadingGroupList,
+    handleJoinReadingGroup,
+    handleUpdateReadingProgress,
+    handleGetReadingGroupMembers,
 } from "../controllers/reading_groups.controller.js";
 
 import {
-  handleGetMyPage,
-  handleGetMyBookshelf,
-  handleGetMyQuotes,
-  handleGetMyDiscussions,
-  handleGetLikedQuotes,
-  handleGetLikedDiscussions,
+    handleGetMyPage,
+    handleGetMyBookshelf,
+    handleGetMyQuotes,
+    handleGetMyDiscussions,
+    handleGetLikedQuotes,
+    handleGetLikedDiscussions,
 } from "../controllers/mypage.controller.js";
 
 import {
-  handleSearchBooks,
-  handleGetBookDetail,
-  handleViewBestsellers,
-  handleAddBookmark,
-  handleDeleteBookmark,
-  handleGetBookmarkStatus,
+    handleSearchBooks,
+    handleGetBookDetail,
+    handleViewBestsellers,
+    handleAddBookmark,
+    handleDeleteBookmark,
+    handleGetBookmarkStatus,
 } from "../controllers/books.controller.js";
 
 import {
-  handleLogin,
-  handleRefreshToken,
-  handleSignup,
-  handleLogout,
-  handleWithdrawUser,
+    handleLogin,
+    handleRefreshToken,
+    handleSignup,
+    handleLogout,
+    handleWithdrawUser,
 } from "../controllers/auth.controller.js";
 
-import { handleModifyUser } from "../controllers/users.controller.js";
+import { handleModifyUser, handleGetRecommendedBooks } from "../controllers/users.controller.js";
 
 import {
-  handleCreateQuote,
-  handleGetQuote,
-  handleUpdateQuote,
-  handleDeleteQuote,
-  handleLikeQuote,
-  handleUnlikeQuote,
-  handleGetQuotesByBook,
+    handleCreateQuote,
+    handleGetQuote,
+    handleUpdateQuote,
+    handleDeleteQuote,
+    handleLikeQuote,
+    handleUnlikeQuote,
+    handleGetQuotesByBook,
 } from "../controllers/quotes.controller.js";
 
 import {
-  handleSelectFavoriteBooks,
-  handleSelectFavoriteGenres,
-  handleGetGenres,
+    handleSelectFavoriteBooks,
+    handleSelectFavoriteGenres,
+    handleGetGenres,
 } from "../controllers/onboarding.controller.js";
 
 import {
-  handleCreateDiscussion,
-  handleGetDiscussionsByBook,
-  handleGetDiscussionDetail,
-  handleGetDiscussionMessages,
-  handleLikeDiscussion,
-  handleUnlikeDiscussion,
+    handleCreateDiscussion,
+    handleGetDiscussionsByBook,
+    handleGetDiscussionDetail,
+    handleGetDiscussionMessages,
+    handleLikeDiscussion,
+    handleUnlikeDiscussion,
 } from "../controllers/discussions_M.controller.js";
 
 import { handleCreateDiscussionMessage } from "../controllers/discussions.controller.js";
 
 export const routing: Routing = {
-  api: {
-    v1: {
-      quotes: {
-        "get :quoteId": handleGetQuote,
-        "patch :quoteId": handleUpdateQuote,
-        "delete :quoteId": handleDeleteQuote,
-        "post :quoteId/like": handleLikeQuote,
-        "delete :quoteId/like": handleUnlikeQuote,
-      },
+    api: {
+        v1: {
+            quotes: {
+                "get :quoteId": handleGetQuote,
+                "patch :quoteId": handleUpdateQuote,
+                "delete :quoteId": handleDeleteQuote,
+                "post :quoteId/like": handleLikeQuote,
+                "delete :quoteId/like": handleUnlikeQuote,
+            },
 
-      discussions: {
-        "get :discussionId": handleGetDiscussionDetail,
-        "get :discussionId/messages": handleGetDiscussionMessages,
-        "post :discussionId/messages": handleCreateDiscussionMessage,
-        "post :discussionId/like": handleLikeDiscussion, 
-        "delete :discussionId/like": handleUnlikeDiscussion, 
-      },
-      
-      books: {
-        search: handleSearchBooks,
-        bestsellers: handleViewBestsellers,
+            discussions: {
+                "get :discussionId": handleGetDiscussionDetail,
+                "get :discussionId/messages": handleGetDiscussionMessages,
+                "post :discussionId/messages": handleCreateDiscussionMessage,
+                "post :discussionId/like": handleLikeDiscussion,
+                "delete :discussionId/like": handleUnlikeDiscussion,
+            },
 
-        ":bookId": handleGetBookDetail,
-        ":bookId/bookmark": handleAddBookmark,
-        "get :bookId/bookmark": handleGetBookmarkStatus,   
-        "delete /:bookId/bookmark": handleDeleteBookmark,
-        "get :bookId/quotes": handleGetQuotesByBook,
-        "post :bookId/quotes": handleCreateQuote,
-        "post :bookId/discussions": handleCreateDiscussion,
-        "get :bookId/discussions": handleGetDiscussionsByBook,
-      },
+            books: {
+                search: handleSearchBooks,
+                bestsellers: handleViewBestsellers,
 
-      auth: {
-        login: handleLogin,
-        refresh: handleRefreshToken,
-        signup: handleSignup,
-        logout: handleLogout,
-        me: handleWithdrawUser,
-      },
+                ":bookId": handleGetBookDetail,
+                ":bookId/bookmark": handleAddBookmark,
+                "get :bookId/bookmark": handleGetBookmarkStatus,
+                "delete /:bookId/bookmark": handleDeleteBookmark,
+                "get :bookId/quotes": handleGetQuotesByBook,
+                "post :bookId/quotes": handleCreateQuote,
+                "post :bookId/discussions": handleCreateDiscussion,
+                "get :bookId/discussions": handleGetDiscussionsByBook,
+            },
 
-      users: {
-        mypage: handleGetMyPage,
-        me: handleModifyUser,
-        "bookmarks/books": handleGetMyBookshelf,
-        "my-quotes": handleGetMyQuotes,
-        "my-discussions": handleGetMyDiscussions,
-        "like/quotes": handleGetLikedQuotes,
-        "like/discussions": handleGetLikedDiscussions,
-      },
+            auth: {
+                login: handleLogin,
+                refresh: handleRefreshToken,
+                signup: handleSignup,
+                logout: handleLogout,
+                me: handleWithdrawUser,
+            },
 
-      onboarding: {
-        "favorite-books": handleSelectFavoriteBooks,
-        "post favorite-genres": handleSelectFavoriteGenres,
-        "get favorite-genres": handleGetGenres,
-      },
+            users: {
+                mypage: handleGetMyPage,
+                me: handleModifyUser,
+                "bookmarks/books": handleGetMyBookshelf,
+                "my-quotes": handleGetMyQuotes,
+                "my-discussions": handleGetMyDiscussions,
+                "like/quotes": handleGetLikedQuotes,
+                "like/discussions": handleGetLikedDiscussions,
+                "me/recommended-books": handleGetRecommendedBooks,
+            },
 
-      "reading-groups": {
-        create: handleCreateReadingGroup,
-        list: handleGetReadingGroupList,
-        ":groupId/overview": handleGetReadingGroupOverview,
-        ":groupId/join": handleJoinReadingGroup,
-        ":groupId/progress": handleUpdateReadingProgress,
-        ":groupId/members": handleGetReadingGroupMembers,
-      },
+            onboarding: {
+                "favorite-books": handleSelectFavoriteBooks,
+                "post favorite-genres": handleSelectFavoriteGenres,
+                "get favorite-genres": handleGetGenres,
+            },
+
+            "reading-groups": {
+                create: handleCreateReadingGroup,
+                list: handleGetReadingGroupList,
+                ":groupId/overview": handleGetReadingGroupOverview,
+                ":groupId/join": handleJoinReadingGroup,
+                ":groupId/progress": handleUpdateReadingProgress,
+                ":groupId/members": handleGetReadingGroupMembers,
+            },
+        },
     },
-  },
-}
+};

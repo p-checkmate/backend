@@ -7,7 +7,7 @@ export const bookmarkBookSchema = z.object({
     item_id: z.number(),     
     title: z.string(),
     author: z.string().nullable(),
-    thumbnail_url: z.string().nullable()
+    thumbnail_url: z.string().nullable(),
 });
 
 // 마이페이지 유저 정보 스키마
@@ -17,15 +17,14 @@ export const mypageUserSchema = z.object({
     email: z.string(),
     exp: z.number().int(),
     level: z.number().int().min(1).max(5),
-    preferred_genres: z.array(z.string())
+    preferred_genres: z.array(z.string()),
 });
 
 // 마이페이지 전체 응답 스키마
 export const mypageOutputSchema = z.object({
     user: mypageUserSchema,
-    my_bookshelf: z.array(bookmarkBookSchema)
+    my_bookshelf: z.array(bookmarkBookSchema),
 });
-
 
 // TypeScript 타입 추출
 export type BookmarkBook = z.infer<typeof bookmarkBookSchema>;
@@ -54,4 +53,5 @@ export interface BookmarkBookRow extends RowDataPacket {
     title: string;
     author: string | null;
     thumbnail_url: string | null;
+    created_at: Date;
 }
