@@ -61,7 +61,10 @@ import {
   handleUnlikeDiscussion,
 } from "../controllers/discussions_M.controller.js";
 
-import { handleCreateDiscussionMessage } from "../controllers/discussions.controller.js";
+import {
+  handleCreateDiscussionMessage,
+  handleVoteDiscussion,
+} from "../controllers/discussions.controller.js";
 
 export const routing: Routing = {
   api: {
@@ -80,6 +83,7 @@ export const routing: Routing = {
         "post :discussionId/messages": handleCreateDiscussionMessage,
         "post :discussionId/like": handleLikeDiscussion, 
         "delete :discussionId/like": handleUnlikeDiscussion, 
+        "post :discussionId/vote": handleVoteDiscussion,
       },
       
       books: {

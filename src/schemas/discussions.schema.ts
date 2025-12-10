@@ -41,11 +41,24 @@ export const createDiscussionMessageResponseSchema = z.object({
     exp_earned: z.number(),
 });
 
+// 투표 Input 스키마
+export const voteInputSchema = z.object({
+    discussionId: z.coerce.number().int().positive(),
+    choice: z.coerce.number().int().min(1).max(2),
+});
+
+// 투표 Response 스키마
+export const voteResponseSchema = z.object({
+    message: z.string(),
+});
+
 // TypeScript 타입 추출
 export type MyDiscussion = z.infer<typeof myDiscussionSchema>;
 export type MyDiscussionsResponse = z.infer<typeof myDiscussionsResponseSchema>;
 export type CreateDiscussionMessageInput = z.infer<typeof createDiscussionMessageInputSchema>;
 export type CreateDiscussionMessageResponse = z.infer<typeof createDiscussionMessageResponseSchema>;
+export type VoteInput = z.infer<typeof voteInputSchema>;
+export type VoteResponse = z.infer<typeof voteResponseSchema>;
 
 // MySQL Row 타입
 export interface MyDiscussionRow extends RowDataPacket {
