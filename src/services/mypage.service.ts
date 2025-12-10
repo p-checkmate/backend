@@ -284,3 +284,23 @@ export const getLikedDiscussionsService = async (
     }
 };
 
+// 사용자 경험치 추가 및 레벨업 처리
+export const addExpToUser = async (userId: number, gainedExp: number) => {
+    const expInfo = await getExpByUserId(userId);
+
+    const prevExp = expInfo?.exp ?? 0;
+    const prevLevel = expInfo?.level ?? calculateLevel(prevExp);
+
+    const nextExp = prevExp + gainedExp;
+    const nextLevel = calculateLevel(nextExp);
+
+    await updateUserExpAndLevel(userId, nextExp, nextLevel);
+
+    return {
+        prevExp,
+        nextExp,
+        prevLevel,
+        nextLevel,
+        leveledUp: nextLevel > prevLevel,
+    };
+};
