@@ -49,6 +49,7 @@ export const getBookmarksByUserId = async (userId: number, limit: number = 4): P
     const [rows] = await pool.query<BookmarkBookRow[]>(
         `SELECT 
             b.book_id,
+            b.aladin_item_id AS item_id,
             b.title,
             b.author,
             b.thumbnail_url

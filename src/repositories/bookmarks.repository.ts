@@ -51,6 +51,7 @@ export const getBookmarksWithPagination = async (
         `SELECT 
             bm.bookmark_id,
             b.book_id,
+            b.aladin_item_id AS item_id,
             b.title,
             b.author,
             b.thumbnail_url

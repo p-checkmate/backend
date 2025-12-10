@@ -74,7 +74,6 @@ export const routing: Routing = {
         "delete :quoteId/like": handleUnlikeQuote,
       },
       discussions: {
-        ":discussionId/messages": handleCreateDiscussionMessage,
         "get :discussionId": handleGetDiscussionDetail,
         "get :discussionId/messages": handleGetDiscussionMessages,
         "post :discussionId/messages": handleCreateDiscussionMessage,

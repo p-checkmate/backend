@@ -4,6 +4,7 @@ import { RowDataPacket } from "mysql2/promise";
 // 북마크한 책 스키마
 export const bookmarkBookSchema = z.object({
     book_id: z.number().int().positive(),
+    item_id: z.number(),     
     title: z.string(),
     author: z.string().nullable(),
     thumbnail_url: z.string().nullable()
@@ -49,6 +50,7 @@ export interface GenreRow extends RowDataPacket {
 
 export interface BookmarkBookRow extends RowDataPacket {
     book_id: number;
+    item_id: number;  
     title: string;
     author: string | null;
     thumbnail_url: string | null;

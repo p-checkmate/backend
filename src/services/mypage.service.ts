@@ -132,6 +132,7 @@ export const getMyPageInfo = async (userId: number): Promise<MypageOutput> => {
         },
         my_bookshelf: bookmarks.map((bookmark) => ({
             book_id: bookmark.book_id,
+            item_id: bookmark.item_id,   
             title: bookmark.title,
             author: bookmark.author,
             thumbnail_url: bookmark.thumbnail_url,
@@ -158,6 +159,7 @@ export const getUserBookmarks = async (
             return {
                 bookmark_id: row.bookmark_id,
                 book_id: row.book_id,
+                item_id: row.item_id,
                 title: row.title,
                 author: row.author,
                 thumbnail_url: row.thumbnail_url,

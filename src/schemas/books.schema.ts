@@ -37,6 +37,7 @@ export const bookmarkStatusResponseSchema = z.object({
 export const bookmarkItemSchema = z.object({
     bookmark_id: z.number(),
     book_id: z.number(),
+    item_id: z.number(),
     title: z.string(),
     author: z.string().nullable(),
     thumbnail_url: z.string().nullable(),
@@ -84,6 +85,7 @@ export interface GenreRow {
 export interface BookmarkRow extends RowDataPacket {
     bookmark_id: number;
     book_id: number;
+    item_id: number;
     title: string;
     author: string | null;
     thumbnail_url: string | null;
