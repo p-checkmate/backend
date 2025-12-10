@@ -90,3 +90,35 @@ export const discussionDetailSchema = z.object({
 export const getDiscussionDetailResponseSchema = z.object({
   discussion: discussionDetailSchema,
 });
+
+
+// 메시지 스키마
+export const discussionMessageSchema = z.object({
+  comment_id: z.number(),
+  discussion_id: z.number(),
+  user_id: z.number(),
+  nickname: z.string(),
+  content: z.string(),
+  created_at: z.date(),
+  updated_at: z.date().nullable(),
+});
+
+//토론 메시지 Input 스키마
+export const getDiscussionMessagesInputSchema = z.object({
+  discussionId: z.coerce.number().int().positive(),
+});
+
+//토론 메시지 Response 스키마
+export const getDiscussionMessagesResponseSchema = z.object({
+  messages: z.array(discussionMessageSchema),
+});
+
+//좋아요Input 스키마
+export const discussionLikeInputSchema = z.object({
+  discussionId: z.coerce.number().int().positive(),
+});
+
+//좋아요 Response 스키마
+export const discussionLikeResponseSchema = z.object({
+  message: z.string(),
+});
