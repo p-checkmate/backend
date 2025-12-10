@@ -21,7 +21,8 @@ export const handleCreateDiscussionMessage = authEndpointsFactory.build({
         return await createDiscussionMessageService(
             input.discussionId,
             userId,
-            input.content
+            input.content,
+            input.choice
         );
     },
 });

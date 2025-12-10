@@ -33,7 +33,6 @@ export const findGenresByBookId = async (bookId: number): Promise<Genre[]> => {
     }));
 };
 
-
 // 책 정보 저장
 export const insertBook = async (book: AladinBookItem, page: number | null): Promise<number> => {
     const [result] = await pool.query<ResultSetHeader>(
