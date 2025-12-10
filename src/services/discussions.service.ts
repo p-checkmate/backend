@@ -3,9 +3,9 @@ import {
     getDiscussionById,
     insertDiscussionComment,
     hasUserCommentedOnDiscussion,
-    addUserExp,
 } from "../repositories/discussions.repository.js";
 import { CreateDiscussionMessageResponse } from "../schemas/discussions.schema.js";
+import { addExpToUser } from "../services/mypage.service.js";
 
 const EXP_REWARD = 10;
 
@@ -32,7 +32,7 @@ export const createDiscussionMessageService = async (
 
         // 첫 메시지인 경우에만 경험치 부여
         if (!hasCommented) {
-            await addUserExp(userId, EXP_REWARD);
+            await addExpToUser(userId, EXP_REWARD);
             expEarned = EXP_REWARD;
         }
 

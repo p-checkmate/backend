@@ -5,6 +5,7 @@ import {
     GenreRow,
     BookmarkBookRow
 } from "../schemas/mypage.schema.js";
+import { ResultSetHeader } from "mysql2/promise"; 
 
 // 사용자 정보 조회
 export const getUserById = async (userId: number): Promise<UserRow | null> => {
@@ -60,3 +61,27 @@ export const getBookmarksByUserId = async (userId: number, limit: number = 4): P
 
     return rows;
 };
+
+// 사용자 경험치·레벨 업데이트 (없으면 INSERT)
+export const updateUserExpAndLevel = async (
+    userId: number,
+    exp: number,
+    level: number
+): Promise<void> => {
+    const [result] = await pool.query<ResultSetHeader>(
+        `UPDATE user_exp
+         SET exp = ?, level = ?
+         WHERE user_id = ?`,
+        [exp, level, userId]
+    );
+
+    // 해당 유저 row가 없으면 새로 생성
+    if (result.affectedRows === 0) {
+        await pool.query<ResultSetHeader>(
+            `INSERT INTO user_exp (user_id, exp, level)
+             VALUES (?, ?, ?)`,
+            [userId, exp, level]
+        );
+    }
+};
+
