@@ -130,7 +130,7 @@ export const handleGetQuoteLikeStatus = authEndpointsFactory.build({
   method: "get",
   input: z.object({
     quoteId: z.coerce.number().int().positive(),
-  }),wq
+  }),
   output: quoteLikeStatusSchema,
 
   handler: async ({ input, options }) => {
