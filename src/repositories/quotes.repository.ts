@@ -281,3 +281,19 @@ export const countLikedQuotesByUserId = async (
   );
   return rows[0].total;
 };
+
+// 사용자가 특정 도서에 인용구를 작성했는지 확인
+export const hasUserQuotedBook = async (
+  userId: number,
+  bookId: number
+): Promise<boolean> => {
+  const [rows] = await pool.query<RowDataPacket[]>(
+    `SELECT 1
+        FROM quote
+        WHERE user_id = ? AND book_id = ?
+        LIMIT 1`,
+    [userId, bookId]
+  );
+
+  return rows.length > 0;
+};

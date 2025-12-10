@@ -63,10 +63,17 @@ export const myQuotesResponseSchema = paginationSchema.extend({
   quotes: z.array(myQuoteSchema),
 });
 
+// 인용구 생성 응답 스키마
+export const createQuoteResponseSchema = z.object({
+  quote_id: z.number(),
+  exp_earned: z.number(),
+});
+
 // TypeScript 타입 추출
 export type QuoteData = z.infer<typeof quoteSchema>;
 export type MyQuote = z.infer<typeof myQuoteSchema>;
 export type MyQuotesResponse = z.infer<typeof myQuotesResponseSchema>;
+export type CreateQuoteResponse = z.infer<typeof createQuoteResponseSchema>;
 
 // MySQL Row 타입
 export interface QuoteRow extends RowDataPacket {
