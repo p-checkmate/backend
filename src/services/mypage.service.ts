@@ -22,6 +22,7 @@ import {
     getExpByUserId,
     getPreferredGenresByUserId,
     getBookmarksByUserId,
+    updateUserExpAndLevel,
 } from "../repositories/mypage.repository.js";
 
 // 페이지네이션 입력값 검증 및 메타데이터 계산 헬퍼 함수
@@ -115,6 +116,10 @@ export const getMyPageInfo = async (userId: number): Promise<MypageOutput> => {
 
     const currentExp = expInfo?.exp ?? 0;
     const calculatedLevel = calculateLevel(currentExp);
+
+    if (!expInfo || expInfo.level !== calculatedLevel) {
+        await updateUserExpAndLevel(userId, currentExp, calculatedLevel);
+    }
 
     return {
         user: {
@@ -278,3 +283,4 @@ export const getLikedDiscussionsService = async (
         throw HttpError(500, "좋아요한 토론 조회에 실패했습니다.");
     }
 };
+
