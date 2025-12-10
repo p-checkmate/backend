@@ -43,13 +43,13 @@ const processPagination = (page: number, limit: number, totalCount: number) => {
 
 // 경험치 기반 레벨 계산 헬퍼 함수
 const calculateLevel = (exp: number): number => {
-    if (exp >= 2000) return 5;
-    if (exp >= 1000) return 4;
-    if (exp >= 500) return 3;
-    if (exp >= 200) return 2;
-    if (exp >= 100) return 1;
-    return 1;
+    if (exp >= 1000) return 5;
+    if (exp >= 500) return 4;
+    if (exp >= 200) return 3;
+    if (exp >= 100) return 2;
+    return 1; // 0~99
 };
+
 
 // 인용구 데이터 변환 헬퍼 함수
 const transformQuoteData = (row: MyQuoteRow) => {
