@@ -116,7 +116,7 @@ export const getMyPageInfo = async (userId: number): Promise<MypageOutput> => {
 
     const currentExp = expInfo?.exp ?? 0;
     const calculatedLevel = calculateLevel(currentExp);
-
+    // DB의 레벨 정보가 현재 경험치 기반 레벨과 다르면 업데이트
     if (!expInfo || expInfo.level !== calculatedLevel) {
         await updateUserExpAndLevel(userId, currentExp, calculatedLevel);
     }
