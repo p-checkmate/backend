@@ -3,6 +3,8 @@ import { getBookById } from "../repositories/books.repository.js";
 import { createDiscussion } from "../repositories/discussions_M.repository.js";
 import { getDiscussionsByBook } from "../repositories/discussions_M.repository.js";
 
+import { getDiscussionMessages } from "../repositories/discussions_M.repository.js";
+
 export const createDiscussionService = async (payload: {
     user_id: number;
     book_id: number;
@@ -60,7 +62,7 @@ export const getDiscussionsByBookService = async (bookId: number) => {
     return discussions;
 };
 
-
+//토론상세조회
 import { getDiscussionDetail } from "../repositories/discussions_M.repository.js";
 
 export const getDiscussionDetailService = async (discussionId: number) => {
@@ -71,4 +73,16 @@ export const getDiscussionDetailService = async (discussionId: number) => {
     }
 
     return discussion;
+};
+
+//토론 메시지내용조회
+export const getDiscussionMessagesService = async (discussionId: number) => {
+  // 토론 존재 여부 확인
+    const discussion = await getDiscussionDetail(discussionId);
+    if (!discussion) {
+    throw HttpError(404, "해당 토론을 찾을 수 없습니다.");
+    }
+
+    const messages = await getDiscussionMessages(discussionId);
+    return messages;
 };

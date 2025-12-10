@@ -4,19 +4,20 @@ import { authMiddleware } from "../middlewares/auth.middleware.js";
 import {
     createDiscussionInputSchema,
     createDiscussionResponseSchema,
-} from "../schemas/discussions_M.schema.js";
-
-import { createDiscussionService } from "../services/discussions_M.service.js";
-
-import {
     getDiscussionsByBookInputSchema,
     getDiscussionsByBookResponseSchema,
+    getDiscussionDetailInputSchema,
+    getDiscussionDetailResponseSchema,
+    getDiscussionMessagesInputSchema,
+    getDiscussionMessagesResponseSchema,
 } from "../schemas/discussions_M.schema.js";
 
-import { getDiscussionsByBookService } from "../services/discussions_M.service.js";
-
-import { getDiscussionDetailInputSchema, getDiscussionDetailResponseSchema } from "../schemas/discussions_M.schema.js";
-import { getDiscussionDetailService } from "../services/discussions_M.service.js";
+import {
+    createDiscussionService,
+    getDiscussionsByBookService,
+    getDiscussionDetailService,
+    getDiscussionMessagesService,
+} from "../services/discussions_M.service.js";
 
 // 인증된 API 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
@@ -65,4 +66,16 @@ export const handleGetDiscussionDetail = authEndpointsFactory.build({
     const discussion = await getDiscussionDetailService(input.discussionId);
     return { discussion };
 },
+});
+
+//토론내용 조회
+export const handleGetDiscussionMessages = authEndpointsFactory.build({
+    method: "get",
+    input: getDiscussionMessagesInputSchema,
+    output: getDiscussionMessagesResponseSchema,
+
+    handler: async ({ input }) => {
+    const messages = await getDiscussionMessagesService(input.discussionId);
+    return { messages };
+    },
 });

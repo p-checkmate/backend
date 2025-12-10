@@ -55,9 +55,9 @@ import {
   handleCreateDiscussion,
   handleGetDiscussionsByBook,
   handleGetDiscussionDetail,
-} from "../controllers/discussions_M.controller.js";
+  handleGetDiscussionMessages,
 
-import { handleCreateDiscussionMessage } from "../controllers/discussions.controller.js";
+} from "../controllers/discussions_M.controller.js";
 
 export const routing: Routing = {
   api: {
@@ -71,8 +71,8 @@ export const routing: Routing = {
       },
 
       discussions: {
-        ":discussionId/messages": handleCreateDiscussionMessage,
         "get :discussionId": handleGetDiscussionDetail,
+        "get :discussionId/messages": handleGetDiscussionMessages,
       },
       
       books: {
