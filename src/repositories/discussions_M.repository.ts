@@ -187,3 +187,74 @@ export const getDiscussionMessages = async (
 
   return rows as DiscussionMessageRow[];
 };
+
+// 이미 좋아요를 눌렀는지 확인
+export const findDiscussionLike = async (
+  userId: number,
+  discussionId: number
+) => {
+  const [rows] = await pool.query<RowDataPacket[]>(
+    `
+    SELECT like_id
+    FROM discussion_like
+    WHERE user_id = ? AND discussion_id = ?
+    `,
+    [userId, discussionId]
+  );
+
+  return rows.length ? rows[0] : null;
+};
+
+// 좋아요 추가
+export const addDiscussionLike = async (
+  userId: number,
+  discussionId: number
+) => {
+  const [result] = await pool.query<ResultSetHeader>(
+    `
+    INSERT INTO discussion_like (user_id, discussion_id)
+    VALUES (?, ?)
+    `,
+    [userId, discussionId]
+  );
+
+  return result.insertId;
+};
+
+// 좋아요 갯수 1 증가
+export const increaseDiscussionLikeCount = async (discussionId: number) => {
+  await pool.query(
+    `
+    UPDATE discussion
+    SET like_count = like_count + 1
+    WHERE discussion_id = ?
+    `,
+    [discussionId]
+  );
+};
+
+// 좋아요 취소
+export const removeDiscussionLike = async (
+  userId: number,
+  discussionId: number
+) => {
+  await pool.query(
+    `
+    DELETE FROM discussion_like
+    WHERE user_id = ? AND discussion_id = ?
+    `,
+    [userId, discussionId]
+  );
+};
+
+// 좋아요 갯수 1 감소
+export const decreaseDiscussionLikeCount = async (discussionId: number) => {
+  await pool.query(
+    `
+    UPDATE discussion
+    SET like_count = like_count - 1
+    WHERE discussion_id = ? AND like_count > 0
+    `,
+    [discussionId]
+  );
+};

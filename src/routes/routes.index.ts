@@ -57,6 +57,8 @@ import {
   handleGetDiscussionsByBook,
   handleGetDiscussionDetail,
   handleGetDiscussionMessages,
+  handleLikeDiscussion,
+  handleUnlikeDiscussion,
 } from "../controllers/discussions_M.controller.js";
 
 import{handleCreateDiscussionMessage} from "../controllers/discussions.controller.js";
@@ -75,6 +77,8 @@ export const routing: Routing = {
         ":discussionId/messages": handleCreateDiscussionMessage,
         "get :discussionId": handleGetDiscussionDetail,
         "get :discussionId/messages": handleGetDiscussionMessages,
+        "post :discussionId/like": handleLikeDiscussion, 
+        "delete :discussionId/like": handleUnlikeDiscussion, 
       },
       books: {
         search: handleSearchBooks,
