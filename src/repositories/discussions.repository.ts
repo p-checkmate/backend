@@ -77,30 +77,31 @@ export const countLikedDiscussionsByUserId = async (userId: number): Promise<num
     return rows[0].total;
 };
 
-// 토론 존재 여부 확인
+// 토론 존재 여부 및 타입 확인
 export const getDiscussionById = async (
     discussionId: number
-): Promise<{ discussion_id: number } | null> => {
+): Promise<{ discussion_id: number; discussion_type: "FREE" | "VS" } | null> => {
     const [rows] = await pool.query<RowDataPacket[]>(
-        `SELECT discussion_id
+        `SELECT discussion_id, discussion_type
         FROM discussion
         WHERE discussion_id = ?`,
         [discussionId]
     );
 
-    return rows.length ? (rows[0] as { discussion_id: number }) : null;
+    return rows.length ? (rows[0] as { discussion_id: number; discussion_type: "FREE" | "VS" }) : null;
 };
 
-// 토론 메시지 생성
+// 토론 메시지 생성 (choice 추가)
 export const insertDiscussionComment = async (
     discussionId: number,
     userId: number,
-    content: string
+    content: string,
+    choice: number | null
 ): Promise<number> => {
     const [result] = await pool.query<ResultSetHeader>(
-        `INSERT INTO discussion_comment (discussion_id, user_id, content)
-        VALUES (?, ?, ?)`,
-        [discussionId, userId, content]
+        `INSERT INTO discussion_comment (discussion_id, user_id, content, choice)
+        VALUES (?, ?, ?, ?)`,
+        [discussionId, userId, content, choice]
     );
 
     return result.insertId;

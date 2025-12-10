@@ -82,7 +82,6 @@ export const discussionDetailSchema = z.object({
   option2: z.string().nullable(),
   created_at: z.date(),
   nickname: z.string(),
-
   like_count: z.number(),
   comment_count: z.number(),
 });
@@ -98,6 +97,7 @@ export const discussionMessageSchema = z.object({
   discussion_id: z.number(),
   user_id: z.number(),
   nickname: z.string(),
+  choice: z.number().nullable(),
   content: z.string(),
   created_at: z.date(),
   updated_at: z.date().nullable(),

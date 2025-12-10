@@ -160,6 +160,7 @@ export interface DiscussionMessageRow extends RowDataPacket {
   user_id: number;
   nickname: string;
   content: string;
+  choice: number | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -174,6 +175,7 @@ export const getDiscussionMessages = async (
       dc.discussion_id,
       dc.user_id,
       u.nickname,
+      dc.choice,
       dc.content,
       dc.created_at,
       dc.updated_at
