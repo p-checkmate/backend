@@ -1,9 +1,15 @@
 import HttpError from "http-errors";
 import { getBookById } from "../repositories/books.repository.js";
-import { createDiscussion } from "../repositories/discussions_M.repository.js";
-import { getDiscussionsByBook } from "../repositories/discussions_M.repository.js";
+import {
+    createDiscussion,
+    getDiscussionsByBook,
+    getDiscussionDetail,
+    getDiscussionMessages,
+    findDiscussionLike,
+    addDiscussionLike,
+    increaseDiscussionLikeCount,
+} from "../repositories/discussions_M.repository.js";
 
-import { getDiscussionMessages } from "../repositories/discussions_M.repository.js";
 
 export const createDiscussionService = async (payload: {
     user_id: number;
@@ -63,8 +69,6 @@ export const getDiscussionsByBookService = async (bookId: number) => {
 };
 
 //토론상세조회
-import { getDiscussionDetail } from "../repositories/discussions_M.repository.js";
-
 export const getDiscussionDetailService = async (discussionId: number) => {
     const discussion = await getDiscussionDetail(discussionId);
 
@@ -85,4 +89,28 @@ export const getDiscussionMessagesService = async (discussionId: number) => {
 
     const messages = await getDiscussionMessages(discussionId);
     return messages;
+};
+
+// 토론 좋아요 등록
+export const likeDiscussionService = async (
+    userId: number,
+    discussionId: number
+) => {
+  // 토론 존재 여부 확인
+    const discussion = await getDiscussionDetail(discussionId);
+    if (!discussion) {
+    throw HttpError(404, "해당 토론을 찾을 수 없습니다.");
+    }
+
+  // 이미 좋아요를 눌렀는지 확인
+    const alreadyLiked = await findDiscussionLike(userId, discussionId);
+    if (alreadyLiked) {
+    throw HttpError(400, "이미 좋아요를 누른 토론입니다.");
+    }
+
+  // 좋아요 등록 &count 증가
+    await addDiscussionLike(userId, discussionId);
+    await increaseDiscussionLikeCount(discussionId);
+
+    return { message: "토론 좋아요가 등록되었습니다." };
 };
