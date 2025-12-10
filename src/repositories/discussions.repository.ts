@@ -1,5 +1,6 @@
 import { pool } from "../config/db.config.js";
 import { MyDiscussionRow } from "../schemas/discussions.schema.js";
+import { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 
 // 토론 리스트 조회 헬퍼 함수 (내가 작성한 / 좋아요한 공통)
 const getDiscussionsWithDetails = async (
@@ -74,4 +75,96 @@ export const countLikedDiscussionsByUserId = async (userId: number): Promise<num
     );
 
     return rows[0].total;
+};
+
+// 토론 존재 여부 확인
+export const getDiscussionById = async (
+    discussionId: number
+): Promise<{ discussion_id: number } | null> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `SELECT discussion_id
+        FROM discussion
+        WHERE discussion_id = ?`,
+        [discussionId]
+    );
+
+    return rows.length ? (rows[0] as { discussion_id: number }) : null;
+};
+
+// 토론 메시지 생성
+export const insertDiscussionComment = async (
+    discussionId: number,
+    userId: number,
+    content: string
+): Promise<number> => {
+    const [result] = await pool.query<ResultSetHeader>(
+        `INSERT INTO discussion_comment (discussion_id, user_id, content)
+        VALUES (?, ?, ?)`,
+        [discussionId, userId, content]
+    );
+
+    return result.insertId;
+};
+
+// 사용자가 특정 토론에 이미 메시지를 작성했는지 확인
+export const hasUserCommentedOnDiscussion = async (
+    discussionId: number,
+    userId: number
+): Promise<boolean> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `SELECT 1
+        FROM discussion_comment
+        WHERE discussion_id = ? AND user_id = ?
+        LIMIT 1`,
+        [discussionId, userId]
+    );
+
+    return rows.length > 0;
+};
+
+// 사용자 경험치 증가
+export const addUserExp = async (
+    userId: number,
+    expAmount: number
+): Promise<void> => {
+    const conn = await pool.getConnection();
+
+    try {
+        await conn.beginTransaction();
+
+        // 현재 경험치 조회
+        const [rows] = await conn.query<RowDataPacket[]>(
+            `SELECT exp_id, exp
+            FROM user_exp
+            WHERE user_id = ?
+            FOR UPDATE`,
+            [userId]
+        );
+
+        if (rows.length === 0) {
+            // user_exp 레코드가 없으면 새로 생성
+            await conn.query<ResultSetHeader>(
+                `INSERT INTO user_exp (user_id, exp, level)
+                VALUES (?, ?, 1)`,
+                [userId, expAmount]
+            );
+        } else {
+            // 기존 경험치에 추가
+            const newExp = rows[0].exp + expAmount;
+
+            await conn.query<ResultSetHeader>(
+                `UPDATE user_exp
+                SET exp = ?
+                WHERE user_id = ?`,
+                [newExp, userId]
+            );
+        }
+
+        await conn.commit();
+    } catch (err) {
+        await conn.rollback();
+        throw err;
+    } finally {
+        conn.release();
+    }
 };
