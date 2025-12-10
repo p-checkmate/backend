@@ -152,3 +152,38 @@ export interface DiscussionDetailRow extends RowDataPacket {
   comment_count: number;
   nickname: string;
 }
+
+// 특정 토론의 메시지(댓글)조회
+export interface DiscussionMessageRow extends RowDataPacket {
+  comment_id: number;
+  discussion_id: number;
+  user_id: number;
+  nickname: string;
+  content: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export const getDiscussionMessages = async (
+  discussionId: number
+): Promise<DiscussionMessageRow[]> => {
+  const [rows] = await pool.query<RowDataPacket[]>(
+    `
+    SELECT 
+      dc.comment_id,
+      dc.discussion_id,
+      dc.user_id,
+      u.nickname,
+      dc.content,
+      dc.created_at,
+      dc.updated_at
+    FROM discussion_comment dc
+    INNER JOIN user u ON dc.user_id = u.user_id
+    WHERE dc.discussion_id = ?
+    ORDER BY dc.created_at ASC
+    `,
+    [discussionId]
+  );
+
+  return rows as DiscussionMessageRow[];
+};
