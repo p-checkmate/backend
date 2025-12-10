@@ -11,8 +11,9 @@ import {
     removeDiscussionLike,
     decreaseDiscussionLikeCount,
     existsDiscussionLike,
+    getBookBasicInfo,
+    getGenresByBookId
 } from "../repositories/discussions_M.repository.js";
-
 
 export const createDiscussionService = async (payload: {
     user_id: number;
@@ -71,15 +72,30 @@ export const getDiscussionsByBookService = async (bookId: number) => {
     return discussions;
 };
 
-//토론상세조회
+//토론상세조회 
 export const getDiscussionDetailService = async (discussionId: number) => {
-    const discussion = await getDiscussionDetail(discussionId);
+  const discussion = await getDiscussionDetail(discussionId);
 
-    if (!discussion) {
+  if (!discussion) {
     throw HttpError(404, "해당 토론을 찾을 수 없습니다.");
-    }
+  }
 
-    return discussion;
+  // 책 기본정보 조회
+  const book = await getBookBasicInfo(discussion.book_id);
+  if (!book) {
+    throw HttpError(500, "토론에 연결된 책 정보를 찾을 수 없습니다.");
+  }
+
+  // 장르 조회
+  const genres = await getGenresByBookId(discussion.book_id);
+
+  return {
+    discussion,
+    book: {
+      ...book,
+      genres,
+    },
+  };
 };
 
 //토론 메시지내용조회

@@ -3,6 +3,19 @@ import { z } from "zod";
 export const discussionTypeEnum = z.enum(["FREE", "VS"]);
 export type DiscussionType = z.infer<typeof discussionTypeEnum>;
 
+//책정보 스키마
+export const bookInfoForDiscussionSchema = z.object({
+  book_id: z.number(),
+  title: z.string(),
+  author: z.string(),             
+  publisher: z.string().nullable(),
+  published_date: z.string().nullable(),
+  description: z.string().nullable(),
+  thumbnail_url: z.string().nullable(),
+  page_count: z.number().nullable(),
+  genres: z.array(z.string()),
+});
+
 export const createDiscussionInputSchema = z.object({
   bookId: z.coerce.number().int().positive(),
   title: z.string().min(1).max(200),
@@ -86,8 +99,10 @@ export const discussionDetailSchema = z.object({
   comment_count: z.number(),
 });
 
+//++
 export const getDiscussionDetailResponseSchema = z.object({
   discussion: discussionDetailSchema,
+  book: bookInfoForDiscussionSchema,
 });
 
 // 메시지 스키마

@@ -94,3 +94,16 @@ export interface BookmarkRow extends RowDataPacket {
 export interface BookGenreRow extends RowDataPacket {
     genre_name: string;
 }
+
+//토론 상세조회용 스키마
+export const bookInfoForDiscussionSchema = z.object({
+    bookId: z.number(),
+    title: z.string(),
+    author: z.string().nullable(),
+    publisher: z.string().nullable(),
+    publishedDate: z.string().nullable(),
+    description: z.string().nullable(),
+    thumbnailUrl: z.string().nullable(),
+    page: z.number().nullable(),
+    genres: z.array(z.string()),
+});

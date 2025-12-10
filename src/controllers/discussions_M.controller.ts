@@ -74,9 +74,9 @@ export const handleGetDiscussionDetail = authEndpointsFactory.build({
     output: getDiscussionDetailResponseSchema,
 
     handler: async ({ input }) => {
-    const discussion = await getDiscussionDetailService(input.discussionId);
-    return { discussion };
+    return await getDiscussionDetailService(input.discussionId);
 },
+
 });
 
 //토론내용 조회

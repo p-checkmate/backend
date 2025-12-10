@@ -278,3 +278,35 @@ export const existsDiscussionLike = async (
 
   return rows.length > 0;
 };
+
+//특정 책 기본정보조회
+export const getBookBasicInfo = async (bookId: number) => {
+  const [rows] = await pool.query<RowDataPacket[]>(`
+    SELECT 
+      book_id,
+      title,
+      author,
+      publisher,
+      published_date,
+      description,
+      thumbnail_url,
+      page_count
+    FROM book
+    WHERE book_id = ?
+  `, [bookId]);
+
+  return rows.length ? rows[0] : null;
+};
+
+//특정책에 연결된 장르 목록 조회
+export const getGenresByBookId = async (bookId: number) => {
+  const [rows] = await pool.query<RowDataPacket[]>(`
+    SELECT g.genre_name
+    FROM genre g
+    INNER JOIN book_genre bg ON bg.genre_id = g.genre_id
+    WHERE bg.book_id = ?
+    ORDER BY g.genre_name
+  `, [bookId]);
+
+  return rows.map(r => r.genre_name);
+};
