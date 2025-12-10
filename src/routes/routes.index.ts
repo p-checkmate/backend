@@ -23,6 +23,7 @@ import {
   handleViewBestsellers,
   handleAddBookmark,
   handleDeleteBookmark,
+  handleGetBookmarkStatus,
 } from "../controllers/books.controller.js";
 
 import {
@@ -60,6 +61,8 @@ import {
   handleUnlikeDiscussion,
 } from "../controllers/discussions_M.controller.js";
 
+import{handleCreateDiscussionMessage} from "../controllers/discussions.controller.js";
+
 export const routing: Routing = {
   api: {
     v1: {
@@ -71,6 +74,7 @@ export const routing: Routing = {
         "delete :quoteId/like": handleUnlikeQuote,
       },
       discussions: {
+        ":discussionId/messages": handleCreateDiscussionMessage,
         "get :discussionId": handleGetDiscussionDetail,
         "get :discussionId/messages": handleGetDiscussionMessages,
         "post :discussionId/like": handleLikeDiscussion, 
@@ -82,6 +86,7 @@ export const routing: Routing = {
 
         ":bookId": handleGetBookDetail,
         ":bookId/bookmark": handleAddBookmark,
+        "get :bookId/bookmark": handleGetBookmarkStatus,   
         "delete /:bookId/bookmark": handleDeleteBookmark,
         "get :bookId/quotes": handleGetQuotesByBook,
         "post :bookId/quotes": handleCreateQuote,

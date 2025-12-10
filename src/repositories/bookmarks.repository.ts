@@ -65,3 +65,15 @@ export const getBookmarksWithPagination = async (
     return rows;
 };
 
+// 북마크 존재 여부 조회 (user_id + book_id)
+export const existsBookmark = async (userId: number, bookId: number): Promise<boolean> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `SELECT 1 AS found
+            FROM bookmark
+            WHERE user_id = ? AND book_id = ?
+            LIMIT 1`,
+        [userId, bookId],
+    );
+
+    return rows.length > 0;
+};
