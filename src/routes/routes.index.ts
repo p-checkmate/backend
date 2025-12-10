@@ -59,6 +59,8 @@ import {
   handleGetDiscussionMessages,
 } from "../controllers/discussions_M.controller.js";
 
+import{handleCreateDiscussionMessage} from "../controllers/discussions.controller.js";
+
 export const routing: Routing = {
   api: {
     v1: {
