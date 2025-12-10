@@ -23,6 +23,7 @@ import {
   handleViewBestsellers,
   handleAddBookmark,
   handleDeleteBookmark,
+  handleGetBookmarkStatus,
 } from "../controllers/books.controller.js";
 
 import {
@@ -69,7 +70,7 @@ export const routing: Routing = {
 
       discussions: {
         ":discussionId/messages": handleCreateDiscussionMessage,
-         "get :discussionId": handleGetDiscussionDetail,
+        "get :discussionId": handleGetDiscussionDetail,
       },
       
       books: {
@@ -78,6 +79,7 @@ export const routing: Routing = {
 
         ":bookId": handleGetBookDetail,
         ":bookId/bookmark": handleAddBookmark,
+        "get :bookId/bookmark": handleGetBookmarkStatus,   
         "delete /:bookId/bookmark": handleDeleteBookmark,
         "get :bookId/quotes": handleGetQuotesByBook,
         "post :bookId/quotes": handleCreateQuote,
