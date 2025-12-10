@@ -69,7 +69,7 @@ export const routing: Routing = {
 
       discussions: {
         ":discussionId/messages": handleCreateDiscussionMessage,
-         "get :discussionId": handleGetDiscussionDetail,
+        "get :discussionId": handleGetDiscussionDetail,
       },
       
       books: {

@@ -18,6 +18,21 @@ export const quoteSchema = z.object({
   updated_at: z.iso.datetime().nullable(),
 });
 
+export const bookSchema = z.object({
+  title: z.string(),
+  author: z.string(),
+  publisher: z.string().nullable(),
+  published_date: z.string().nullable(),
+  description: z.string().nullable(),
+  thumbnail_url: z.string().nullable(),
+  page_count: z.number().nullable(),
+});
+
+export const quoteWithBookSchema = quoteSchema.extend({
+  book: bookSchema,
+});
+
+
 // 내 인용구 목록용 스키마 (책 정보 포함)
 export const myQuoteSchema = z.object({
   quote_id: z.number().int(),
