@@ -73,6 +73,7 @@ export const routing: Routing = {
         "post :quoteId/like": handleLikeQuote,
         "delete :quoteId/like": handleUnlikeQuote,
       },
+
       discussions: {
         "get :discussionId": handleGetDiscussionDetail,
         "get :discussionId/messages": handleGetDiscussionMessages,
@@ -80,6 +81,7 @@ export const routing: Routing = {
         "post :discussionId/like": handleLikeDiscussion, 
         "delete :discussionId/like": handleUnlikeDiscussion, 
       },
+      
       books: {
         search: handleSearchBooks,
         bestsellers: handleViewBestsellers,

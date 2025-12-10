@@ -31,23 +31,34 @@ return {
   };
 };
 
-// READ by book
+// 도서별 인용구 조회
 export const getQuotesByBookService = async (bookId: number) => {
-  try {
-    const rows = await getQuotesByBookId(bookId);
+  const rows = await getQuotesByBookId(bookId);
 
-    return rows.map((row: any) => ({
-      ...row,
-      created_at: row.created_at.toISOString(),
-      updated_at: row.updated_at ? row.updated_at.toISOString() : null,
-    }));
-  } catch (err) {
-    console.error(err);
-    throw HttpError(500, "도서별 인용구 조회 실패");
-  }
+  return rows.map((row) => ({
+    quote_id: row.quote_id,
+    user_id: row.user_id,
+    nickname: row.nickname,
+    book_id: row.book_id,
+    content: row.content,
+    like_count: row.like_count,
+    created_at: row.created_at.toISOString(),
+    updated_at: row.updated_at ? row.updated_at.toISOString() : null,
+
+    book: {
+      title: row.title,
+      author: row.author,
+      publisher: row.publisher,
+      published_date: row.published_date,
+      description: row.description,
+      thumbnail_url: row.thumbnail_url,
+      page_count: row.page_count,
+      genres: row.genres
+        ? row.genres.split(",").map((g: string) => g.trim())
+        : [],
+    },
+  }));
 };
-
-
 // UPDATE
 export const updateQuoteService = async (quoteId: number, content: string, userId: number) => {
   const quote = await getQuoteById(quoteId);

@@ -10,7 +10,7 @@ import {
   likeQuoteService,
   unlikeQuoteService,
 } from "../services/quotes.service.js";
-import { quoteSchema } from "../schemas/quotes.schema.js";
+import { quoteWithBookSchema, quoteSchema } from "../schemas/quotes.schema.js";
 
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
 
@@ -111,7 +111,7 @@ export const handleGetQuotesByBook = authEndpointsFactory.build({
     bookId: z.coerce.number().int().positive(),
   }),
   output: z.object({
-    data: z.array(quoteSchema),
+    data: z.array(quoteWithBookSchema),
   }),
 
   handler: async ({ input }) => {

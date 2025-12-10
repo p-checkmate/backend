@@ -45,28 +45,59 @@ export const getQuoteById = async (
 };
 
 // 책별 인용구 리스트 조회
-export const getQuotesByBookId = async (
-  bookId: number
-): Promise<QuoteRow[]> => {
-  const [rows] = await pool.query<QuoteRow[]>(
+export const getQuotesByBookId = async (bookId: number): Promise<any[]> => {
+  const [rows] = await pool.query<any[]>(
     `
-      SELECT 
-        q.quote_id,
-        q.user_id,
-        u.nickname,
-        q.book_id,
-        q.content,
-        q.like_count,
-        q.created_at,
-        q.updated_at
-      FROM quote q
-      INNER JOIN user u ON q.user_id = u.user_id
-      WHERE q.book_id = ?
-      ORDER BY q.created_at DESC
+      SELECT
+    q.quote_id,
+    q.user_id,
+    u.nickname,
+    q.book_id,
+    q.content,
+    q.like_count,
+    q.created_at,
+    q.updated_at,
+
+    b.title,
+    b.author,
+    b.publisher,
+    b.published_date,
+    b.description,
+    b.thumbnail_url,
+    b.page_count,
+
+    -- 장르 배열
+    GROUP_CONCAT(DISTINCT g.genre_name ORDER BY g.genre_name SEPARATOR ',') AS genres
+
+FROM quote q
+INNER JOIN user u ON q.user_id = u.user_id
+INNER JOIN book b ON q.book_id = b.book_id
+LEFT JOIN book_genre bg ON bg.book_id = b.book_id
+LEFT JOIN genre g ON g.genre_id = bg.genre_id
+
+WHERE q.book_id = ?
+
+GROUP BY
+    q.quote_id,
+    q.user_id,
+    u.nickname,
+    q.book_id,
+    q.content,
+    q.like_count,
+    q.created_at,
+    q.updated_at,
+    b.title,
+    b.author,
+    b.publisher,
+    b.published_date,
+    b.description,
+    b.thumbnail_url,
+    b.page_count
+
+ORDER BY q.created_at DESC;
     `,
     [bookId]
   );
-
   return rows;
 };
 
