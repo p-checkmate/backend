@@ -55,7 +55,6 @@ import {
   handleCreateDiscussion,
   handleGetDiscussionsByBook,
   handleGetDiscussionDetail,
-  handleGetDiscussionMessages,
 } from "../controllers/discussions_M.controller.js";
 
 import { handleCreateDiscussionMessage } from "../controllers/discussions.controller.js";

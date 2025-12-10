@@ -53,6 +53,9 @@ export const getQuotesByBookService = async (bookId: number) => {
       description: row.description,
       thumbnail_url: row.thumbnail_url,
       page_count: row.page_count,
+      genres: row.genres
+        ? row.genres.split(",").map((g: string) => g.trim())
+        : [],
     },
   }));
 };

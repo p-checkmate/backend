@@ -26,6 +26,7 @@ export const bookSchema = z.object({
   description: z.string().nullable(),
   thumbnail_url: z.string().nullable(),
   page_count: z.number().nullable(),
+  genres: z.array(z.string()),
 });
 
 export const quoteWithBookSchema = quoteSchema.extend({
