@@ -74,7 +74,7 @@ export const getQuotesByBookService = async (bookId: number) => {
       title: row.title,
       author: row.author,
       publisher: row.publisher,
-      published_date: row.published_date,
+      published_date: row.published_date?.toISOString() ?? null,
       description: row.description,
       thumbnail_url: row.thumbnail_url,
       page_count: row.page_count,
