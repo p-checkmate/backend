@@ -281,3 +281,24 @@ export const countLikedQuotesByUserId = async (
   );
   return rows[0].total;
 };
+
+export const getBookBasicInfo = async (bookId: number) => {
+  const [rows] = await pool.query<RowDataPacket[]>(
+    `
+      SELECT
+        book_id,
+        title,
+        author,
+        publisher,
+        published_date,
+        description,
+        thumbnail_url,
+        page_count
+      FROM book
+      WHERE book_id = ?
+    `,
+    [bookId]
+  );
+
+  return rows.length ? rows[0] : null;
+};

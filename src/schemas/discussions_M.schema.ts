@@ -90,7 +90,6 @@ export const getDiscussionDetailResponseSchema = z.object({
   discussion: discussionDetailSchema,
 });
 
-
 // 메시지 스키마
 export const discussionMessageSchema = z.object({
   comment_id: z.number(),
