@@ -279,7 +279,7 @@ export const existsDiscussionLike = async (
   return rows.length > 0;
 };
 
-//특정 책 기본정보조회
+//  특정 책 기본 정보 조회 (토론 목록/상세 조회용)
 export const getBookBasicInfo = async (bookId: number) => {
   const [rows] = await pool.query<RowDataPacket[]>(`
     SELECT 
@@ -295,11 +295,12 @@ export const getBookBasicInfo = async (bookId: number) => {
     WHERE book_id = ?
   `, [bookId]);
 
-  return rows.length ? rows[0] : null;
+  if (!rows.length) return null;
+  return rows[0];
 };
 
-//특정책에 연결된 장르 목록 조회
-export const getGenresByBookId = async (bookId: number) => {
+// 특정 책의 전체 장르 목록 조회
+export const getGenresByBookId = async (bookId: number): Promise<string[]> => {
   const [rows] = await pool.query<RowDataPacket[]>(`
     SELECT g.genre_name
     FROM genre g
@@ -308,5 +309,7 @@ export const getGenresByBookId = async (bookId: number) => {
     ORDER BY g.genre_name
   `, [bookId]);
 
-  return rows.map(r => r.genre_name);
+  if (!rows.length) return [];
+  const genreSet = new Set(rows.map(r => r.genre_name));
+  return Array.from(genreSet);
 };

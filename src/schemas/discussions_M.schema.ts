@@ -1,20 +1,7 @@
 import { z } from "zod";
-
+import { bookInfoForDiscussionSchema } from "./books.schema.js";
 export const discussionTypeEnum = z.enum(["FREE", "VS"]);
 export type DiscussionType = z.infer<typeof discussionTypeEnum>;
-
-//책정보 스키마
-export const bookInfoForDiscussionSchema = z.object({
-  book_id: z.number(),
-  title: z.string(),
-  author: z.string(),             
-  publisher: z.string().nullable(),
-  published_date: z.string().nullable(),
-  description: z.string().nullable(),
-  thumbnail_url: z.string().nullable(),
-  page_count: z.number().nullable(),
-  genres: z.array(z.string()),
-});
 
 export const createDiscussionInputSchema = z.object({
   bookId: z.coerce.number().int().positive(),
@@ -74,10 +61,11 @@ export const discussionListItemSchema = z.object({
   comment_count: z.number(),
 });
 
+
 export const getDiscussionsByBookResponseSchema = z.object({
+  book: bookInfoForDiscussionSchema,
   discussions: z.array(discussionListItemSchema),
 });
-
 // 토론 상세조회 Input스키마
 export const getDiscussionDetailInputSchema = z.object({
   discussionId: z.coerce.number().int().positive(),
@@ -99,11 +87,10 @@ export const discussionDetailSchema = z.object({
   comment_count: z.number(),
 });
 
-//++
 export const getDiscussionDetailResponseSchema = z.object({
   discussion: discussionDetailSchema,
-  book: bookInfoForDiscussionSchema,
 });
+
 
 // 메시지 스키마
 export const discussionMessageSchema = z.object({

@@ -11,9 +11,8 @@ import {
     removeDiscussionLike,
     decreaseDiscussionLikeCount,
     existsDiscussionLike,
-    getBookBasicInfo,
-    getGenresByBookId
 } from "../repositories/discussions_M.repository.js";
+
 
 export const createDiscussionService = async (payload: {
     user_id: number;
@@ -60,42 +59,43 @@ export const createDiscussionService = async (payload: {
     }
 };
 
-// 특정 책 토론 목록 조회
-export const getDiscussionsByBookService = async (bookId: number) => {
-  // 책 존재 여부 검증
-    const book = await getBookById(bookId);
-    if (!book) {
-    throw HttpError(404, "해당 도서를 찾을 수 없습니다.");
-    }
+import { getBookBasicInfo, getGenresByBookId } from "../repositories/discussions_M.repository.js";
 
-    const discussions = await getDiscussionsByBook(bookId);
-    return discussions;
+export const getDiscussionsByBookService = async (bookId: number) => {
+  const bookRow = await getBookBasicInfo(bookId);
+  if (!bookRow) {
+    throw HttpError(404, "해당 도서를 찾을 수 없습니다.");
+  }
+  const genres = await getGenresByBookId(bookId);
+  const discussions = await getDiscussionsByBook(bookId);
+  const book = {
+    bookId: bookRow.book_id,
+    title: bookRow.title,
+    author: bookRow.author,
+    publisher: bookRow.publisher,
+    publishedDate: bookRow.published_date
+      ? bookRow.published_date.toISOString().slice(0, 10) // "YYYY-MM-DD"
+      : null,
+    description: bookRow.description,
+    thumbnailUrl: bookRow.thumbnail_url,
+    page: bookRow.page_count ?? bookRow.page ?? null,
+    genres,
+  };
+  return {
+    book,
+    discussions,
+  };
 };
 
-//토론상세조회 
+//토론상세조회
 export const getDiscussionDetailService = async (discussionId: number) => {
-  const discussion = await getDiscussionDetail(discussionId);
+    const discussion = await getDiscussionDetail(discussionId);
 
-  if (!discussion) {
+    if (!discussion) {
     throw HttpError(404, "해당 토론을 찾을 수 없습니다.");
-  }
+    }
 
-  // 책 기본정보 조회
-  const book = await getBookBasicInfo(discussion.book_id);
-  if (!book) {
-    throw HttpError(500, "토론에 연결된 책 정보를 찾을 수 없습니다.");
-  }
-
-  // 장르 조회
-  const genres = await getGenresByBookId(discussion.book_id);
-
-  return {
-    discussion,
-    book: {
-      ...book,
-      genres,
-    },
-  };
+    return discussion;
 };
 
 //토론 메시지내용조회

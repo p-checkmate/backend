@@ -61,10 +61,9 @@ export const handleGetDiscussionsByBook = authEndpointsFactory.build({
     input: getDiscussionsByBookInputSchema,
     output: getDiscussionsByBookResponseSchema,
 
-    handler: async ({ input }) => {
-    const discussions = await getDiscussionsByBookService(input.bookId);
-    return { discussions };
-    },
+     handler: async ({ input }) => {
+    return await getDiscussionsByBookService(input.bookId);
+},
 });
 
 // 토론 상세조회 
@@ -74,9 +73,9 @@ export const handleGetDiscussionDetail = authEndpointsFactory.build({
     output: getDiscussionDetailResponseSchema,
 
     handler: async ({ input }) => {
-    return await getDiscussionDetailService(input.discussionId);
+    const discussion = await getDiscussionDetailService(input.discussionId);
+    return { discussion };
 },
-
 });
 
 //토론내용 조회
