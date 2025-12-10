@@ -22,6 +22,7 @@ import {
     getExpByUserId,
     getPreferredGenresByUserId,
     getBookmarksByUserId,
+    updateUserExpAndLevel,
 } from "../repositories/mypage.repository.js";
 
 // 페이지네이션 입력값 검증 및 메타데이터 계산 헬퍼 함수
@@ -40,6 +41,16 @@ const processPagination = (page: number, limit: number, totalCount: number) => {
         hasNext,
     };
 };
+
+// 경험치 기반 레벨 계산 헬퍼 함수
+const calculateLevel = (exp: number): number => {
+    if (exp >= 1000) return 5;
+    if (exp >= 500) return 4;
+    if (exp >= 200) return 3;
+    if (exp >= 100) return 2;
+    return 1; // 0~99
+};
+
 
 // 인용구 데이터 변환 헬퍼 함수
 const transformQuoteData = (row: MyQuoteRow) => {
@@ -103,13 +114,20 @@ export const getMyPageInfo = async (userId: number): Promise<MypageOutput> => {
         getBookmarksByUserId(userId),
     ]);
 
+    const currentExp = expInfo?.exp ?? 0;
+    const calculatedLevel = calculateLevel(currentExp);
+    // DB의 레벨 정보가 현재 경험치 기반 레벨과 다르면 업데이트
+    if (!expInfo || expInfo.level !== calculatedLevel) {
+        await updateUserExpAndLevel(userId, currentExp, calculatedLevel);
+    }
+
     return {
         user: {
             user_id: user.user_id,
             nickname: user.nickname,
             email: user.email,
-            exp: expInfo?.exp ?? 0,
-            level: expInfo?.level ?? 1,
+            exp: currentExp,
+            level: calculatedLevel,
             preferred_genres: preferredGenres,
         },
         my_bookshelf: bookmarks.map((bookmark) => ({
@@ -264,4 +282,25 @@ export const getLikedDiscussionsService = async (
         console.error(err);
         throw HttpError(500, "좋아요한 토론 조회에 실패했습니다.");
     }
+};
+
+// 사용자 경험치 추가 및 레벨업 처리
+export const addExpToUser = async (userId: number, gainedExp: number) => {
+    const expInfo = await getExpByUserId(userId);
+
+    const prevExp = expInfo?.exp ?? 0;
+    const prevLevel = expInfo?.level ?? calculateLevel(prevExp);
+
+    const nextExp = prevExp + gainedExp;
+    const nextLevel = calculateLevel(nextExp);
+
+    await updateUserExpAndLevel(userId, nextExp, nextLevel);
+
+    return {
+        prevExp,
+        nextExp,
+        prevLevel,
+        nextLevel,
+        leveledUp: nextLevel > prevLevel,
+    };
 };

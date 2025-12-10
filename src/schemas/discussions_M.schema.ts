@@ -82,7 +82,6 @@ export const discussionDetailSchema = z.object({
   option2: z.string().nullable(),
   created_at: z.date(),
   nickname: z.string(),
-
   like_count: z.number(),
   comment_count: z.number(),
 });
@@ -98,17 +97,28 @@ export const discussionMessageSchema = z.object({
   discussion_id: z.number(),
   user_id: z.number(),
   nickname: z.string(),
+  choice: z.number().nullable(),
   content: z.string(),
   created_at: z.date(),
   updated_at: z.date().nullable(),
 });
 
-// Input 스키마
+//토론 메시지 Input 스키마
 export const getDiscussionMessagesInputSchema = z.object({
   discussionId: z.coerce.number().int().positive(),
 });
 
-// Response 스키마
+//토론 메시지 Response 스키마
 export const getDiscussionMessagesResponseSchema = z.object({
   messages: z.array(discussionMessageSchema),
+});
+
+//좋아요Input 스키마
+export const discussionLikeInputSchema = z.object({
+  discussionId: z.coerce.number().int().positive(),
+});
+
+//좋아요 Response 스키마
+export const discussionLikeResponseSchema = z.object({
+  message: z.string(),
 });

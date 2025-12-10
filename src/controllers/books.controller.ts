@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { defaultEndpointsFactory } from "express-zod-api";
 import { bookSearchResponseSchema } from "../schemas/aladin.schema.js";
-import { bookDetailResponseSchema, bookmarkResponseSchema } from "../schemas/books.schema.js";
+import { bookDetailResponseSchema, bookmarkResponseSchema, bookmarkStatusResponseSchema, } from "../schemas/books.schema.js";
 import { searchBooks, getBookDetail, viewBestsellers } from "../services/books.service.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js"; 
-import { addBookmark, removeBookmark } from "../services/bookmarks.service.js";
+import { addBookmark, removeBookmark, getBookmarkStatus } from "../services/bookmarks.service.js";
 
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
 
@@ -86,5 +86,20 @@ export const handleDeleteBookmark = authEndpointsFactory.build({
         const userId = options.user.user_id;
         await removeBookmark(userId, input.bookId);
         return { message: "Bookmark 삭제되었습니다." };
+    },
+});
+
+// GET /api/v1/books/:bookId/bookmark
+// 책 북마크 여부 조회
+export const handleGetBookmarkStatus = authEndpointsFactory.build({
+    method: "get",
+    input: z.object({
+        bookId: z.string().transform((val) => parseInt(val, 10)), // path param (알라딘 itemId)
+    }),
+    output: bookmarkStatusResponseSchema,
+    handler: async ({ input, options }) => {
+        const userId = options.user.user_id;
+        const isBookmarked = await getBookmarkStatus(userId, input.bookId);
+        return { isBookmarked };
     },
 });

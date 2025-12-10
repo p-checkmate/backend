@@ -28,6 +28,11 @@ export const bookmarkResponseSchema = z.object({
     bookId: z.number(),
 });
 
+// 책 북마크 여부 응답 스키마
+export const bookmarkStatusResponseSchema = z.object({
+    isBookmarked: z.boolean(),
+});
+
 // 북마크 아이템 스키마 (나의 책장용)
 export const bookmarkItemSchema = z.object({
     bookmark_id: z.number(),
@@ -54,6 +59,7 @@ export type BookDetailResponse = z.infer<typeof bookDetailResponseSchema>;
 export type BookmarkResponse = z.infer<typeof bookmarkResponseSchema>;
 export type BookmarkItem = z.infer<typeof bookmarkItemSchema>;
 export type UserBookmarksResponse = z.infer<typeof userBookmarksResponseSchema>;
+export type BookmarkStatusResponse = z.infer<typeof bookmarkStatusResponseSchema>; 
 
 // DB 조회 결과 Row 타입 (Repository 전용)
 export interface BookRow {

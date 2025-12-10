@@ -32,6 +32,7 @@ export const myDiscussionsResponseSchema = z.object({
 export const createDiscussionMessageInputSchema = z.object({
     discussionId: z.coerce.number().int().positive(),
     content: z.string().min(1).max(1000),
+    choice: z.coerce.number().int().min(1).max(2).optional(),
 });
 
 // 토론 메시지 생성 응답 스키마
@@ -65,6 +66,7 @@ export interface DiscussionCommentRow extends RowDataPacket {
     discussion_id: number;
     user_id: number;
     content: string;
+    choice: number | null;
     created_at: Date;
     updated_at: Date | null;
 }

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { defaultEndpointsFactory } from "express-zod-api";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
@@ -18,6 +19,14 @@ import {
     getDiscussionDetailService,
     getDiscussionMessagesService,
 } from "../services/discussions_M.service.js";
+
+import {
+    discussionLikeInputSchema,
+    discussionLikeResponseSchema,
+} from "../schemas/discussions_M.schema.js";
+
+import { likeDiscussionService,unlikeDiscussionService } from "../services/discussions_M.service.js";
+
 
 // 인증된 API 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
@@ -77,5 +86,35 @@ export const handleGetDiscussionMessages = authEndpointsFactory.build({
     handler: async ({ input }) => {
     const messages = await getDiscussionMessagesService(input.discussionId);
     return { messages };
+    },
+});
+
+// 토론 좋아요 등록
+export const handleLikeDiscussion = authEndpointsFactory.build({
+    method: "post",
+    input: discussionLikeInputSchema,
+    output: discussionLikeResponseSchema,
+
+    handler: async ({ input, options }) => {
+    const userId = options.user.user_id;
+    const discussionId = input.discussionId;
+
+    const result = await likeDiscussionService(userId, discussionId);
+    return result;
+    },
+});
+
+// 토론 좋아요 취소
+export const handleUnlikeDiscussion = authEndpointsFactory.build({
+    method: "delete",
+    input: discussionLikeInputSchema,
+    output: discussionLikeResponseSchema,
+
+    handler: async ({ input, options }) => {
+    const userId = options.user.user_id;
+    const discussionId = input.discussionId;
+
+    const result = await unlikeDiscussionService(userId, discussionId);
+    return result;
     },
 });
