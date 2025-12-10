@@ -51,10 +51,12 @@ import {
   handleGetGenres,
 } from "../controllers/onboarding.controller.js";
 
-import { handleCreateDiscussion } from "../controllers/discussions_M.controller.js";
-
-
-import { handleGetDiscussionsByBook } from "../controllers/discussions_M.controller.js";
+import {
+  handleCreateDiscussion,
+  handleGetDiscussionsByBook,
+  handleGetDiscussionDetail,
+  handleGetDiscussionMessages,
+} from "../controllers/discussions_M.controller.js";
 
 export const routing: Routing = {
   api: {
@@ -66,7 +68,10 @@ export const routing: Routing = {
         "post :quoteId/like": handleLikeQuote,
         "delete :quoteId/like": handleUnlikeQuote,
       },
-
+      discussions: {
+        "get :discussionId": handleGetDiscussionDetail,
+        "get :discussionId/messages": handleGetDiscussionMessages,
+      },
       books: {
         search: handleSearchBooks,
         bestsellers: handleViewBestsellers,

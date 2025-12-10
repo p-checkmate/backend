@@ -1,19 +1,25 @@
 import { defaultEndpointsFactory } from "express-zod-api";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
+// 모든 스키마 한 번에
 import {
     createDiscussionInputSchema,
     createDiscussionResponseSchema,
-} from "../schemas/discussions_M.schema.js";
-
-import { createDiscussionService } from "../services/discussions_M.service.js";
-
-import {
     getDiscussionsByBookInputSchema,
     getDiscussionsByBookResponseSchema,
+    getDiscussionDetailInputSchema,
+    getDiscussionDetailResponseSchema,
+    getDiscussionMessagesInputSchema,
+    getDiscussionMessagesResponseSchema,
 } from "../schemas/discussions_M.schema.js";
 
-import { getDiscussionsByBookService } from "../services/discussions_M.service.js";
+// 모든 서비스 한 번에
+import {
+    createDiscussionService,
+    getDiscussionsByBookService,
+    getDiscussionDetailService,
+    getDiscussionMessagesService,
+} from "../services/discussions_M.service.js";
 
 // 인증된 API 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
@@ -41,7 +47,7 @@ export const handleCreateDiscussion = authEndpointsFactory.build({
     },
 });
 
-export const handleGetDiscussionsByBook = defaultEndpointsFactory.build({
+export const handleGetDiscussionsByBook = authEndpointsFactory.build({
     method: "get",
     input: getDiscussionsByBookInputSchema,
     output: getDiscussionsByBookResponseSchema,
@@ -49,5 +55,29 @@ export const handleGetDiscussionsByBook = defaultEndpointsFactory.build({
     handler: async ({ input }) => {
     const discussions = await getDiscussionsByBookService(input.bookId);
     return { discussions };
+    },
+});
+
+// 토론 상세조회 
+export const handleGetDiscussionDetail = authEndpointsFactory.build({
+    method: "get",
+    input: getDiscussionDetailInputSchema,
+    output: getDiscussionDetailResponseSchema,
+
+    handler: async ({ input }) => {
+    const discussion = await getDiscussionDetailService(input.discussionId);
+    return { discussion };
+},
+});
+
+//토론내용 조회
+export const handleGetDiscussionMessages = authEndpointsFactory.build({
+    method: "get",
+    input: getDiscussionMessagesInputSchema,
+    output: getDiscussionMessagesResponseSchema,
+
+    handler: async ({ input }) => {
+    const messages = await getDiscussionMessagesService(input.discussionId);
+    return { messages };
     },
 });
