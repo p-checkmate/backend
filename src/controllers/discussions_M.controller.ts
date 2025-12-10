@@ -1,7 +1,6 @@
 import { defaultEndpointsFactory } from "express-zod-api";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
-// 모든 스키마 한 번에
 import {
     createDiscussionInputSchema,
     createDiscussionResponseSchema,
@@ -13,7 +12,6 @@ import {
     getDiscussionMessagesResponseSchema,
 } from "../schemas/discussions_M.schema.js";
 
-// 모든 서비스 한 번에
 import {
     createDiscussionService,
     getDiscussionsByBookService,
