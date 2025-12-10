@@ -54,6 +54,8 @@ import {
 import { handleCreateDiscussion, handleGetDiscussionsByBook } from "../controllers/discussions_M.controller.js";
 import { handleCreateDiscussionMessage } from "../controllers/discussions.controller.js";
 
+import { handleGetDiscussionDetail } from "../controllers/discussions_M.controller.js";
+
 export const routing: Routing = {
   api: {
     v1: {
@@ -67,8 +69,9 @@ export const routing: Routing = {
 
       discussions: {
         ":discussionId/messages": handleCreateDiscussionMessage,
+         "get :discussionId": handleGetDiscussionDetail,
       },
-
+      
       books: {
         search: handleSearchBooks,
         bestsellers: handleViewBestsellers,

@@ -1,3 +1,4 @@
+import { NumberLiteralType } from "typescript";
 import { pool } from "../config/db.config.js";
 import { RowDataPacket, ResultSetHeader } from "mysql2/promise";
 
@@ -14,6 +15,8 @@ export interface DiscussionRow extends RowDataPacket {
   created_at: Date;
   updated_at: Date;
   nickname: string; 
+  comment_count: number;
+  like_count: number; 
 }
 
 //책 존재여부 확인
@@ -41,6 +44,7 @@ export interface CreateDiscussionPayload {
   discussion_type: "FREE" | "VS";
   option1: string | null;
   option2: string | null;
+
 }
 
 export const createDiscussion = async (
@@ -89,10 +93,14 @@ export const getDiscussionsByBook = async (
       d.option1,
       d.option2,
       d.created_at,
-      u.nickname
+      d.like_count,
+      u.nickname,
+      COUNT(dc.comment_id) AS comment_count
     FROM discussion d
     INNER JOIN user u ON d.user_id = u.user_id
+    LEFT JOIN discussion_comment dc ON dc.discussion_id = d.discussion_id
     WHERE d.book_id = ?
+    GROUP BY d.discussion_id
     ORDER BY d.created_at DESC
     `,
     [bookId]
@@ -100,3 +108,47 @@ export const getDiscussionsByBook = async (
 
   return rows as DiscussionRow[];
 };
+
+// 특정 토론 상세 조회
+export const getDiscussionDetail = async (discussionId: number): Promise<DiscussionDetailRow | null> => {
+  const [rows] = await pool.query<RowDataPacket[]>(`
+    SELECT
+      d.discussion_id,
+      d.user_id,
+      d.book_id,
+      d.title,
+      d.content,
+      d.discussion_type,
+      d.option1,
+      d.option2,
+      d.created_at,
+      d.like_count,
+      u.nickname,
+      (
+        SELECT COUNT(*) 
+        FROM discussion_comment dc 
+        WHERE dc.discussion_id = d.discussion_id
+      ) AS comment_count
+    FROM discussion d
+    INNER JOIN user u ON u.user_id = d.user_id
+    WHERE d.discussion_id = ?
+    LIMIT 1
+  `, [discussionId]);
+
+  return rows.length ? (rows[0] as DiscussionDetailRow) : null;
+};
+
+export interface DiscussionDetailRow extends RowDataPacket {
+  discussion_id: number;
+  user_id: number;
+  book_id: number;
+  title: string;
+  content: string;
+  discussion_type: "FREE" | "VS";
+  option1: string | null;
+  option2: string | null;
+  created_at: Date;
+  like_count: number;
+  comment_count: number;
+  nickname: string;
+}

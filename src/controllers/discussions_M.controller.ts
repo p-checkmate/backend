@@ -15,6 +15,9 @@ import {
 
 import { getDiscussionsByBookService } from "../services/discussions_M.service.js";
 
+import { getDiscussionDetailInputSchema, getDiscussionDetailResponseSchema } from "../schemas/discussions_M.schema.js";
+import { getDiscussionDetailService } from "../services/discussions_M.service.js";
+
 // 인증된 API 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
 
@@ -41,7 +44,7 @@ export const handleCreateDiscussion = authEndpointsFactory.build({
     },
 });
 
-export const handleGetDiscussionsByBook = defaultEndpointsFactory.build({
+export const handleGetDiscussionsByBook = authEndpointsFactory.build({
     method: "get",
     input: getDiscussionsByBookInputSchema,
     output: getDiscussionsByBookResponseSchema,
@@ -50,4 +53,16 @@ export const handleGetDiscussionsByBook = defaultEndpointsFactory.build({
     const discussions = await getDiscussionsByBookService(input.bookId);
     return { discussions };
     },
+});
+
+// 토론 상세조회 
+export const handleGetDiscussionDetail = authEndpointsFactory.build({
+    method: "get",
+    input: getDiscussionDetailInputSchema,
+    output: getDiscussionDetailResponseSchema,
+
+    handler: async ({ input }) => {
+    const discussion = await getDiscussionDetailService(input.discussionId);
+    return { discussion };
+},
 });
