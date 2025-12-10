@@ -234,3 +234,29 @@ export const increaseDiscussionLikeCount = async (discussionId: number) => {
     [discussionId]
   );
 };
+
+// 좋아요 취소
+export const removeDiscussionLike = async (
+  userId: number,
+  discussionId: number
+) => {
+  await pool.query(
+    `
+    DELETE FROM discussion_like
+    WHERE user_id = ? AND discussion_id = ?
+    `,
+    [userId, discussionId]
+  );
+};
+
+// 좋아요 갯수 1 감소
+export const decreaseDiscussionLikeCount = async (discussionId: number) => {
+  await pool.query(
+    `
+    UPDATE discussion
+    SET like_count = like_count - 1
+    WHERE discussion_id = ? AND like_count > 0
+    `,
+    [discussionId]
+  );
+};
