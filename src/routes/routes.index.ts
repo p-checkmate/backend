@@ -44,6 +44,7 @@ import {
   handleLikeQuote,
   handleUnlikeQuote,
   handleGetQuotesByBook,
+  handleGetQuoteLikeStatus,
 } from "../controllers/quotes.controller.js";
 
 import {
@@ -68,6 +69,7 @@ export const routing: Routing = {
     v1: {
       quotes: {
         "get :quoteId": handleGetQuote,
+        "get :quoteId/like-status": handleGetQuoteLikeStatus,
         "patch :quoteId": handleUpdateQuote,
         "delete :quoteId": handleDeleteQuote,
         "post :quoteId/like": handleLikeQuote,

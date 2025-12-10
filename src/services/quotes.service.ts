@@ -7,6 +7,7 @@ import {
   likeQuote,
   unlikeQuote,
   getQuotesByBookId,
+  existsQuoteLike
 } from "../repositories/quotes.repository.js";
 
 // CREATE
@@ -105,4 +106,17 @@ export const unlikeQuoteService = async (quoteId: number, userId: number) => {
   }
 
   return true;
+};
+
+
+//LIKE status
+export const getQuoteLikeStatusService = async (
+  quoteId: number,
+  userId: number
+) => {
+  const quote = await getQuoteById(quoteId);
+  if (!quote) throw HttpError(404, "존재하지 않는 인용구입니다.");
+
+  const liked = await existsQuoteLike(userId, quoteId);
+  return { liked };
 };

@@ -9,8 +9,13 @@ import {
   deleteQuoteService,
   likeQuoteService,
   unlikeQuoteService,
+  getQuoteLikeStatusService,
 } from "../services/quotes.service.js";
-import { quoteWithBookSchema, quoteSchema } from "../schemas/quotes.schema.js";
+
+import { quoteWithBookSchema,
+          quoteSchema,
+          quoteLikeStatusSchema 
+} from "../schemas/quotes.schema.js";
 
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
 
@@ -117,5 +122,19 @@ export const handleGetQuotesByBook = authEndpointsFactory.build({
   handler: async ({ input }) => {
     const quotes = await getQuotesByBookService(input.bookId);
     return { data: quotes };
+  },
+});
+
+// 인용구 좋아요 여부 조회
+export const handleGetQuoteLikeStatus = authEndpointsFactory.build({
+  method: "get",
+  input: z.object({
+    quoteId: z.coerce.number().int().positive(),
+  }),wq
+  output: quoteLikeStatusSchema,
+
+  handler: async ({ input, options }) => {
+    const userId = options.user.user_id;
+    return await getQuoteLikeStatusService(input.quoteId, userId);
   },
 });

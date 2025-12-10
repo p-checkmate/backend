@@ -91,3 +91,9 @@ export interface MyQuoteRow extends RowDataPacket {
   genre_names: string | null;
   nickname: string | null;
 }
+
+//인용구 좋아요 여부확인용 스키마
+export const quoteLikeStatusSchema = z.object({
+  liked: z.boolean(),
+});
+export type QuoteLikeStatus = z.infer<typeof quoteLikeStatusSchema>;
