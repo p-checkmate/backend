@@ -3,8 +3,10 @@ import {
     getDiscussionById,
     insertDiscussionComment,
     hasUserCommentedOnDiscussion,
+    findVoteByUserAndDiscussion,
+    insertVote,
 } from "../repositories/discussions.repository.js";
-import { CreateDiscussionMessageResponse } from "../schemas/discussions.schema.js";
+import { CreateDiscussionMessageResponse, VoteResponse } from "../schemas/discussions.schema.js";
 import { addExpToUser } from "../services/mypage.service.js";
 
 const EXP_REWARD = 10;
@@ -63,5 +65,42 @@ export const createDiscussionMessageService = async (
         }
         console.error(err);
         throw HttpError(500, "토론 메시지 작성에 실패했습니다.");
+    }
+};
+
+// VS 토론 투표 서비스
+export const voteDiscussionService = async (
+    userId: number,
+    discussionId: number,
+    choice: number
+): Promise<VoteResponse> => {
+    // 토론 존재 여부 및 타입 확인
+    const discussion = await getDiscussionById(discussionId);
+    if (!discussion) {
+        throw HttpError(404, "해당 토론을 찾을 수 없습니다.");
+    }
+
+    // VS 토론인지 확인
+    if (discussion.discussion_type !== "VS") {
+        throw HttpError(400, "VS 토론에서만 투표할 수 있습니다.");
+    }
+
+    // 이미 투표했는지 확인
+    const existingVote = await findVoteByUserAndDiscussion(userId, discussionId);
+    if (existingVote) {
+        throw HttpError(400, "이미 투표한 토론입니다.");
+    }
+
+    try {
+        // 투표 등록
+        await insertVote(userId, discussionId, choice);
+
+        return { message: "투표가 완료되었습니다." };
+    } catch (err: any) {
+        if (err.status) {
+            throw err;
+        }
+        console.error(err);
+        throw HttpError(500, "투표에 실패했습니다.");
     }
 };
