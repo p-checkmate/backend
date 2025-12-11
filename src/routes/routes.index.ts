@@ -37,6 +37,10 @@ import {
 import { handleModifyUser } from "../controllers/users.controller.js";
 
 import {
+  handleGetVsDiscussionSummary,
+} from "../controllers/discussions_summary.controller.js";
+
+import {
   handleCreateQuote,
   handleGetQuote,
   handleUpdateQuote,
@@ -87,8 +91,8 @@ export const routing: Routing = {
         "post :discussionId/like": handleLikeDiscussion, 
         "delete :discussionId/like": handleUnlikeDiscussion, 
         "post :discussionId/vote": handleVoteDiscussion,
-        "get :discussionId/like-status":
-        handleGetDiscussionLikeStatus,
+        "get :discussionId/like-status":handleGetDiscussionLikeStatus,
+        "get :discussionId/summary": handleGetVsDiscussionSummary, 
       },
       
       books: {
