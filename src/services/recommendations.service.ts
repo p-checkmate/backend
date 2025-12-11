@@ -5,7 +5,7 @@ import { getQuotesByUserId } from "../repositories/quotes.repository.js";
 import { getDiscussionsByUserId } from "../repositories/discussions.repository.js";
 import { getActiveReadingGroups, getMembersByUserAndGroups } from "../repositories/reading_groups.repository.js";
 import { getBookDetail } from "./books.service.js";
-import { AiRecommendationData, AiRecommendationResponse } from "../schemas/books.schema.js";
+import { BookThumbnail, AiRecommendationResponse } from "../schemas/books.schema.js";
 
 dotenv.config();
 const API_BASE_URL = process.env.API_BASE_URL;
@@ -142,10 +142,10 @@ export const getRecommendedBooks = async (userId: number): Promise<AiRecommendat
             return {
                 itemId: itemId,
                 thumbnailUrl: bookInfo.thumbnailUrl ?? null,
-            } as AiRecommendationData;
+            } as BookThumbnail;
         });
 
-        const bookInfoList: AiRecommendationData[] = await Promise.all(bookDetail);
+        const bookInfoList: BookThumbnail[] = await Promise.all(bookDetail);
 
         return { recommendations: bookInfoList };
     } catch (error) {

@@ -24,6 +24,7 @@ import {
     handleAddBookmark,
     handleDeleteBookmark,
     handleGetBookmarkStatus,
+    handleGetPopularBooks,
 } from "../controllers/books.controller.js";
 
 import {
@@ -99,6 +100,7 @@ export const routing: Routing = {
                 "post :bookId/quotes": handleCreateQuote,
                 "post :bookId/discussions": handleCreateDiscussion,
                 "get :bookId/discussions": handleGetDiscussionsByBook,
+                "": handleGetPopularBooks,
             },
 
             auth: {
