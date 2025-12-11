@@ -245,3 +245,30 @@ export const countLikedQuotesByUserId = async (userId: number): Promise<number> 
     const [rows] = await pool.query<any[]>(`SELECT COUNT(*) AS total FROM quote_like WHERE user_id = ?`, [userId]);
     return rows[0].total;
 };
+
+// 사용자가 특정 도서에 인용구를 작성했는지 확인
+export const hasUserQuotedBook = async (userId: number, bookId: number): Promise<boolean> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `SELECT 1
+        FROM quote
+        WHERE user_id = ? AND book_id = ?
+        LIMIT 1`,
+        [userId, bookId]
+    );
+
+    return rows.length > 0;
+};
+// 인용구 좋아요 여부 조회
+export const existsQuoteLike = async (userId: number, quoteId: number): Promise<boolean> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `
+      SELECT 1 AS found
+      FROM quote_like
+      WHERE user_id = ? AND quote_id = ?
+      LIMIT 1
+    `,
+        [userId, quoteId]
+    );
+
+    return rows.length > 0;
+};

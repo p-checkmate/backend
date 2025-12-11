@@ -7,12 +7,38 @@ import {
   likeQuote,
   unlikeQuote,
   getQuotesByBookId,
+  hasUserQuotedBook,
+  existsQuoteLike
 } from "../repositories/quotes.repository.js";
+import { addExpToUser } from "./mypage.service.js";
+import { CreateQuoteResponse } from "../schemas/quotes.schema.js";
 
 // CREATE
-export const createQuoteService = async (userId: number, bookId: number, content: string) => {
+export const createQuoteService = async (
+  userId: number,
+  bookId: number,
+  content: string
+): Promise<CreateQuoteResponse> => {
+  const EXP_REWARD = 10;
+
   try {
-    return await createQuote(userId, bookId, content);
+    // 해당 책에 인용구를 작성한 적 있는지 확인
+    const hasQuoted = await hasUserQuotedBook(userId, bookId);
+
+    const quoteId = await createQuote(userId, bookId, content);
+
+    let expEarned = 0;
+
+    // 첫 인용구인 경우에만 경험치 부여
+    if (!hasQuoted) {
+      await addExpToUser(userId, EXP_REWARD);
+      expEarned = EXP_REWARD;
+    }
+
+    return {
+      quote_id: quoteId,
+      exp_earned: expEarned,
+    };
   } catch (err) {
     console.error(err);
     throw HttpError(500, "인용구 생성에 실패했습니다.");
@@ -49,7 +75,7 @@ export const getQuotesByBookService = async (bookId: number) => {
       title: row.title,
       author: row.author,
       publisher: row.publisher,
-      published_date: row.published_date,
+      published_date: row.published_date?.toISOString() ?? null,
       description: row.description,
       thumbnail_url: row.thumbnail_url,
       page_count: row.page_count,
@@ -105,4 +131,17 @@ export const unlikeQuoteService = async (quoteId: number, userId: number) => {
   }
 
   return true;
+};
+
+
+//LIKE status
+export const getQuoteLikeStatusService = async (
+  quoteId: number,
+  userId: number
+) => {
+  const quote = await getQuoteById(quoteId);
+  if (!quote) throw HttpError(404, "존재하지 않는 인용구입니다.");
+
+  const liked = await existsQuoteLike(userId, quoteId);
+  return { liked };
 };

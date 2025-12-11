@@ -9,8 +9,10 @@ import {
   deleteQuoteService,
   likeQuoteService,
   unlikeQuoteService,
+  getQuoteLikeStatusService,
 } from "../services/quotes.service.js";
-import { quoteWithBookSchema, quoteSchema } from "../schemas/quotes.schema.js";
+import { quoteWithBookSchema, quoteSchema, createQuoteResponseSchema, quoteLikeStatusSchema } from "../schemas/quotes.schema.js";
+
 
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
 
@@ -21,12 +23,11 @@ export const handleCreateQuote = authEndpointsFactory.build({
     bookId: z.coerce.number().int().positive(),
     content: z.string().min(1).max(500),
   }),
-  output: z.object({ quote_id: z.number() }),
+  output: createQuoteResponseSchema,
 
   handler: async ({ input, options }) => {
     const userId = options.user.user_id;
-    const quoteId = await createQuoteService(userId, input.bookId, input.content);
-    return { quote_id: quoteId };
+    return await createQuoteService(userId, input.bookId, input.content);
   },
 });
 
@@ -117,5 +118,19 @@ export const handleGetQuotesByBook = authEndpointsFactory.build({
   handler: async ({ input }) => {
     const quotes = await getQuotesByBookService(input.bookId);
     return { data: quotes };
+  },
+});
+
+// 인용구 좋아요 여부 조회
+export const handleGetQuoteLikeStatus = authEndpointsFactory.build({
+  method: "get",
+  input: z.object({
+    quoteId: z.coerce.number().int().positive(),
+  }),
+  output: quoteLikeStatusSchema,
+
+  handler: async ({ input, options }) => {
+    const userId = options.user.user_id;
+    return await getQuoteLikeStatusService(input.quoteId, userId);
   },
 });

@@ -9,7 +9,8 @@ import {
     addDiscussionLike,
     increaseDiscussionLikeCount,
     removeDiscussionLike,
-    decreaseDiscussionLikeCount
+    decreaseDiscussionLikeCount,
+    existsDiscussionLike,
 } from "../repositories/discussions_M.repository.js";
 
 
@@ -139,4 +140,21 @@ export const unlikeDiscussionService = async (
     await decreaseDiscussionLikeCount(discussionId);
 
     return { message: "토론 좋아요가 취소되었습니다." };
+};
+
+// 토론 좋아요 여부 조회
+export const getDiscussionLikeStatusService = async (
+  discussionId: number,
+  userId: number
+) => {
+  // 토론 존재 여부 확인
+  const discussion = await getDiscussionDetail(discussionId);
+  if (!discussion) {
+    throw HttpError(404, "해당 토론을 찾을 수 없습니다.");
+  }
+
+  // 좋아요 여부 확인
+  const isLiked = await existsDiscussionLike(userId, discussionId);
+
+  return { isLiked };
 };
