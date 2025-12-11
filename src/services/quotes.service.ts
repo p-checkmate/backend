@@ -155,9 +155,8 @@ export const getPopularQuotesService = async () => {
         quote_id: q.quote_id,
         content: q.content,
         like_count: q.like_count,
-        created_at: q.created_at instanceof Date
-            ? q.created_at.toISOString()
-            : q.created_at,
+        created_at: new Date(q.created_at).toISOString(),
+        
         book: {
             book_id: q.book_id,
             title: q.book_title,
