@@ -122,3 +122,33 @@ export const hasUserCommentedOnDiscussion = async (
 
     return rows.length > 0;
 };
+
+// 사용자가 이미 투표했는지 확인
+export const findVoteByUserAndDiscussion = async (
+    userId: number,
+    discussionId: number
+): Promise<{ vote_id: number; choice: number } | null> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `SELECT vote_id, choice
+        FROM vote
+        WHERE user_id = ? AND discussion_id = ?`,
+        [userId, discussionId]
+    );
+
+    return rows.length ? (rows[0] as { vote_id: number; choice: number }) : null;
+};
+
+// 투표 추가
+export const insertVote = async (
+    userId: number,
+    discussionId: number,
+    choice: number
+): Promise<number> => {
+    const [result] = await pool.query<ResultSetHeader>(
+        `INSERT INTO vote (user_id, discussion_id, choice)
+        VALUES (?, ?, ?)`,
+        [userId, discussionId, choice]
+    );
+
+    return result.insertId;
+};
