@@ -260,3 +260,21 @@ export const decreaseDiscussionLikeCount = async (discussionId: number) => {
     [discussionId]
   );
 };
+
+// 토론 좋아요 여부 조회
+export const existsDiscussionLike = async (
+  userId: number,
+  discussionId: number
+): Promise<boolean> => {
+  const [rows] = await pool.query<RowDataPacket[]>(
+    `
+    SELECT 1 AS found
+    FROM discussion_like
+    WHERE user_id = ? AND discussion_id = ?
+    LIMIT 1
+    `,
+    [userId, discussionId]
+  );
+
+  return rows.length > 0;
+};

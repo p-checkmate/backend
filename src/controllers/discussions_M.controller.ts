@@ -11,6 +11,7 @@ import {
     getDiscussionDetailResponseSchema,
     getDiscussionMessagesInputSchema,
     getDiscussionMessagesResponseSchema,
+    discussionLikeStatusSchema ,
 } from "../schemas/discussions_M.schema.js";
 
 import {
@@ -18,14 +19,15 @@ import {
     getDiscussionsByBookService,
     getDiscussionDetailService,
     getDiscussionMessagesService,
+    likeDiscussionService,
+    unlikeDiscussionService ,
+    getDiscussionLikeStatusService,
 } from "../services/discussions_M.service.js";
 
 import {
     discussionLikeInputSchema,
     discussionLikeResponseSchema,
 } from "../schemas/discussions_M.schema.js";
-
-import { likeDiscussionService,unlikeDiscussionService } from "../services/discussions_M.service.js";
 
 
 // 인증된 API 팩토리
@@ -116,5 +118,19 @@ export const handleUnlikeDiscussion = authEndpointsFactory.build({
 
     const result = await unlikeDiscussionService(userId, discussionId);
     return result;
+    },
+});
+
+// 토론 좋아요 여부 조회
+export const handleGetDiscussionLikeStatus = authEndpointsFactory.build({
+    method: "get",
+    input: z.object({
+    discussionId: z.coerce.number().int().positive(),
+    }),
+    output: discussionLikeStatusSchema,
+
+    handler: async ({ input, options }) => {
+    const userId = options.user.user_id;
+    return await getDiscussionLikeStatusService(input.discussionId, userId);
     },
 });
