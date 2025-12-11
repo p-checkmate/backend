@@ -54,13 +54,25 @@ export const userBookmarksResponseSchema = z.object({
     bookmarks: z.array(bookmarkItemSchema),
 });
 
+export const aiRecommendationData = z.object({
+    itemId: z.number(),
+    thumbnailUrl: z.string().nullable(),
+});
+
+// AI 추천 도서 응답 스키마
+export const aiRecommendationResponseSchema = z.object({
+    recommendations: z.array(aiRecommendationData),
+});
+
 // TypeScript 타입 추출
 export type Genre = z.infer<typeof genreSchema>;
 export type BookDetailResponse = z.infer<typeof bookDetailResponseSchema>;
 export type BookmarkResponse = z.infer<typeof bookmarkResponseSchema>;
 export type BookmarkItem = z.infer<typeof bookmarkItemSchema>;
 export type UserBookmarksResponse = z.infer<typeof userBookmarksResponseSchema>;
-export type BookmarkStatusResponse = z.infer<typeof bookmarkStatusResponseSchema>; 
+export type BookmarkStatusResponse = z.infer<typeof bookmarkStatusResponseSchema>;
+export type AiRecommendationData = z.infer<typeof aiRecommendationData>;
+export type AiRecommendationResponse = z.infer<typeof aiRecommendationResponseSchema>;
 
 // DB 조회 결과 Row 타입 (Repository 전용)
 export interface BookRow {

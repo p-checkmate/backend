@@ -17,6 +17,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "axios": "^1.13.2",
         "bcrypt": "^6.0.0",
         "dotenv": "^17.2.3",
         "express": "^5.1.0",
@@ -31,6 +32,7 @@
     },
     "devDependencies": {
         "@tsconfig/node20": "^20.1.8",
+        "@types/axios": "^0.14.4",
         "@types/bcrypt": "^6.0.0",
         "@types/express": "^5.0.5",
         "@types/http-errors": "^2.0.5",
