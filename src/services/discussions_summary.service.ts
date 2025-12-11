@@ -9,16 +9,7 @@ import {
 } from "../repositories/discussions_summary.repository.js";
 import { requestGeminiContent } from "../repositories/gemini.repository.js";
 
-// 날짜 포맷팅 헬퍼 함수 (YYYY.MM.DD)
-const formatDate = (date: Date | null): string | null => {
-    if (!date) return null;
-
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-
-    return `${yyyy}.${mm}.${dd}`;
-};
+import { formatDate} from "../utils/date.util.js";
 
 // VS 토론 요약 프롬프트 생성
 const buildSummaryPrompt = (
@@ -135,7 +126,7 @@ export const getVsDiscussionSummaryService = async (
         option1: discussion.option1,
         option2: discussion.option2,
         is_ended: isEnded,
-        ended_at: formatDate(discussion.end_date),
+        ended_at: discussion.end_date ? formatDate(discussion.end_date) : null,
         total_comments: discussion.total_comments,
         summary,
         opinion_ratio: {

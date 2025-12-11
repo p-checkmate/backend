@@ -25,26 +25,7 @@ import {
     getMembersWithLevelByGroupId,
 } from "../repositories/reading_groups.repository.js";
 
-
-
-// 날짜 포맷팅 헬퍼 함수 (YY.MM.DD)
-const formatDate = (value: string | Date): string => {
-    const date = value instanceof Date ? value : new Date(value);
-
-    const yy = String(date.getFullYear()).slice(-2);
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-
-    return `${yy}.${mm}.${dd}`;
-};
-
-// 남은 기간 계산 함수 (D-day)
-const calcDaysLeft = (endDate: string | Date): number => {
-    const end = endDate instanceof Date ? endDate : new Date(endDate);
-    const today = new Date();
-    const diffMs = end.getTime() - today.getTime();
-    return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-};
+import { formatDate, calcDaysLeft } from "../utils/date.util.js";
 
 // GET /api/reading-groups/list - 함께 읽기 목록 조회 서비스
 export const getReadingGroupList = async (

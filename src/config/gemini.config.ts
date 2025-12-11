@@ -8,5 +8,4 @@ dotenv.config();
 
 export const vertexAI = new VertexAI({
     project: process.env.GCP_PROJECT_ID,
-    location: process.env.VERTEXAI_LOCATION || "us-asia-northeast3 ", 
 });

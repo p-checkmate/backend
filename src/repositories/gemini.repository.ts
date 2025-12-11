@@ -2,11 +2,12 @@
 
 import { vertexAI } from "../config/gemini.config.js";
 
+
 // Gemini API를 통한 텍스트 생성 요청
 export const requestGeminiContent = async (prompt: string): Promise<string> => {
     try {
         const model = vertexAI.getGenerativeModel({
-            model: "gemini-2.0-flash-lite-001",
+            model: "gemini-2.5-flash", 
         });
 
         const result = await model.generateContent({
