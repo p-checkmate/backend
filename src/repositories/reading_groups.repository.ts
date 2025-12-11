@@ -19,6 +19,7 @@ export const getActiveReadingGroups = async (): Promise<ReadingGroupWithBookRow[
         `SELECT 
             rg.reading_group_id,
             b.book_id,
+            b.aladin_item_id as item_id,
             b.title AS book_title,
             b.thumbnail_url,
             b.page_count,
@@ -170,24 +171,4 @@ export const getMembersWithLevelByGroupId = async (
     );
 
     return rows;
-};
-
-// 그룹 아이디를 통한 책 정보 조회
-export const getBookInfoByGroupId = async (groupId: number): Promise<ReadingGroupWithBookRow | null> => {
-    const [rows] = await pool.query<ReadingGroupWithBookRow[]>(
-        `SELECT 
-            b.book_id,
-            b.aladin_item_id,
-            b.title,
-            b.author,
-            b.publisher,
-            b.published_date,
-            b.description
-        FROM reading_group rg
-        INNER JOIN book b ON rg.book_id = b.book_id
-        WHERE rg.reading_group_id = ?`,
-        [groupId]
-    );
-
-    return rows[0] ?? null;
 };

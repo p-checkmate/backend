@@ -57,6 +57,7 @@ export interface MyDiscussionRow extends RowDataPacket {
     comment_count: number;
     created_at: string;
     book_id: number;
+    item_id: number;
     book_title: string;
     nickname: string | null;
 }

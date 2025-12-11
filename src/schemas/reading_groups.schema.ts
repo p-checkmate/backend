@@ -1,7 +1,6 @@
 import { z } from "zod";
 import type { RowDataPacket } from "mysql2/promise";
 
-
 //함꼐 읽기 생성 요청 바디 스키마
 export const createReadingGroupInputSchema = z.object({
     book_id: z.number().int().positive(),
@@ -25,7 +24,6 @@ export const bookInfoSchema = z.object({
     page_count: z.number().int().nullable(),
 });
 
-
 // GET /api/reading-groups/list - 함께 읽기 목록 조회
 export const readingGroupListItemSchema = z.object({
     reading_group_id: z.number().int(),
@@ -40,9 +38,11 @@ export const readingGroupListItemSchema = z.object({
     start_date: z.string(),
     end_date: z.string(),
     is_participating: z.boolean(),
-    my_progress: z.object({
-        current_page: z.number().int(),
-    }).nullable(),
+    my_progress: z
+        .object({
+            current_page: z.number().int(),
+        })
+        .nullable(),
     member_reading_info: z.string().nullable(),
 });
 
@@ -76,11 +76,7 @@ export const joinReadingGroupResponseSchema = z.object({
 export const updateReadingProgressInputSchema = z.object({
     // 안 보낼 수도 있으니 둘 다 optional 로 처리
     current_page: z.number().int().nonnegative().optional(),
-    memo: z
-        .string()
-        .max(200, "메모는 최대 200자까지 가능합니다.")
-        .nullable()
-        .optional(),
+    memo: z.string().max(200, "메모는 최대 200자까지 가능합니다.").nullable().optional(),
 });
 
 // 내 독서 진행 / 메모 업데이트 응답 스키마
@@ -136,6 +132,7 @@ export interface ReadingGroupRow extends RowDataPacket {
 export interface ReadingGroupWithBookRow extends RowDataPacket {
     reading_group_id: number;
     book_id: number;
+    item_id: number;
     book_title: string;
     thumbnail_url: string | null;
     page_count: number | null;

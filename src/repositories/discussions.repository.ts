@@ -21,11 +21,16 @@ const getDiscussionsWithDetails = async (
             d.like_count,
             d.created_at,
             b.book_id,
+            b.aladin_item_id as item_id,
             b.title AS book_title,
             u.nickname,
             (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id) AS comment_count
             ${isLiked ? ", MAX(dl.like_id) AS liked_at" : ""}
-        FROM ${isLiked ? "discussion_like dl INNER JOIN discussion d ON dl.discussion_id = d.discussion_id" : "discussion d"}
+        FROM ${
+            isLiked
+                ? "discussion_like dl INNER JOIN discussion d ON dl.discussion_id = d.discussion_id"
+                : "discussion d"
+        }
         INNER JOIN book b ON d.book_id = b.book_id
         INNER JOIN user u ON d.user_id = u.user_id
         WHERE ${isLiked ? "dl" : "d"}.user_id = ?
@@ -59,20 +64,14 @@ export const getLikedDiscussionsByUserId = async (
 
 // 사용자 토론 총 개수 조회
 export const countDiscussionsByUserId = async (userId: number): Promise<number> => {
-    const [rows] = await pool.query<any[]>(
-        `SELECT COUNT(*) AS total FROM discussion WHERE user_id = ?`,
-        [userId]
-    );
+    const [rows] = await pool.query<any[]>(`SELECT COUNT(*) AS total FROM discussion WHERE user_id = ?`, [userId]);
 
     return rows[0].total;
 };
 
 // 사용자가 좋아요한 토론 총 개수 조회
 export const countLikedDiscussionsByUserId = async (userId: number): Promise<number> => {
-    const [rows] = await pool.query<any[]>(
-        `SELECT COUNT(*) AS total FROM discussion_like WHERE user_id = ?`,
-        [userId]
-    );
+    const [rows] = await pool.query<any[]>(`SELECT COUNT(*) AS total FROM discussion_like WHERE user_id = ?`, [userId]);
 
     return rows[0].total;
 };
@@ -108,10 +107,7 @@ export const insertDiscussionComment = async (
 };
 
 // 사용자가 특정 토론에 이미 메시지를 작성했는지 확인
-export const hasUserCommentedOnDiscussion = async (
-    discussionId: number,
-    userId: number
-): Promise<boolean> => {
+export const hasUserCommentedOnDiscussion = async (discussionId: number, userId: number): Promise<boolean> => {
     const [rows] = await pool.query<RowDataPacket[]>(
         `SELECT 1
         FROM discussion_comment
