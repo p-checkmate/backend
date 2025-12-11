@@ -22,7 +22,7 @@ export const handleModifyUser = authEndpointsFactory.build({
     },
 });
 
-// 사용자 정보 수정
+// AI 서버로부터 추천 도서 받아오기
 export const handleGetRecommendedBooks = authEndpointsFactory.build({
     method: "get",
     input: z.object({}),
