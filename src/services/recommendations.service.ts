@@ -13,7 +13,7 @@ const API_BASE_URL = process.env.API_BASE_URL;
 // 문자열 자르기 헬퍼 함수
 const truncateDescription = (text: string | null | undefined, maxLength: number = 150): string | null => {
     if (!text) {
-        return null;
+        return "";
     }
 
     // 문자열이 최대 길이보다 짧거나 같으면 그대로 반환
@@ -116,9 +116,9 @@ export const getRecommendedBooks = async (userId: number): Promise<AiRecommendat
             recentItemInfo.push({
                 itemId: itemId,
                 title: info.title,
-                author: info.author ?? null,
-                publisher: info.publisher ?? null,
-                pubDate: info.publishedDate ?? null,
+                author: info.author ?? "",
+                publisher: info.publisher ?? "",
+                pubDate: info.publishedDate ?? "",
                 description: truncatedDescription,
                 categoryNames: categoryNames,
             });
