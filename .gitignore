@@ -8,6 +8,5 @@ dist/
 .env
 .env.*
 
-# 서비스 계정 키 파일
-*.json
+
 gemini-service-key.json
