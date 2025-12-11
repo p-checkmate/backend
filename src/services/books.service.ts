@@ -4,7 +4,13 @@ import {
     viewBestsellersFromAladin,
 } from "../repositories/aladin.repository.js";
 import { BookSearchResponse, AladinBookItem, AladinApiResponse } from "../schemas/aladin.schema.js";
-import { BookDetailResponse, BookRow, Genre, BookmarkResponse } from "../schemas/books.schema.js";
+import {
+    BookDetailResponse,
+    BookRow,
+    Genre,
+    BookmarkResponse,
+    BookThumbnailResponse,
+} from "../schemas/books.schema.js";
 
 import {
     findBookByItemId,
@@ -12,6 +18,7 @@ import {
     findGenresByBookId,
     findOrCreateGenre,
     linkBookGenre,
+    findBooksByBookmarkCount,
 } from "../repositories/books.repository.js";
 import HttpErrors from "http-errors";
 
@@ -161,4 +168,17 @@ export const getBookDetail = async (bookId: number): Promise<BookDetailResponse>
 export const viewBestsellers = async (start: number = 1, maxResults: number = 30): Promise<BookSearchResponse> => {
     const aladinResponse = await viewBestsellersFromAladin(start, maxResults);
     return processBookSearchResponse(aladinResponse);
+};
+
+// 인기 도서 조회
+export const getPopularBooks = async (): Promise<BookThumbnailResponse> => {
+    const rawData = await findBooksByBookmarkCount();
+
+    const books = rawData.map((row) => ({
+        itemId: row.item_id,
+        thumbnailUrl: row.thumbnail_url,
+    }));
+
+    console.log(books);
+    return { books: books };
 };

@@ -1,5 +1,5 @@
 import { z } from "zod";
-
+import { bookDetailResponseSchema } from "./books.schema.js";;
 export const discussionTypeEnum = z.enum(["FREE", "VS"]);
 export type DiscussionType = z.infer<typeof discussionTypeEnum>;
 
@@ -65,6 +65,7 @@ export const discussionListItemSchema = z.object({
 });
 
 export const getDiscussionsByBookResponseSchema = z.object({
+  book: bookDetailResponseSchema,
   discussions: z.array(discussionListItemSchema),
 });
 

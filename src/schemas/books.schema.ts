@@ -54,13 +54,31 @@ export const userBookmarksResponseSchema = z.object({
     bookmarks: z.array(bookmarkItemSchema),
 });
 
+export const bookThumbnail = z.object({
+    itemId: z.number(),
+    thumbnailUrl: z.string().nullable(),
+});
+
+// AI 추천 도서 응답 스키마
+export const aiRecommendationResponseSchema = z.object({
+    recommendations: z.array(bookThumbnail),
+});
+
+// 책 썸네일 응답 스키마 (홈)
+export const bookThumbnailResponseSchema = z.object({
+    books: z.array(bookThumbnail),
+});
+
 // TypeScript 타입 추출
 export type Genre = z.infer<typeof genreSchema>;
 export type BookDetailResponse = z.infer<typeof bookDetailResponseSchema>;
 export type BookmarkResponse = z.infer<typeof bookmarkResponseSchema>;
 export type BookmarkItem = z.infer<typeof bookmarkItemSchema>;
 export type UserBookmarksResponse = z.infer<typeof userBookmarksResponseSchema>;
-export type BookmarkStatusResponse = z.infer<typeof bookmarkStatusResponseSchema>; 
+export type BookmarkStatusResponse = z.infer<typeof bookmarkStatusResponseSchema>;
+export type BookThumbnail = z.infer<typeof bookThumbnail>;
+export type AiRecommendationResponse = z.infer<typeof aiRecommendationResponseSchema>;
+export type BookThumbnailResponse = z.infer<typeof bookThumbnailResponseSchema>;
 
 // DB 조회 결과 Row 타입 (Repository 전용)
 export interface BookRow {
@@ -93,4 +111,9 @@ export interface BookmarkRow extends RowDataPacket {
 
 export interface BookGenreRow extends RowDataPacket {
     genre_name: string;
+}
+
+export interface PopularBookRow extends RowDataPacket {
+    item_id: number;
+    thumbnail_url: string | null;
 }

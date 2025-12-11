@@ -1,12 +1,12 @@
 // services/discussions_summary.service.ts
 
 import HttpError from "http-errors";
-import { VsDiscussionSummaryResponse } from "../schemas/discussions_summary.schema.js";
+import { VsDiscussionSummaryResponse } from "../schemas/discussions.schema.js";
 import {
     getVsDiscussionWithStats,
     getDiscussionMessagesForSummary,
     isDiscussionEnded,
-} from "../repositories/discussions_summary.repository.js";
+} from "../repositories/discussions.repository.js";
 import { requestGeminiContent } from "../repositories/gemini.repository.js";
 
 import { formatDate} from "../utils/date.util.js";

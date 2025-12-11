@@ -1,9 +1,14 @@
 import { z } from "zod";
 import { defaultEndpointsFactory } from "express-zod-api";
 import { bookSearchResponseSchema } from "../schemas/aladin.schema.js";
-import { bookDetailResponseSchema, bookmarkResponseSchema, bookmarkStatusResponseSchema, } from "../schemas/books.schema.js";
-import { searchBooks, getBookDetail, viewBestsellers } from "../services/books.service.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js"; 
+import {
+    bookDetailResponseSchema,
+    bookmarkResponseSchema,
+    bookmarkStatusResponseSchema,
+    bookThumbnailResponseSchema,
+} from "../schemas/books.schema.js";
+import { searchBooks, getBookDetail, viewBestsellers, getPopularBooks } from "../services/books.service.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { addBookmark, removeBookmark, getBookmarkStatus } from "../services/bookmarks.service.js";
 
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
@@ -14,8 +19,16 @@ export const handleSearchBooks = authEndpointsFactory.build({
     method: "get",
     input: z.object({
         q: z.string().min(1),
-        start: z.string().optional().default("1").transform((val) => parseInt(val, 10)),
-        maxResults: z.string().optional().default("30").transform((val) => parseInt(val, 10)),
+        start: z
+            .string()
+            .optional()
+            .default("1")
+            .transform((val) => parseInt(val, 10)),
+        maxResults: z
+            .string()
+            .optional()
+            .default("30")
+            .transform((val) => parseInt(val, 10)),
     }),
     output: bookSearchResponseSchema,
     handler: async ({ input }) => {
@@ -63,14 +76,14 @@ export const handleViewBestsellers = authEndpointsFactory.build({
 export const handleAddBookmark = authEndpointsFactory.build({
     method: "post",
     input: z.object({
-        bookId: z.string().transform((val) => parseInt(val, 10)), 
+        bookId: z.string().transform((val) => parseInt(val, 10)),
     }),
     output: bookmarkResponseSchema,
     handler: async ({ input, options }) => {
         const userId = options.user.user_id;
         return await addBookmark(userId, input.bookId);
     },
-}); 
+});
 
 // DELETE /api/v1/books/:bookId/bookmark
 // 북마크 삭제
@@ -101,5 +114,16 @@ export const handleGetBookmarkStatus = authEndpointsFactory.build({
         const userId = options.user.user_id;
         const isBookmarked = await getBookmarkStatus(userId, input.bookId);
         return { isBookmarked };
+    },
+});
+
+// GET /api/v1/books
+// 인기 도서 조회
+export const handleGetPopularBooks = authEndpointsFactory.build({
+    method: "get",
+    input: z.object({}),
+    output: bookThumbnailResponseSchema,
+    handler: async () => {
+        return await getPopularBooks();
     },
 });

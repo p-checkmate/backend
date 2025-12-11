@@ -1,5 +1,5 @@
 import HttpError from "http-errors";
-import { getBookById } from "../repositories/books.repository.js";
+import { getBookById, findGenresByBookId } from "../repositories/books.repository.js";
 import {
     createDiscussion,
     getDiscussionsByBook,
@@ -65,16 +65,32 @@ export const createDiscussionService = async (payload: {
     }
 };
 
-// 특정 책 토론 목록 조회
-export const getDiscussionsByBookService = async (bookId: number) => {
-  // 책 존재 여부 검증
-    const book = await getBookById(bookId);
-    if (!book) {
-    throw HttpError(404, "해당 도서를 찾을 수 없습니다.");
-    }
 
-    const discussions = await getDiscussionsByBook(bookId);
-    return discussions;
+export const getDiscussionsByBookService = async (bookId: number) => {
+  const bookRow = await getBookById(bookId);
+  if (!bookRow) {
+    throw HttpError(404, "해당 도서를 찾을 수 없습니다.");
+  }
+  const genres = await findGenresByBookId(bookId);
+  const discussions = await getDiscussionsByBook(bookId);
+  const book = {
+    bookId: bookRow.book_id,
+    itemId: bookRow.aladin_item_id?.toString() ?? "", 
+    title: bookRow.title,
+    author: bookRow.author,
+    publisher: bookRow.publisher,
+    publishedDate: bookRow.published_date
+      ? bookRow.published_date.toISOString().slice(0, 10) // "YYYY-MM-DD"
+      : null,
+    description: bookRow.description,
+    thumbnailUrl: bookRow.thumbnail_url,
+    page: bookRow.page_count ?? bookRow.page ?? null,
+    genres,
+  };
+  return {
+    book,
+    discussions,
+  };
 };
 
 //토론상세조회

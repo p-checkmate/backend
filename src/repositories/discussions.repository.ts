@@ -1,5 +1,5 @@
 import { pool } from "../config/db.config.js";
-import { MyDiscussionRow } from "../schemas/discussions.schema.js";
+import { MyDiscussionRow, VsDiscussionDetailRow } from "../schemas/discussions.schema.js";
 import { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 
 // 토론 리스트 조회 헬퍼 함수 (내가 작성한 / 좋아요한 공통)
@@ -21,11 +21,16 @@ const getDiscussionsWithDetails = async (
             d.like_count,
             d.created_at,
             b.book_id,
+            b.aladin_item_id as item_id,
             b.title AS book_title,
             u.nickname,
             (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id) AS comment_count
             ${isLiked ? ", MAX(dl.like_id) AS liked_at" : ""}
-        FROM ${isLiked ? "discussion_like dl INNER JOIN discussion d ON dl.discussion_id = d.discussion_id" : "discussion d"}
+        FROM ${
+            isLiked
+                ? "discussion_like dl INNER JOIN discussion d ON dl.discussion_id = d.discussion_id"
+                : "discussion d"
+        }
         INNER JOIN book b ON d.book_id = b.book_id
         INNER JOIN user u ON d.user_id = u.user_id
         WHERE ${isLiked ? "dl" : "d"}.user_id = ?
@@ -59,20 +64,14 @@ export const getLikedDiscussionsByUserId = async (
 
 // 사용자 토론 총 개수 조회
 export const countDiscussionsByUserId = async (userId: number): Promise<number> => {
-    const [rows] = await pool.query<any[]>(
-        `SELECT COUNT(*) AS total FROM discussion WHERE user_id = ?`,
-        [userId]
-    );
+    const [rows] = await pool.query<any[]>(`SELECT COUNT(*) AS total FROM discussion WHERE user_id = ?`, [userId]);
 
     return rows[0].total;
 };
 
 // 사용자가 좋아요한 토론 총 개수 조회
 export const countLikedDiscussionsByUserId = async (userId: number): Promise<number> => {
-    const [rows] = await pool.query<any[]>(
-        `SELECT COUNT(*) AS total FROM discussion_like WHERE user_id = ?`,
-        [userId]
-    );
+    const [rows] = await pool.query<any[]>(`SELECT COUNT(*) AS total FROM discussion_like WHERE user_id = ?`, [userId]);
 
     return rows[0].total;
 };
@@ -108,10 +107,7 @@ export const insertDiscussionComment = async (
 };
 
 // 사용자가 특정 토론에 이미 메시지를 작성했는지 확인
-export const hasUserCommentedOnDiscussion = async (
-    discussionId: number,
-    userId: number
-): Promise<boolean> => {
+export const hasUserCommentedOnDiscussion = async (discussionId: number, userId: number): Promise<boolean> => {
     const [rows] = await pool.query<RowDataPacket[]>(
         `SELECT 1
         FROM discussion_comment
@@ -139,11 +135,7 @@ export const findVoteByUserAndDiscussion = async (
 };
 
 // 투표 추가
-export const insertVote = async (
-    userId: number,
-    discussionId: number,
-    choice: number
-): Promise<number> => {
+export const insertVote = async (userId: number, discussionId: number, choice: number): Promise<number> => {
     const [result] = await pool.query<ResultSetHeader>(
         `INSERT INTO vote (user_id, discussion_id, choice)
         VALUES (?, ?, ?)`,
@@ -151,4 +143,82 @@ export const insertVote = async (
     );
 
     return result.insertId;
+};
+
+// VS 토론 상세 정보 조회 (종료 여부, 의견 비율 포함)
+export const getVsDiscussionWithStats = async (
+    discussionId: number
+): Promise<VsDiscussionDetailRow | null> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `
+        SELECT 
+            d.discussion_id,
+            d.title,
+            d.content,
+            d.discussion_type,
+            d.option1,
+            d.option2,
+            d.created_at,
+            d.end_date,
+            (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id) AS total_comments,
+            (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id AND dc.choice = 1) AS option1_count,
+            (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id AND dc.choice = 2) AS option2_count
+        FROM discussion d
+        WHERE d.discussion_id = ? AND d.discussion_type = 'VS'
+        `,
+        [discussionId]
+    );
+
+    return rows.length ? (rows[0] as VsDiscussionDetailRow) : null;
+};
+
+// VS 토론의 모든 메시지 조회 (요약용)
+export interface DiscussionMessageForSummary extends RowDataPacket {
+    comment_id: number;
+    nickname: string;
+    content: string;
+    choice: number | null;
+    created_at: Date;
+}
+
+export const getDiscussionMessagesForSummary = async (
+    discussionId: number
+): Promise<DiscussionMessageForSummary[]> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `
+        SELECT 
+            dc.comment_id,
+            u.nickname,
+            dc.content,
+            dc.choice,
+            dc.created_at
+        FROM discussion_comment dc
+        INNER JOIN user u ON dc.user_id = u.user_id
+        WHERE dc.discussion_id = ?
+        ORDER BY dc.choice ASC, dc.created_at ASC
+        `,
+        [discussionId]
+    );
+
+    return rows as DiscussionMessageForSummary[];
+};
+
+// 토론 종료 여부 확인 (end_date가 현재 시간보다 이전인지)
+export const isDiscussionEnded = async (
+    discussionId: number
+): Promise<boolean> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `
+        SELECT 
+            CASE 
+                WHEN end_date IS NOT NULL AND end_date <= NOW() THEN 1
+                ELSE 0
+            END AS is_ended
+        FROM discussion
+        WHERE discussion_id = ?
+        `,
+        [discussionId]
+    );
+
+    return rows.length ? (rows[0] as { is_ended: number }).is_ended === 1 : false;
 };

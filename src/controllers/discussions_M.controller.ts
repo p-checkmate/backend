@@ -62,10 +62,9 @@ export const handleGetDiscussionsByBook = authEndpointsFactory.build({
     input: getDiscussionsByBookInputSchema,
     output: getDiscussionsByBookResponseSchema,
 
-    handler: async ({ input }) => {
-    const discussions = await getDiscussionsByBookService(input.bookId);
-    return { discussions };
-    },
+     handler: async ({ input }) => {
+    return await getDiscussionsByBookService(input.bookId);
+},
 });
 
 // 토론 상세조회 

@@ -1,11 +1,6 @@
 import { pool } from "../config/db.config.js";
-import {
-    UserRow,
-    ExpRow,
-    GenreRow,
-    BookmarkBookRow
-} from "../schemas/mypage.schema.js";
-import { ResultSetHeader } from "mysql2/promise"; 
+import { UserRow, ExpRow, GenreRow, BookmarkBookRow } from "../schemas/mypage.schema.js";
+import { ResultSetHeader } from "mysql2/promise";
 
 // 사용자 정보 조회
 export const getUserById = async (userId: number): Promise<UserRow | null> => {
@@ -31,7 +26,7 @@ export const getExpByUserId = async (userId: number): Promise<ExpRow | null> => 
     return rows[0] || null;
 };
 
-// 사용자 선호 장르 조회 
+// 사용자 선호 장르 조회
 export const getPreferredGenresByUserId = async (userId: number): Promise<string[]> => {
     const [rows] = await pool.query<GenreRow[]>(
         `SELECT DISTINCT og.genre_name
@@ -41,7 +36,7 @@ export const getPreferredGenresByUserId = async (userId: number): Promise<string
         [userId]
     );
 
-    return rows.map(row => row.genre_name);
+    return rows.map((row) => row.genre_name);
 };
 
 // 북마크한 책 목록 조회
@@ -52,10 +47,12 @@ export const getBookmarksByUserId = async (userId: number, limit: number = 4): P
             b.aladin_item_id AS item_id,
             b.title,
             b.author,
-            b.thumbnail_url
+            b.thumbnail_url,
+            bm.created_at
         FROM bookmark bm
         INNER JOIN book b ON bm.book_id = b.book_id
         WHERE bm.user_id = ?
+        ORDER BY bm.created_at DESC
         LIMIT ?`,
         [userId, limit]
     );
@@ -64,11 +61,7 @@ export const getBookmarksByUserId = async (userId: number, limit: number = 4): P
 };
 
 // 사용자 경험치·레벨 업데이트 (없으면 INSERT)
-export const updateUserExpAndLevel = async (
-    userId: number,
-    exp: number,
-    level: number
-): Promise<void> => {
+export const updateUserExpAndLevel = async (userId: number, exp: number, level: number): Promise<void> => {
     const [result] = await pool.query<ResultSetHeader>(
         `UPDATE user_exp
          SET exp = ?, level = ?
@@ -85,4 +78,3 @@ export const updateUserExpAndLevel = async (
         );
     }
 };
-

@@ -1,8 +1,7 @@
 import { pool } from "../config/db.config.js";
-import { BookRow, GenreRow, BookDetailResponse, Genre } from "../schemas/books.schema.js";
+import { BookRow, GenreRow, BookDetailResponse, Genre, PopularBookRow } from "../schemas/books.schema.js";
 import { AladinBookItem } from "../schemas/aladin.schema.js";
 import { RowDataPacket, ResultSetHeader } from "mysql2";
-
 
 // itemId(aladin_item_id)로 책 조회
 export const findBookByItemId = async (itemId: string): Promise<BookRow | null> => {
@@ -57,29 +56,22 @@ export const insertBook = async (book: AladinBookItem, page: number | null): Pro
 export const findOrCreateGenre = async (genreName: string): Promise<number> => {
     const trimmedName = genreName.substring(0, 50);
 
-    const [existing] = await pool.query<RowDataPacket[]>(
-        `SELECT genre_id FROM genre WHERE genre_name = ?`,
-        [trimmedName]
-    );
+    const [existing] = await pool.query<RowDataPacket[]>(`SELECT genre_id FROM genre WHERE genre_name = ?`, [
+        trimmedName,
+    ]);
 
     if (existing.length > 0) {
         return (existing[0] as GenreRow).genre_id;
     }
 
-    const [result] = await pool.query<ResultSetHeader>(
-        `INSERT INTO genre (genre_name) VALUES (?)`,
-        [trimmedName]
-    );
+    const [result] = await pool.query<ResultSetHeader>(`INSERT INTO genre (genre_name) VALUES (?)`, [trimmedName]);
 
     return result.insertId;
 };
 
 // 책-장르 연결
 export const linkBookGenre = async (bookId: number, genreId: number): Promise<void> => {
-    await pool.query(
-        `INSERT IGNORE INTO book_genre (book_id, genre_id) VALUES (?, ?)`,
-        [bookId, genreId]
-    );
+    await pool.query(`INSERT IGNORE INTO book_genre (book_id, genre_id) VALUES (?, ?)`, [bookId, genreId]);
 };
 
 // book_id로 책 조회
@@ -93,4 +85,25 @@ export const getBookById = async (bookId: number): Promise<BookRow | null> => {
     );
 
     return rows.length ? (rows[0] as BookRow) : null;
+};
+
+// 인기 도서 조회
+export const findBooksByBookmarkCount = async (): Promise<PopularBookRow[]> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `SELECT
+            b.aladin_item_id AS item_id, 
+            b.thumbnail_url, 
+            COUNT(bm.book_id) AS bookmark_count
+        FROM 
+            book AS b 
+        LEFT JOIN 
+            bookmark AS bm ON b.book_id = bm.book_id
+        GROUP BY 
+            b.aladin_item_id, b.thumbnail_url
+        ORDER BY 
+            bookmark_count DESC
+        LIMIT 10;`
+    );
+
+    return rows as PopularBookRow[];
 };
