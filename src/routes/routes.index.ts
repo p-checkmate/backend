@@ -60,6 +60,7 @@ import {
   handleGetDiscussionMessages,
   handleLikeDiscussion,
   handleUnlikeDiscussion,
+  handleGetDiscussionLikeStatus
 } from "../controllers/discussions_M.controller.js";
 
 import { handleCreateDiscussionMessage } from "../controllers/discussions.controller.js";
@@ -82,6 +83,8 @@ export const routing: Routing = {
         "post :discussionId/messages": handleCreateDiscussionMessage,
         "post :discussionId/like": handleLikeDiscussion, 
         "delete :discussionId/like": handleUnlikeDiscussion, 
+        "get :discussionId/like-status":
+        handleGetDiscussionLikeStatus,
       },
       
       books: {

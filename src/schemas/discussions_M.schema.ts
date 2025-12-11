@@ -122,3 +122,8 @@ export const discussionLikeInputSchema = z.object({
 export const discussionLikeResponseSchema = z.object({
   message: z.string(),
 });
+
+// 토론 좋아요 여부 조회 Response 스키마
+export const discussionLikeStatusSchema = z.object({
+  isLiked: z.boolean(),
+});
