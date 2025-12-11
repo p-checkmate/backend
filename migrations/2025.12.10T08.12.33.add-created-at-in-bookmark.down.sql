@@ -1,2 +1,2 @@
-ALTER TABLE Bookmark
+ALTER TABLE bookmark
 DROP COLUMN created_at;
