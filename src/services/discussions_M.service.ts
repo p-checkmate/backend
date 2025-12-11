@@ -1,5 +1,5 @@
 import HttpError from "http-errors";
-import { getBookById } from "../repositories/books.repository.js";
+import { getBookById, findGenresByBookId } from "../repositories/books.repository.js";
 import {
     createDiscussion,
     getDiscussionsByBook,
@@ -59,18 +59,17 @@ export const createDiscussionService = async (payload: {
     }
 };
 
-import { getBookBasicInfo, getGenresByBookId } from "../repositories/discussions_M.repository.js";
 
 export const getDiscussionsByBookService = async (bookId: number) => {
-  const bookRow = await getBookBasicInfo(bookId);
+  const bookRow = await getBookById(bookId);
   if (!bookRow) {
     throw HttpError(404, "해당 도서를 찾을 수 없습니다.");
   }
-  const genres = await getGenresByBookId(bookId);
+  const genres = await findGenresByBookId(bookId);
   const discussions = await getDiscussionsByBook(bookId);
   const book = {
     bookId: bookRow.book_id,
-    itemId: bookRow.aladin_item_id ?? "", 
+    itemId: bookRow.aladin_item_id?.toString() ?? "", 
     title: bookRow.title,
     author: bookRow.author,
     publisher: bookRow.publisher,
