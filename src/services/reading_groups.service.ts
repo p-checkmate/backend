@@ -76,6 +76,8 @@ const ensureDefaultReadingGroupExists = async () => {
         title: DEFAULT_BOOK.title,
         author: DEFAULT_BOOK.author,
         publisher: DEFAULT_BOOK.publisher,
+        publishedDate: DEFAULT_BOOK.publishedDate,  
+        description: DEFAULT_BOOK.description, 
         thumbnailUrl: DEFAULT_BOOK.thumbnailUrl,
         pageCount: DEFAULT_BOOK.pageCount,
         aladinItemId: DEFAULT_BOOK.aladinItemId,
@@ -90,7 +92,7 @@ export const getReadingGroupList = async (
     userId: number
 ): Promise<ReadingGroupListResponse> => {
     try {
-        // ✅ 먼저 기본 그룹이 없으면 만들어두기
+        // 먼저 기본 그룹이 없으면 만들어두기
         await ensureDefaultReadingGroupExists();
 
         // 전체 진행 중인 그룹 조회
