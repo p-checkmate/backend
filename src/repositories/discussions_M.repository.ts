@@ -12,6 +12,7 @@ export interface DiscussionRow extends RowDataPacket {
   discussion_type: "FREE" | "VS";
   option1: string | null;
   option2: string | null;
+  end_date: Date | null;
   created_at: Date;
   updated_at: Date;
   nickname: string; 
@@ -44,7 +45,7 @@ export interface CreateDiscussionPayload {
   discussion_type: "FREE" | "VS";
   option1: string | null;
   option2: string | null;
-
+  end_date: string | null;
 }
 
 export const createDiscussion = async (
@@ -58,6 +59,7 @@ export const createDiscussion = async (
     discussion_type,
     option1,
     option2,
+    end_date,
   } = payload;
 
   const [result] = await pool.query<ResultSetHeader>(
@@ -69,11 +71,12 @@ export const createDiscussion = async (
       content,
       discussion_type,
       option1,
-      option2
+      option2,
+      end_date
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
-    [user_id, book_id, title, content, discussion_type, option1, option2]
+    [user_id, book_id, title, content, discussion_type, option1, option2, end_date]
   );
 
   return result.insertId;
@@ -92,6 +95,7 @@ export const getDiscussionsByBook = async (
       d.discussion_type,
       d.option1,
       d.option2,
+      d.end_date,
       d.created_at,
       d.like_count,
       u.nickname,
@@ -121,6 +125,7 @@ export const getDiscussionDetail = async (discussionId: number): Promise<Discuss
       d.discussion_type,
       d.option1,
       d.option2,
+      d.end_date,
       d.created_at,
       d.like_count,
       u.nickname,
@@ -147,6 +152,7 @@ export interface DiscussionDetailRow extends RowDataPacket {
   discussion_type: "FREE" | "VS";
   option1: string | null;
   option2: string | null;
+  end_date: Date | null;
   created_at: Date;
   like_count: number;
   comment_count: number;

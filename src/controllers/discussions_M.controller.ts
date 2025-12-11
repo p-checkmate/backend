@@ -50,6 +50,7 @@ export const handleCreateDiscussion = authEndpointsFactory.build({
             discussion_type: input.discussion_type,
             option1: input.option1 ?? null,
             option2: input.option2 ?? null,
+            end_date: input.end_date ?? null,
         });
 
         return { discussion_id: discussionId };

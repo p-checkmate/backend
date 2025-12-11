@@ -28,7 +28,6 @@ export const vsDiscussionSummaryResponseSchema = z.object({
     total_comments: z.number().int(),
     summary: z.string(),
     opinion_ratio: opinionRatioSchema,
-    user_vote: z.number().int().min(1).max(2).nullable(),
 });
 
 // TypeScript 타입 추출

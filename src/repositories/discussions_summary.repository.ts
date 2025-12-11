@@ -62,23 +62,6 @@ export const getDiscussionMessagesForSummary = async (
     return rows as DiscussionMessageForSummary[];
 };
 
-// 사용자의 투표 여부 조회
-export const getUserVoteForDiscussion = async (
-    userId: number,
-    discussionId: number
-): Promise<number | null> => {
-    const [rows] = await pool.query<RowDataPacket[]>(
-        `
-        SELECT choice
-        FROM vote
-        WHERE user_id = ? AND discussion_id = ?
-        `,
-        [userId, discussionId]
-    );
-
-    return rows.length ? (rows[0] as { choice: number }).choice : null;
-};
-
 // 토론 종료 여부 확인 (end_date가 현재 시간보다 이전인지)
 export const isDiscussionEnded = async (
     discussionId: number

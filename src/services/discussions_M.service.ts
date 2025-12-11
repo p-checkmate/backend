@@ -22,6 +22,7 @@ export const createDiscussionService = async (payload: {
     discussion_type: "FREE" | "VS";
     option1: string | null;
     option2: string | null;
+    end_date: string | null;
 }) => {
     try {
         //책 존재 여부 확인
@@ -35,17 +36,22 @@ export const createDiscussionService = async (payload: {
             if (!payload.option1 || !payload.option2) {
                 throw HttpError(400, "VS 토론은 option1, option2가 필요합니다.");
             }
+            if (!payload.end_date) {
+                throw HttpError(400, "VS 토론은 종료일(end_date)이 필요합니다.");
+            }
         }
 
         // FREE 토론
         const option1 = payload.discussion_type === "FREE" ? null : payload.option1;
         const option2 = payload.discussion_type === "FREE" ? null : payload.option2;
-
+        const endDate = payload.discussion_type === "FREE" ? null : payload.end_date;
+        
         //DB 저장
         const discussionId = await createDiscussion({
             ...payload,
             option1,
             option2,
+            end_date: endDate,
         });
 
         return discussionId;
