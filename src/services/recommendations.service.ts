@@ -10,6 +10,22 @@ import { AiRecommendationData, AiRecommendationResponse } from "../schemas/books
 dotenv.config();
 const API_BASE_URL = process.env.API_BASE_URL;
 
+// 문자열 자르기 헬퍼 함수
+const truncateDescription = (text: string | null | undefined, maxLength: number = 150): string | null => {
+    if (!text) {
+        return null;
+    }
+
+    // 문자열이 최대 길이보다 짧거나 같으면 그대로 반환
+    if (text.length <= maxLength) {
+        return text;
+    }
+
+    // 문자열을 자르고 말줄임표 추가
+    return text.substring(0, maxLength) + "...";
+};
+
+// AI 책 추천
 export const getRecommendedBooks = async (userId: number): Promise<AiRecommendationResponse> => {
     try {
         // 사용자 선호 장르 불러오기
@@ -95,6 +111,7 @@ export const getRecommendedBooks = async (userId: number): Promise<AiRecommendat
             let info = await getBookDetail(itemId);
             let genreNames = info.genres.map((i) => i.genreName);
             let categoryNames = genreNames.join(", ");
+            let truncatedDescription = truncateDescription(info.description, 150);
 
             recentItemInfo.push({
                 itemId: itemId,
@@ -102,7 +119,7 @@ export const getRecommendedBooks = async (userId: number): Promise<AiRecommendat
                 author: info.author ?? null,
                 publisher: info.publisher ?? null,
                 pubDate: info.publishedDate ?? null,
-                description: info.description ?? null,
+                description: truncatedDescription,
                 categoryNames: categoryNames,
             });
         }
