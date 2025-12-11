@@ -281,3 +281,21 @@ export const countLikedQuotesByUserId = async (
   );
   return rows[0].total;
 };
+
+// 인용구 좋아요 여부 조회
+export const existsQuoteLike = async (
+  userId: number,
+  quoteId: number
+): Promise<boolean> => {
+  const [rows] = await pool.query<RowDataPacket[]>(
+    `
+      SELECT 1 AS found
+      FROM quote_like
+      WHERE user_id = ? AND quote_id = ?
+      LIMIT 1
+    `,
+    [userId, quoteId]
+  );
+
+  return rows.length > 0;
+};
