@@ -1,14 +1,17 @@
+import { z } from "zod";
 import { defaultEndpointsFactory } from "express-zod-api";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import {
     createDiscussionMessageInputSchema,
     createDiscussionMessageResponseSchema,
+    popularDiscussionResponseSchema,
     voteInputSchema,
     voteResponseSchema,
 } from "../schemas/discussions.schema.js";
 import {
     createDiscussionMessageService,
     voteDiscussionService,
+    getPopularDiscussionsService,
 } from "../services/discussions.service.js";
 
 // 인증된 API 팩토리
@@ -23,12 +26,7 @@ export const handleCreateDiscussionMessage = authEndpointsFactory.build({
     handler: async ({ input, options }) => {
         const userId = options.user.user_id;
 
-        return await createDiscussionMessageService(
-            input.discussionId,
-            userId,
-            input.content,
-            input.choice
-        );
+        return await createDiscussionMessageService(input.discussionId, userId, input.content, input.choice);
     },
 });
 
@@ -41,10 +39,16 @@ export const handleVoteDiscussion = authEndpointsFactory.build({
     handler: async ({ input, options }) => {
         const userId = options.user.user_id;
 
-        return await voteDiscussionService(
-            userId,
-            input.discussionId,
-            input.choice
-        );
+        return await voteDiscussionService(userId, input.discussionId, input.choice);
+    },
+});
+
+// GET /api/v1/discussions - 인기 토론 조회
+export const handleGetPopularDiscussions = authEndpointsFactory.build({
+    method: "get",
+    input: z.object({}),
+    output: popularDiscussionResponseSchema,
+    handler: async () => {
+        return await getPopularDiscussionsService();
     },
 });
