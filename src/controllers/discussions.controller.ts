@@ -3,8 +3,13 @@ import { authMiddleware } from "../middlewares/auth.middleware.js";
 import {
     createDiscussionMessageInputSchema,
     createDiscussionMessageResponseSchema,
+    voteInputSchema,
+    voteResponseSchema,
 } from "../schemas/discussions.schema.js";
-import { createDiscussionMessageService } from "../services/discussions.service.js";
+import {
+    createDiscussionMessageService,
+    voteDiscussionService,
+} from "../services/discussions.service.js";
 
 // 인증된 API 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
@@ -22,6 +27,23 @@ export const handleCreateDiscussionMessage = authEndpointsFactory.build({
             input.discussionId,
             userId,
             input.content,
+            input.choice
+        );
+    },
+});
+
+// POST /api/v1/discussions/:discussionId/vote - VS 토론 투표
+export const handleVoteDiscussion = authEndpointsFactory.build({
+    method: "post",
+    input: voteInputSchema,
+    output: voteResponseSchema,
+
+    handler: async ({ input, options }) => {
+        const userId = options.user.user_id;
+
+        return await voteDiscussionService(
+            userId,
+            input.discussionId,
             input.choice
         );
     },
