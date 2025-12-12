@@ -197,26 +197,26 @@ const getQuotesWithDetails = async (
 
     const [rows] = await pool.query<MyQuoteRow[]>(
         `
-      SELECT 
-          q.quote_id,
-          q.content,
-          q.like_count,
-          q.created_at,
-          b.book_id,
-          b.aladin_item_id as item_id,
-          b.title AS book_title,
-          GROUP_CONCAT(DISTINCT g.genre_name) AS genre_names,
-          u.nickname
-          ${isLiked ? ", MAX(ql.like_id) AS liked_at" : ""}
-      FROM ${isLiked ? "quote_like ql INNER JOIN quote q ON ql.quote_id = q.quote_id" : "quote q"}
-      INNER JOIN book b ON q.book_id = b.book_id
-      INNER JOIN user u ON q.user_id = u.user_id
-      LEFT JOIN book_genre bg ON b.book_id = bg.book_id
-      LEFT JOIN genre g ON bg.genre_id = g.genre_id
-      WHERE ${isLiked ? "ql" : "q"}.user_id = ?
-      GROUP BY q.quote_id
-      ORDER BY ${isLiked ? "liked_at" : "q.created_at"} DESC
-      LIMIT ? OFFSET ?
+            SELECT 
+            q.quote_id,
+            q.content,
+            q.like_count,
+            q.created_at,
+            b.book_id,
+            b.aladin_item_id as item_id,
+            b.title AS book_title,
+            GROUP_CONCAT(DISTINCT g.genre_name) AS genre_names,
+            u.nickname
+            ${isLiked ? ", MAX(ql.like_id) AS liked_at" : ""}
+        FROM ${isLiked ? "quote_like ql INNER JOIN quote q ON ql.quote_id = q.quote_id" : "quote q"}
+        INNER JOIN book b ON q.book_id = b.book_id
+        INNER JOIN user u ON q.user_id = u.user_id
+        LEFT JOIN book_genre bg ON b.book_id = bg.book_id
+        LEFT JOIN genre g ON bg.genre_id = g.genre_id
+        WHERE ${isLiked ? "ql" : "q"}.user_id = ?
+        GROUP BY q.quote_id
+        ORDER BY ${isLiked ? "liked_at" : "q.created_at"} DESC
+        LIMIT ? OFFSET ?
     `,
         [userId, limit, offset]
     );
@@ -262,13 +262,40 @@ export const hasUserQuotedBook = async (userId: number, bookId: number): Promise
 export const existsQuoteLike = async (userId: number, quoteId: number): Promise<boolean> => {
     const [rows] = await pool.query<RowDataPacket[]>(
         `
-      SELECT 1 AS found
-      FROM quote_like
-      WHERE user_id = ? AND quote_id = ?
-      LIMIT 1
+        SELECT 1 AS found
+        FROM quote_like
+        WHERE user_id = ? AND quote_id = ?
+        LIMIT 1
     `,
         [userId, quoteId]
     );
 
     return rows.length > 0;
+};
+
+// 인기 인용구 TOP 5 조회
+export const findPopularQuotes = async (): Promise<MyQuoteRow[]> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `
+        SELECT
+            q.quote_id,
+            q.content,
+            q.like_count,
+            q.created_at,
+            u.nickname,
+            b.book_id,
+            b.title AS book_title,
+            GROUP_CONCAT(DISTINCT g.genre_name) AS genre_names
+        FROM quote q
+        INNER JOIN user u ON q.user_id = u.user_id
+        INNER JOIN book b ON q.book_id = b.book_id
+        LEFT JOIN book_genre bg ON b.book_id = bg.book_id
+        LEFT JOIN genre g ON bg.genre_id = g.genre_id
+        GROUP BY q.quote_id
+        ORDER BY q.like_count DESC, q.created_at DESC
+        LIMIT 5;
+    `
+    );
+
+    return rows as MyQuoteRow[];
 };

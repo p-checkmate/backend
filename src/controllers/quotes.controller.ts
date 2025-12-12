@@ -13,6 +13,8 @@ import {
 } from "../services/quotes.service.js";
 import { quoteWithBookSchema, quoteSchema, createQuoteResponseSchema, quoteLikeStatusSchema } from "../schemas/quotes.schema.js";
 
+import { getPopularQuotesService } from "../services/quotes.service.js";
+import { popularQuoteResponseSchema } from "../schemas/quotes.schema.js";
 
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
 
@@ -133,4 +135,15 @@ export const handleGetQuoteLikeStatus = authEndpointsFactory.build({
     const userId = options.user.user_id;
     return await getQuoteLikeStatusService(input.quoteId, userId);
   },
+});
+
+//인기토론조회
+export const handleGetPopularQuotes = defaultEndpointsFactory.build({
+    method: "get",
+    input: z.object({}),
+    output: popularQuoteResponseSchema,
+
+    handler: async () => {
+        return await getPopularQuotesService();
+    },
 });

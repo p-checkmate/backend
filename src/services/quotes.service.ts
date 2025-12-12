@@ -8,7 +8,8 @@ import {
   unlikeQuote,
   getQuotesByBookId,
   hasUserQuotedBook,
-  existsQuoteLike
+  existsQuoteLike,
+  findPopularQuotes 
 } from "../repositories/quotes.repository.js";
 import { addExpToUser } from "./mypage.service.js";
 import { CreateQuoteResponse } from "../schemas/quotes.schema.js";
@@ -144,4 +145,27 @@ export const getQuoteLikeStatusService = async (
 
   const liked = await existsQuoteLike(userId, quoteId);
   return { liked };
+};
+
+//POPULAR quotes
+export const getPopularQuotesService = async () => {
+    const rawData = await findPopularQuotes();
+
+    const formatted = rawData.map((q) => ({
+        quote_id: q.quote_id,
+        content: q.content,
+        like_count: q.like_count,
+        created_at: new Date(q.created_at).toISOString(),
+        
+        book: {
+            book_id: q.book_id,
+            title: q.book_title,
+            genres: q.genre_names ? q.genre_names.split(",") : [],
+        },
+        user: {
+            nickname: q.nickname,
+        },
+    }));
+
+    return { quotes: formatted };
 };
