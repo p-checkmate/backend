@@ -78,7 +78,8 @@ export const getDiscussionsByBookService = async (bookId: number) => {
 
   const discussions = await getDiscussionsByBook(bookId);
   return { discussions };
-
+};
+    
 //토론상세조회
 export const getDiscussionDetailService = async (discussionId: number) => {
     const discussion = await getDiscussionDetail(discussionId);
