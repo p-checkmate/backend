@@ -146,9 +146,7 @@ export const insertVote = async (userId: number, discussionId: number, choice: n
 };
 
 // VS 토론 상세 정보 조회 (종료 여부, 의견 비율 포함)
-export const getVsDiscussionWithStats = async (
-    discussionId: number
-): Promise<VsDiscussionDetailRow | null> => {
+export const getVsDiscussionWithStats = async (discussionId: number): Promise<VsDiscussionDetailRow | null> => {
     const [rows] = await pool.query<RowDataPacket[]>(
         `
         SELECT 
@@ -181,9 +179,7 @@ export interface DiscussionMessageForSummary extends RowDataPacket {
     created_at: Date;
 }
 
-export const getDiscussionMessagesForSummary = async (
-    discussionId: number
-): Promise<DiscussionMessageForSummary[]> => {
+export const getDiscussionMessagesForSummary = async (discussionId: number): Promise<DiscussionMessageForSummary[]> => {
     const [rows] = await pool.query<RowDataPacket[]>(
         `
         SELECT 
@@ -204,9 +200,7 @@ export const getDiscussionMessagesForSummary = async (
 };
 
 // 토론 종료 여부 확인 (end_date가 현재 시간보다 이전인지)
-export const isDiscussionEnded = async (
-    discussionId: number
-): Promise<boolean> => {
+export const isDiscussionEnded = async (discussionId: number): Promise<boolean> => {
     const [rows] = await pool.query<RowDataPacket[]>(
         `
         SELECT 
@@ -240,6 +234,7 @@ export const findDiscussionsByCommentCount = async (): Promise<PopularDiscussion
         INNER JOIN user u ON d.user_id = u.user_id
         INNER JOIN book b ON d.book_id = b.book_id
         LEFT JOIN discussion_comment dc ON d.discussion_id = dc.discussion_id
+        WHERE d.end_date IS NULL
         GROUP BY d.discussion_id, d.title, d.content, d.created_at, d.like_count,
             u.nickname, b.title, b.book_id
         ORDER BY comment_count DESC, d.created_at DESC
