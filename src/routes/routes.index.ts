@@ -69,6 +69,7 @@ import {
     handleCreateDiscussionMessage,
     handleVoteDiscussion,
     handleGetPopularDiscussions,
+    handleGetVsDiscussionSummary
 } from "../controllers/discussions.controller.js";
 
 import { handleInitAiChats, handleAiChats } from "../controllers/ai.controller.js";
@@ -94,6 +95,7 @@ export const routing: Routing = {
                 "delete :discussionId/like": handleUnlikeDiscussion,
                 "post :discussionId/vote": handleVoteDiscussion,
                 "get :discussionId/like-status": handleGetDiscussionLikeStatus,
+                "get :discussionId/summary": handleGetVsDiscussionSummary, 
                 "": handleGetPopularDiscussions,
             },
 

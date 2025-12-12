@@ -56,12 +56,13 @@ export const handleCreateDiscussion = authEndpointsFactory.build({
     },
 });
 
+// 도서별 토론목록조회
 export const handleGetDiscussionsByBook = authEndpointsFactory.build({
     method: "get",
     input: getDiscussionsByBookInputSchema,
     output: getDiscussionsByBookResponseSchema,
 
-     handler: async ({ input }) => {
+    handler: async ({ input }) => {
     return await getDiscussionsByBookService(input.bookId);
 },
 });

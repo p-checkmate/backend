@@ -82,3 +82,29 @@ export const continueAiChat = async (chatId: string, userMessage: string): Promi
         throw HttpError(500, "메시지 전송에 실패했습니다");
     }
 };
+
+// VS토론 요약 텍스트 생성 요청
+export const requestGeminiContent = async (prompt: string): Promise<string> => {
+    try {
+        const response = await ai.models.generateContent({
+            model: MODEL,
+            contents: [
+                {
+                    role: "user",
+                    parts: [{ text: prompt }],
+                },
+            ],
+        });
+
+        const text = response.text;
+
+        if (!text) {
+            throw HttpError(500, "Gemini 모델이 텍스트 응답을 생성하지 못했습니다.");
+        }
+
+        return text.trim();
+    } catch (err: any) {
+        console.error("Gemini API 호출 실패:", err);
+        throw HttpError(500, `Gemini API 호출 중 오류가 발생했습니다: ${err.message}`);
+    }
+};

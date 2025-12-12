@@ -7,12 +7,16 @@ import {
     popularDiscussionResponseSchema,
     voteInputSchema,
     voteResponseSchema,
+    getVsDiscussionSummaryInputSchema,
+    vsDiscussionSummaryResponseSchema,
 } from "../schemas/discussions.schema.js";
 import {
     createDiscussionMessageService,
     voteDiscussionService,
     getPopularDiscussionsService,
 } from "../services/discussions.service.js";
+
+import { getVsDiscussionSummaryService } from "../services/discussions_summary.service.js";
 
 // 인증된 API 팩토리
 const authEndpointsFactory = defaultEndpointsFactory.addMiddleware(authMiddleware);
@@ -43,6 +47,17 @@ export const handleVoteDiscussion = authEndpointsFactory.build({
     },
 });
 
+// GET /api/v1/discussions/:discussionId/summary - VS 토론 종료 상세 조회 (요약 포함)
+export const handleGetVsDiscussionSummary = authEndpointsFactory.build({
+    method: "get",
+    input: getVsDiscussionSummaryInputSchema,
+    output: vsDiscussionSummaryResponseSchema,
+
+    handler: async ({ input, options }) => {
+        const userId = options.user.user_id;
+        return await getVsDiscussionSummaryService(input.discussionId, userId);
+    },
+});
 // GET /api/v1/discussions - 인기 토론 조회
 export const handleGetPopularDiscussions = authEndpointsFactory.build({
     method: "get",
