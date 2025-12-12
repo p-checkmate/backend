@@ -8,5 +8,4 @@ dist/
 .env
 .env.*
 
-
 gemini-service-key.json
