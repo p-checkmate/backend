@@ -7,7 +7,7 @@ import { vertexAI } from "../config/gemini.config.js";
 export const requestGeminiContent = async (prompt: string): Promise<string> => {
     try {
         const model = vertexAI.getGenerativeModel({
-            model: "gemini-2.5-flash-lite", 
+            model: "gemini-2.5-flash", 
         });
 
         const result = await model.generateContent({
