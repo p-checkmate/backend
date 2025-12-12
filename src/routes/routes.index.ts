@@ -66,6 +66,8 @@ import {
 
 import { handleCreateDiscussionMessage, handleVoteDiscussion } from "../controllers/discussions.controller.js";
 
+import { handleInitAiChats, handleAiChats } from "../controllers/ai.controller.js";
+
 export const routing: Routing = {
     api: {
         v1: {
@@ -135,6 +137,11 @@ export const routing: Routing = {
                 ":groupId/join": handleJoinReadingGroup,
                 ":groupId/progress": handleUpdateReadingProgress,
                 ":groupId/members": handleGetReadingGroupMembers,
+            },
+
+            ai: {
+                chats: handleInitAiChats,
+                "chats/:chatId": handleAiChats,
             },
         },
     },
