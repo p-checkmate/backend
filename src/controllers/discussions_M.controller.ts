@@ -50,19 +50,19 @@ export const handleCreateDiscussion = authEndpointsFactory.build({
             discussion_type: input.discussion_type,
             option1: input.option1 ?? null,
             option2: input.option2 ?? null,
-            end_date: input.end_date ?? null,
         });
 
         return { discussion_id: discussionId };
     },
 });
 
+// 도서별 토론목록조회
 export const handleGetDiscussionsByBook = authEndpointsFactory.build({
     method: "get",
     input: getDiscussionsByBookInputSchema,
     output: getDiscussionsByBookResponseSchema,
 
-     handler: async ({ input }) => {
+    handler: async ({ input }) => {
     return await getDiscussionsByBookService(input.bookId);
 },
 });

@@ -9,8 +9,7 @@ export const createDiscussionInputSchema = z.object({
   content: z.string().min(1),
   discussion_type: discussionTypeEnum,
   option1: z.string().optional(),
-  option2: z.string().optional(),
-  end_date: z.string().optional(),   
+  option2: z.string().optional(),  
 })
 .refine(
   (data) => {
@@ -41,7 +40,6 @@ export type CreateDiscussionPayload = {
   discussion_type: DiscussionType;
   option1: string | null;
   option2: string | null;
-  end_date: string | null;
 };
 
 // 특정 책 토론 목록 조회 Input 스키마

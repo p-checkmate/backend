@@ -13,7 +13,14 @@ import {
     existsDiscussionLike,
 } from "../repositories/discussions_M.repository.js";
 
+// 일주일 뒤 날짜 계산 헬퍼 함수
+const getEndDateAfterOneWeek = (): string => {
+  const now = new Date();
+  now.setDate(now.getDate() + 7);
+  return now.toISOString().slice(0, 19).replace("T", " ");
+};
 
+//토론생성
 export const createDiscussionService = async (payload: {
     user_id: number;
     book_id: number;
@@ -22,7 +29,6 @@ export const createDiscussionService = async (payload: {
     discussion_type: "FREE" | "VS";
     option1: string | null;
     option2: string | null;
-    end_date: string | null;
 }) => {
     try {
         //책 존재 여부 확인
@@ -36,15 +42,12 @@ export const createDiscussionService = async (payload: {
             if (!payload.option1 || !payload.option2) {
                 throw HttpError(400, "VS 토론은 option1, option2가 필요합니다.");
             }
-            if (!payload.end_date) {
-                throw HttpError(400, "VS 토론은 종료일(end_date)이 필요합니다.");
-            }
         }
 
         // FREE 토론
         const option1 = payload.discussion_type === "FREE" ? null : payload.option1;
         const option2 = payload.discussion_type === "FREE" ? null : payload.option2;
-        const endDate = payload.discussion_type === "FREE" ? null : payload.end_date;
+        const endDate = payload.discussion_type === "VS" ? getEndDateAfterOneWeek() : null;
         
         //DB 저장
         const discussionId = await createDiscussion({
@@ -65,7 +68,7 @@ export const createDiscussionService = async (payload: {
     }
 };
 
-
+//도서별 토론목록조회
 export const getDiscussionsByBookService = async (bookId: number) => {
   const bookRow = await getBookById(bookId);
   if (!bookRow) {
@@ -80,7 +83,7 @@ export const getDiscussionsByBookService = async (bookId: number) => {
     author: bookRow.author,
     publisher: bookRow.publisher,
     publishedDate: bookRow.published_date
-      ? bookRow.published_date.toISOString().slice(0, 10) // "YYYY-MM-DD"
+      ? bookRow.published_date.toISOString().slice(0, 10) 
       : null,
     description: bookRow.description,
     thumbnailUrl: bookRow.thumbnail_url,
