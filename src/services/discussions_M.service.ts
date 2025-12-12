@@ -13,7 +13,14 @@ import {
     existsDiscussionLike,
 } from "../repositories/discussions_M.repository.js";
 
+// 일주일 뒤 날짜 계산 헬퍼 함수
+const getEndDateAfterOneWeek = (): string => {
+  const now = new Date();
+  now.setDate(now.getDate() + 7);
+  return now.toISOString().slice(0, 19).replace("T", " ");
+};
 
+//토론생성
 export const createDiscussionService = async (payload: {
     user_id: number;
     book_id: number;
@@ -40,12 +47,14 @@ export const createDiscussionService = async (payload: {
         // FREE 토론
         const option1 = payload.discussion_type === "FREE" ? null : payload.option1;
         const option2 = payload.discussion_type === "FREE" ? null : payload.option2;
-
+        const endDate = payload.discussion_type === "VS" ? getEndDateAfterOneWeek() : null;
+        
         //DB 저장
         const discussionId = await createDiscussion({
             ...payload,
             option1,
             option2,
+            end_date: endDate,
         });
 
         return discussionId;
@@ -59,6 +68,8 @@ export const createDiscussionService = async (payload: {
     }
 };
 
+
+//도서별 토론목록조회
 export const getDiscussionsByBookService = async (bookId: number) => {
   const bookRow = await getBookById(bookId);
   if (!bookRow) {
@@ -67,7 +78,6 @@ export const getDiscussionsByBookService = async (bookId: number) => {
 
   const discussions = await getDiscussionsByBook(bookId);
   return { discussions };
-};
 
 //토론상세조회
 export const getDiscussionDetailService = async (discussionId: number) => {
