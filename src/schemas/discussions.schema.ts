@@ -72,7 +72,6 @@ export const vsDiscussionSummaryResponseSchema = z.object({
     discussion_type: z.literal("VS"),
     option1: z.string(),
     option2: z.string(),
-    is_ended: z.boolean(),
     ended_at: z.string().nullable(),
     total_comments: z.number().int(),
     summary: z.string(),
