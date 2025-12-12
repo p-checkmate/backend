@@ -66,7 +66,7 @@ import {
 
 import { handleCreateDiscussionMessage, handleVoteDiscussion } from "../controllers/discussions.controller.js";
 
-import { handleInitAiChats } from "../controllers/ai.controller.js";
+import { handleInitAiChats, handleAiChats } from "../controllers/ai.controller.js";
 
 export const routing: Routing = {
     api: {
@@ -141,6 +141,7 @@ export const routing: Routing = {
 
             ai: {
                 chats: handleInitAiChats,
+                "chats/:chatId": handleAiChats,
             },
         },
     },

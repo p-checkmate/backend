@@ -1,8 +1,8 @@
 import HttpError from "http-errors";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Chat } from "@google/genai";
 import { v4 as uuidv4 } from "uuid";
 import dotenv from "dotenv";
-import { AiChatResponse } from "../schemas/ai.schema";
+import { AiChat, AiChatMessage } from "../schemas/ai.schema";
 
 dotenv.config();
 
@@ -17,10 +17,10 @@ const ai = new GoogleGenAI({
 });
 
 // 인메모리 세션 저장소
-const chatSessions = new Map();
+const chatSessions: Map<string, Chat> = new Map();
 
 // AI 채팅 시작
-export const startAiChat = async (): Promise<AiChatResponse> => {
+export const startAiChat = async (): Promise<AiChat> => {
     const defaultStartMessage = "안녕하세요! 오늘은 무슨 책으로 토론을 하고 싶으신가요?";
 
     // 시스템 지침
@@ -44,11 +44,9 @@ export const startAiChat = async (): Promise<AiChatResponse> => {
         const newChatId = uuidv4();
         chatSessions.set(newChatId, chat);
 
-        console.log(`Vertex AI 기반 새로운 채팅 세션 생성: ${newChatId}`);
-
         return {
             chatId: newChatId,
-            response: defaultStartMessage, // 챗봇이 먼저 보낸 메시지
+            message: defaultStartMessage, // 챗봇이 먼저 보내는 메시지
         };
     } catch (error) {
         console.error("채팅 세션 생성 중 오류 발생:", error);
@@ -58,3 +56,29 @@ export const startAiChat = async (): Promise<AiChatResponse> => {
 
 // chatSessions 맵을 반환하여 외부에서 접근할 수 있도록 함 (디버깅 또는 메시지 전송용)
 export const getChatSessions = () => chatSessions;
+
+// AI 채팅 이어가기
+export const continueAiChat = async (chatId: string, userMessage: string): Promise<AiChatMessage> => {
+    // 세션 객체 찾기
+    const chatSession = chatSessions.get(chatId);
+
+    if (!chatSession) {
+        // 세션 ID가 유효하지 않거나 서버 재시작으로 메모리에서 사라진 경우
+        throw HttpError(404, `세션을 찾을 수 없습니다.: ${chatId}.`);
+    }
+
+    try {
+        const response = await chatSession.sendMessage({ message: userMessage });
+
+        if (!response.text) {
+            throw HttpError(500, "Gemini 모델이 텍스트 응답을 생성하지 못했습니다.");
+        }
+
+        return {
+            message: response.text,
+        };
+    } catch (error) {
+        console.error(`메시지 전송 중 오류 발생 (Chat ID: ${chatId}):`, error);
+        throw HttpError(500, "메시지 전송에 실패했습니다");
+    }
+};
