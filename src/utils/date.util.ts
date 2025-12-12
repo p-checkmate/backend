@@ -19,3 +19,15 @@ export const calcDaysLeft = (endDate: string | Date): number => {
 
     return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 };
+
+// 시작일과 종료일 사이의 총 일수 계산
+export const calcTotalDays = (startDate: string | Date, endDate: string | Date): number => {
+    const start = startDate instanceof Date ? startDate : new Date(startDate);
+    const end = endDate instanceof Date ? endDate : new Date(endDate);
+
+    const diffMs = end.getTime() - start.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    // 시작일과 종료일 모두 포함하므로 +1
+    return diffDays + 1;
+};

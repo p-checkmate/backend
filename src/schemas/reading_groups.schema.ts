@@ -57,6 +57,7 @@ export const readingGroupOverviewResponseSchema = z.object({
 
     member_count: z.number().int(),
     days_left: z.number().int(),
+    total_days: z.number().int(),
     total_pages: z.number().int().nullable(),
 
     my_progress: z
