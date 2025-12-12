@@ -38,14 +38,15 @@ import {
 import { handleModifyUser, handleGetRecommendedBooks } from "../controllers/users.controller.js";
 
 import {
-  handleCreateQuote,
-  handleGetQuote,
-  handleUpdateQuote,
-  handleDeleteQuote,
-  handleLikeQuote,
-  handleUnlikeQuote,
-  handleGetQuotesByBook,
-  handleGetQuoteLikeStatus,
+    handleCreateQuote,
+    handleGetQuote,
+    handleUpdateQuote,
+    handleDeleteQuote,
+    handleLikeQuote,
+    handleUnlikeQuote,
+    handleGetQuotesByBook,
+    handleGetQuoteLikeStatus,
+    handleGetPopularQuotes,
 } from "../controllers/quotes.controller.js";
 
 import {
@@ -64,7 +65,12 @@ import {
     handleGetDiscussionLikeStatus,
 } from "../controllers/discussions_M.controller.js";
 
-import { handleCreateDiscussionMessage, handleVoteDiscussion, handleGetVsDiscussionSummary } from "../controllers/discussions.controller.js";
+import {
+    handleCreateDiscussionMessage,
+    handleVoteDiscussion,
+    handleGetPopularDiscussions,
+    handleGetVsDiscussionSummary
+} from "../controllers/discussions.controller.js";
 
 import { handleInitAiChats, handleAiChats } from "../controllers/ai.controller.js";
 
@@ -78,6 +84,7 @@ export const routing: Routing = {
                 "delete :quoteId": handleDeleteQuote,
                 "post :quoteId/like": handleLikeQuote,
                 "delete :quoteId/like": handleUnlikeQuote,
+                "": handleGetPopularQuotes,
             },
 
             discussions: {
@@ -89,6 +96,7 @@ export const routing: Routing = {
                 "post :discussionId/vote": handleVoteDiscussion,
                 "get :discussionId/like-status": handleGetDiscussionLikeStatus,
                 "get :discussionId/summary": handleGetVsDiscussionSummary, 
+                "": handleGetPopularDiscussions,
             },
 
             books: {

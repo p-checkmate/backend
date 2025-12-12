@@ -64,8 +64,8 @@ export const myQuotesResponseSchema = paginationSchema.extend({
 
 // 인용구 생성 응답 스키마
 export const createQuoteResponseSchema = z.object({
-  quote_id: z.number(),
-  exp_earned: z.number(),
+    quote_id: z.number(),
+    exp_earned: z.number(),
 });
 
 // TypeScript 타입 추출
@@ -101,6 +101,11 @@ export interface MyQuoteRow extends RowDataPacket {
 
 //인용구 좋아요 여부확인용 스키마
 export const quoteLikeStatusSchema = z.object({
-  liked: z.boolean(),
+    liked: z.boolean(),
 });
 export type QuoteLikeStatus = z.infer<typeof quoteLikeStatusSchema>;
+
+//인기 인용구 좋아요
+export const popularQuoteResponseSchema = z.object({
+    quotes: z.array(myQuoteSchema),
+});

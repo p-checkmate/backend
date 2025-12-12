@@ -1,5 +1,5 @@
 import { pool } from "../config/db.config.js";
-import { MyDiscussionRow, VsDiscussionDetailRow } from "../schemas/discussions.schema.js";
+import { MyDiscussionRow, VsDiscussionDetailRow, PopularDiscussionRow } from "../schemas/discussions.schema.js";
 import { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 
 // 토론 리스트 조회 헬퍼 함수 (내가 작성한 / 좋아요한 공통)
@@ -221,4 +221,30 @@ export const isDiscussionEnded = async (
     );
 
     return rows.length ? (rows[0] as { is_ended: number }).is_ended === 1 : false;
+};
+
+// 코멘트 기준 인기 토론 조회
+export const findDiscussionsByCommentCount = async (): Promise<PopularDiscussionRow[]> => {
+    const [rows] = await pool.query<RowDataPacket[]>(
+        `SELECT
+            d.discussion_id,
+            d.title,
+            d.content,
+            d.created_at,
+            d.like_count,
+            u.nickname,
+            b.title AS book_title,
+            b.book_id,
+            COUNT(dc.discussion_id) AS comment_count
+        FROM discussion d
+        INNER JOIN user u ON d.user_id = u.user_id
+        INNER JOIN book b ON d.book_id = b.book_id
+        LEFT JOIN discussion_comment dc ON d.discussion_id = dc.discussion_id
+        GROUP BY d.discussion_id, d.title, d.content, d.created_at, d.like_count,
+            u.nickname, b.title, b.book_id
+        ORDER BY comment_count DESC, d.created_at DESC
+        LIMIT 5;`
+    );
+
+    return rows as PopularDiscussionRow[];
 };
