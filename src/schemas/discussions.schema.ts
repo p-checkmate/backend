@@ -52,6 +52,11 @@ export const voteResponseSchema = z.object({
     message: z.string(),
 });
 
+// 인기 토론 Response 스키마
+export const popularDiscussionResponseSchema = z.object({
+    discussions: z.array(myDiscussionSchema),
+});
+
 // TypeScript 타입 추출
 export type MyDiscussion = z.infer<typeof myDiscussionSchema>;
 export type MyDiscussionsResponse = z.infer<typeof myDiscussionsResponseSchema>;
@@ -59,6 +64,7 @@ export type CreateDiscussionMessageInput = z.infer<typeof createDiscussionMessag
 export type CreateDiscussionMessageResponse = z.infer<typeof createDiscussionMessageResponseSchema>;
 export type VoteInput = z.infer<typeof voteInputSchema>;
 export type VoteResponse = z.infer<typeof voteResponseSchema>;
+export type PopularDiscussionResponse = z.infer<typeof popularDiscussionResponseSchema>;
 
 // MySQL Row 타입
 export interface MyDiscussionRow extends RowDataPacket {
@@ -83,4 +89,16 @@ export interface DiscussionCommentRow extends RowDataPacket {
     choice: number | null;
     created_at: Date;
     updated_at: Date | null;
+}
+
+export interface PopularDiscussionRow extends RowDataPacket {
+    discussion_id: number;
+    title: string;
+    content: string | null;
+    like_count: number;
+    comment_count: number;
+    created_at: Date;
+    book_id: number;
+    book_title: string;
+    nickname: string | null;
 }

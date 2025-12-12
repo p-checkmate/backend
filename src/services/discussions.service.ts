@@ -5,8 +5,13 @@ import {
     hasUserCommentedOnDiscussion,
     findVoteByUserAndDiscussion,
     insertVote,
+    findDiscussionsByCommentCount,
 } from "../repositories/discussions.repository.js";
-import { CreateDiscussionMessageResponse, VoteResponse } from "../schemas/discussions.schema.js";
+import {
+    CreateDiscussionMessageResponse,
+    VoteResponse,
+    PopularDiscussionResponse,
+} from "../schemas/discussions.schema.js";
 import { addExpToUser } from "../services/mypage.service.js";
 
 const EXP_REWARD = 10;
@@ -103,4 +108,28 @@ export const voteDiscussionService = async (
         console.error(err);
         throw HttpError(500, "투표에 실패했습니다.");
     }
+};
+
+// 인기 토론 조회 서비스
+export const getPopularDiscussionsService = async (): Promise<PopularDiscussionResponse> => {
+    const rawData = await findDiscussionsByCommentCount();
+
+    const popularDiscussions = rawData.map((data) => {
+        return {
+            discussion_id: data.discussion_id,
+            title: data.title,
+            content: data.content,
+            like_count: data.like_count,
+            comment_count: data.comment_count,
+            created_at: data.created_at.toISOString(),
+            book: {
+                book_id: data.book_id,
+                title: data.book_title,
+            },
+            user: {
+                nickname: data.nickname,
+            },
+        };
+    });
+    return { discussions: popularDiscussions };
 };
