@@ -7,3 +7,5 @@ dist/
 # dotenv environment variable files
 .env
 .env.*
+
+gemini-service-key.json

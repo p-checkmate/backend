@@ -107,3 +107,54 @@ export const findBooksByBookmarkCount = async (): Promise<PopularBookRow[]> => {
 
     return rows as PopularBookRow[];
 };
+
+// 함께 읽기 기본 책 생성을 위한 INSERT 함수
+export const insertBookForReadingGroup = async (params: {
+    aladinItemId: string;         
+    title: string;
+    author?: string | null;
+    publisher?: string | null;
+    publishedDate?: string | null; 
+    description?: string | null;
+    thumbnailUrl?: string | null;
+    pageCount?: number | null;
+}): Promise<number> => {
+    const {
+        aladinItemId,
+        title,
+        author = null,
+        publisher = null,
+        publishedDate = null,
+        description = null,
+        thumbnailUrl = null,
+        pageCount = null,
+    } = params;
+
+    const [result] = await pool.query<ResultSetHeader>(
+        `
+        INSERT INTO book (
+            aladin_item_id,
+            title,
+            author,
+            publisher,
+            published_date,
+            description,
+            thumbnail_url,
+            page_count
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `,
+        [
+            aladinItemId,
+            title,
+            author,
+            publisher,
+            publishedDate, 
+            description,
+            thumbnailUrl,
+            pageCount,
+        ]
+    );
+
+    return result.insertId;
+};

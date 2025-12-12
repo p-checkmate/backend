@@ -1,6 +1,6 @@
 import HttpError from "http-errors";
 
-import { getBookById } from "../repositories/books.repository.js";
+import { getBookById, insertBookForReadingGroup } from "../repositories/books.repository.js";
 
 import {
     ReadingGroupListResponse,
@@ -46,15 +46,60 @@ const calcDaysLeft = (endDate: string | Date): number => {
     return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 };
 
+
+const DEFAULT_BOOK = {
+    aladinItemId: "376765918", 
+    title: "괴테는 모든 것을 말했다 - 제172회 아쿠타가와상 수상작",
+    author: "스즈키 유이 (지은이), 이지수 (옮긴이)",
+    publisher: "리프",
+    publishedDate: "2025-11-18", 
+    description: "23세 대학원생 스즈키 유이의 첫 장편소설로, 제172회 아쿠타가와상을 수상했다. 일본 언론은 그를 움베르토 에코, 칼비노, 보르헤스에 견주며 “일본 문학의 샛별”이라 극찬했다. 스무 살 남짓한 청년이 쓴 이 작품에서는 고전문학의 풍부한 깊이와 신인만의 참신함이 동시에 느껴진다.",
+    thumbnailUrl: "https://image.aladin.co.kr/product/37676/59/coversum/k212032349_2.jpg",
+    pageCount: 248,   
+};
+
+
+const DEFAULT_GROUP_PERIOD = {
+    startDate: "2025-012-01",
+    endDate: "2025-12-31",
+};
+
+const ensureDefaultReadingGroupExists = async () => {
+    // 이미 진행 중인 그룹이 있으면 아무 것도 안 함
+    const groups = await getActiveReadingGroups();
+    if (groups.length > 0) {
+        return;
+    }
+
+    // 1) 책 생성 (insertBookForReadingGroup는 새로 추가할 repository 함수)
+    const bookId = await insertBookForReadingGroup({
+        title: DEFAULT_BOOK.title,
+        author: DEFAULT_BOOK.author,
+        publisher: DEFAULT_BOOK.publisher,
+        publishedDate: DEFAULT_BOOK.publishedDate,  
+        description: DEFAULT_BOOK.description, 
+        thumbnailUrl: DEFAULT_BOOK.thumbnailUrl,
+        pageCount: DEFAULT_BOOK.pageCount,
+        aladinItemId: DEFAULT_BOOK.aladinItemId,
+    });
+
+    // 2) 함께 읽기 그룹 생성
+    await insertReadingGroup(bookId, DEFAULT_GROUP_PERIOD.startDate, DEFAULT_GROUP_PERIOD.endDate);
+};
+
 // GET /api/reading-groups/list - 함께 읽기 목록 조회 서비스
 export const getReadingGroupList = async (
     userId: number
 ): Promise<ReadingGroupListResponse> => {
     try {
+        // 먼저 기본 그룹이 없으면 만들어두기
+        await ensureDefaultReadingGroupExists();
+
         // 전체 진행 중인 그룹 조회
         const readingGroups = await getActiveReadingGroups();
 
         if (readingGroups.length === 0) {
+            // 이 경우는 거의 없겠지만, 혹시 실패했을 때 안전하게 처리
             return { reading_groups: [] };
         }
 
@@ -114,7 +159,6 @@ export const getReadingGroupList = async (
         throw HttpError(500, "함께 읽기 조회 실패");
     }
 };
-
 
 // POST /api/reading-groups/create - 관리자용 함께 읽기 생성
 export const createReadingGroupService = async (
