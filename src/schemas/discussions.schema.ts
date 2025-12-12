@@ -83,6 +83,17 @@ export const popularDiscussionResponseSchema = z.object({
     discussions: z.array(myDiscussionSchema),
 });
 
+// VS 토론 투표 여부 조회 Input 스키마
+export const getVoteStatusInputSchema = z.object({
+    discussionId: z.coerce.number().int().positive(),
+});
+
+// VS 토론 투표 여부 조회 Response 스키마
+export const voteStatusResponseSchema = z.object({
+    is_voted: z.boolean(),
+    choice: z.number().int().min(1).max(2).nullable(),
+});
+
 // TypeScript 타입 추출
 export type MyDiscussion = z.infer<typeof myDiscussionSchema>;
 export type MyDiscussionsResponse = z.infer<typeof myDiscussionsResponseSchema>;
@@ -94,6 +105,8 @@ export type GetVsDiscussionSummaryInput = z.infer<typeof getVsDiscussionSummaryI
 export type OpinionRatio = z.infer<typeof opinionRatioSchema>;
 export type VsDiscussionSummaryResponse = z.infer<typeof vsDiscussionSummaryResponseSchema>;
 export type PopularDiscussionResponse = z.infer<typeof popularDiscussionResponseSchema>;
+export type GetVoteStatusInput = z.infer<typeof getVoteStatusInputSchema>;
+export type VoteStatusResponse = z.infer<typeof voteStatusResponseSchema>;
 
 // MySQL Row 타입
 export interface MyDiscussionRow extends RowDataPacket {

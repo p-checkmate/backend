@@ -243,3 +243,4 @@ export const findDiscussionsByCommentCount = async (): Promise<PopularDiscussion
 
     return rows as PopularDiscussionRow[];
 };
+
