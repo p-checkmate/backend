@@ -62,7 +62,6 @@ export const discussionListItemSchema = z.object({
 });
 
 export const getDiscussionsByBookResponseSchema = z.object({
-  book: bookDetailResponseSchema,
   discussions: z.array(discussionListItemSchema),
 });
 
