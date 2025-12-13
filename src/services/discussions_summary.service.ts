@@ -81,13 +81,6 @@ export const getVsDiscussionSummaryService = async (
         throw HttpError(400, "VS 토론만 요약 조회가 가능합니다.");
     }
 
-    // 종료 여부 확인
-    const isEnded = await isDiscussionEnded(discussionId);
-
-    if (!isEnded) {
-        throw HttpError(400, "토론이 아직 종료되지 않았습니다.");
-    }
-
     // 메시지 조회
     const messages = await getDiscussionMessagesForSummary(discussionId);
 
@@ -135,7 +128,6 @@ export const getVsDiscussionSummaryService = async (
         discussion_type: "VS",
         option1: discussion.option1,
         option2: discussion.option2,
-        is_ended: isEnded,
         ended_at: discussion.end_date ? formatDate(discussion.end_date) : null,
         total_comments: discussion.total_comments,
         summary,
