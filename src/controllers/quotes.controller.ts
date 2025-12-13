@@ -39,7 +39,7 @@ export const handleGetQuote = authEndpointsFactory.build({
   input: z.object({
     quoteId: z.coerce.number().int().positive(),
   }),
-  output: quoteSchema,
+  output: quoteWithBookSchema,
 
   handler: async ({ input }) => {
     return await getQuoteService(input.quoteId);
@@ -114,9 +114,8 @@ export const handleGetQuotesByBook = authEndpointsFactory.build({
     bookId: z.coerce.number().int().positive(),
   }),
   output: z.object({
-    data: z.array(quoteWithBookSchema),
+    data: z.array(quoteSchema),
   }),
-
   handler: async ({ input }) => {
     const quotes = await getQuotesByBookService(input.bookId);
     return { data: quotes };

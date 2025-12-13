@@ -6,8 +6,8 @@ import { RowDataPacket, ResultSetHeader } from "mysql2/promise";
 export const createQuote = async (userId: number, bookId: number, content: string): Promise<number> => {
     const [result] = await pool.query<any>(
         `
-      INSERT INTO quote (user_id, book_id, content)
-      VALUES (?, ?, ?)
+        INSERT INTO quote (user_id, book_id, content)
+        VALUES (?, ?, ?)
     `,
         [userId, bookId, content]
     );
@@ -19,7 +19,7 @@ export const createQuote = async (userId: number, bookId: number, content: strin
 export const getQuoteById = async (quoteId: number): Promise<QuoteRow | null> => {
     const [rows] = await pool.query<QuoteRow[]>(
         `
-      SELECT 
+        SELECT 
         q.quote_id,
         q.user_id,
         u.nickname,
@@ -28,9 +28,9 @@ export const getQuoteById = async (quoteId: number): Promise<QuoteRow | null> =>
         q.like_count,
         q.created_at,
         q.updated_at
-      FROM quote q
-      INNER JOIN user u ON q.user_id = u.user_id 
-      WHERE q.quote_id = ?
+        FROM quote q
+        INNER JOIN user u ON q.user_id = u.user_id 
+        WHERE q.quote_id = ?
     `,
         [quoteId]
     );
@@ -39,59 +39,26 @@ export const getQuoteById = async (quoteId: number): Promise<QuoteRow | null> =>
 };
 
 // 책별 인용구 리스트 조회
-export const getQuotesByBookId = async (bookId: number): Promise<any[]> => {
+export const getQuotesByBookId = async (bookId: number) => {
     const [rows] = await pool.query<any[]>(
-        `
-      SELECT
-    q.quote_id,
-    q.user_id,
-    u.nickname,
-    q.book_id,
-    q.content,
-    q.like_count,
-    q.created_at,
-    q.updated_at,
-
-    b.title,
-    b.author,
-    b.publisher,
-    b.published_date,
-    b.description,
-    b.thumbnail_url,
-    b.page_count,
-
-    -- 장르 배열
-    GROUP_CONCAT(DISTINCT g.genre_name ORDER BY g.genre_name SEPARATOR ',') AS genres
-
-FROM quote q
-INNER JOIN user u ON q.user_id = u.user_id
-INNER JOIN book b ON q.book_id = b.book_id
-LEFT JOIN book_genre bg ON bg.book_id = b.book_id
-LEFT JOIN genre g ON g.genre_id = bg.genre_id
-
-WHERE q.book_id = ?
-
-GROUP BY
-    q.quote_id,
-    q.user_id,
-    u.nickname,
-    q.book_id,
-    q.content,
-    q.like_count,
-    q.created_at,
-    q.updated_at,
-    b.title,
-    b.author,
-    b.publisher,
-    b.published_date,
-    b.description,
-    b.thumbnail_url,
-    b.page_count
-
-ORDER BY q.created_at DESC;
+    `
+    SELECT
+        q.quote_id,
+        q.user_id,
+        u.nickname,
+        q.book_id,
+        q.like_count,
+        q.content,
+        q.created_at,
+        q.updated_at
+    FROM quote q
+    INNER JOIN user u ON q.user_id = u.user_id
+    WHERE q.book_id = ?
+    ORDER BY q.created_at DESC
     `,
-        [bookId]
+    [bookId]
     );
+
     return rows;
 };
 
@@ -99,9 +66,9 @@ ORDER BY q.created_at DESC;
 export const updateQuote = async (quoteId: number, content: string, userId: number): Promise<boolean> => {
     const [result] = await pool.query<any>(
         `
-      UPDATE quote
-      SET content = ?, updated_at = NOW()
-      WHERE quote_id = ? AND user_id = ?
+        UPDATE quote
+        SET content = ?, updated_at = NOW()
+        WHERE quote_id = ? AND user_id = ?
     `,
         [content, quoteId, userId]
     );
@@ -113,8 +80,8 @@ export const updateQuote = async (quoteId: number, content: string, userId: numb
 export const deleteQuote = async (quoteId: number, userId: number): Promise<boolean> => {
     const [result] = await pool.query<any>(
         `
-      DELETE FROM quote
-      WHERE quote_id = ? AND user_id = ?
+        DELETE FROM quote
+        WHERE quote_id = ? AND user_id = ?
     `,
         [quoteId, userId]
     );
@@ -298,4 +265,40 @@ export const findPopularQuotes = async (): Promise<MyQuoteRow[]> => {
     );
 
     return rows as MyQuoteRow[];
+};
+
+// 상세 조회
+export const getQuoteDetailById = async (quoteId: number) => {
+    const [rows] = await pool.query<any[]>(
+    `
+    SELECT
+        q.quote_id,
+        q.user_id,
+        u.nickname,
+        q.book_id,
+        q.content,
+        q.like_count,
+        q.created_at,
+        q.updated_at,
+
+        b.title,
+        b.author,
+        b.publisher,
+        b.published_date,
+        b.description,
+        b.thumbnail_url,
+        b.page_count,
+        GROUP_CONCAT(DISTINCT g.genre_name) AS genres
+    FROM quote q
+    INNER JOIN user u ON q.user_id = u.user_id
+    INNER JOIN book b ON q.book_id = b.book_id
+    LEFT JOIN book_genre bg ON b.book_id = bg.book_id
+    LEFT JOIN genre g ON g.genre_id = bg.genre_id
+    WHERE q.quote_id = ?
+    GROUP BY q.quote_id
+    `,
+    [quoteId]
+    );
+
+    return rows[0] || null;
 };
