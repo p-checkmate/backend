@@ -2,6 +2,7 @@ import HttpError from "http-errors";
 import {
   createQuote,
   getQuoteById,
+  getQuoteDetailById,
   updateQuote,
   deleteQuote,
   likeQuote,
@@ -48,21 +49,10 @@ export const createQuoteService = async (
 
 // READ 단건
 export const getQuoteService = async (quoteId: number) => {
-  const quote = await getQuoteById(quoteId);
-  if (!quote) throw HttpError(404, "존재하지 않는 인용구입니다.");
+  const row = await getQuoteDetailById(quoteId);
+  if (!row) throw HttpError(404, "존재하지 않는 인용구입니다.");
 
-return {
-    ...quote,
-    created_at: quote.created_at.toISOString(),
-    updated_at: quote.updated_at ? quote.updated_at.toISOString() : null,
-  };
-};
-
-// 도서별 인용구 조회
-export const getQuotesByBookService = async (bookId: number) => {
-  const rows = await getQuotesByBookId(bookId);
-
-  return rows.map((row) => ({
+  return {
     quote_id: row.quote_id,
     user_id: row.user_id,
     nickname: row.nickname,
@@ -80,12 +70,27 @@ export const getQuotesByBookService = async (bookId: number) => {
       description: row.description,
       thumbnail_url: row.thumbnail_url,
       page_count: row.page_count,
-      genres: row.genres
-        ? row.genres.split(",").map((g: string) => g.trim())
-        : [],
+      genres: row.genres ? row.genres.split(",") : [],
     },
+  };
+};
+
+// 도서별 인용구 조회
+export const getQuotesByBookService = async (bookId: number) => {
+  const rows = await getQuotesByBookId(bookId);
+
+  return rows.map((row) => ({
+    quote_id: row.quote_id,
+    user_id: row.user_id,
+    nickname: row.nickname,
+    book_id: row.book_id,
+    content: row.content,
+    like_count: row.like_count,
+    created_at: row.created_at.toISOString(),
+    updated_at: row.updated_at ? row.updated_at.toISOString() : null,
   }));
 };
+
 // UPDATE
 export const updateQuoteService = async (quoteId: number, content: string, userId: number) => {
   const quote = await getQuoteById(quoteId);
