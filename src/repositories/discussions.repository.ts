@@ -145,7 +145,7 @@ export const insertVote = async (userId: number, discussionId: number, choice: n
     return result.insertId;
 };
 
-// VS 토론 상세 정보 조회 (종료 여부, 의견 비율 포함)
+// VS 토론 상세 정보 조회 
 export const getVsDiscussionWithStats = async (discussionId: number): Promise<VsDiscussionDetailRow | null> => {
     const [rows] = await pool.query<RowDataPacket[]>(
         `
@@ -159,8 +159,8 @@ export const getVsDiscussionWithStats = async (discussionId: number): Promise<Vs
             d.created_at,
             d.end_date,
             (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id) AS total_comments,
-            (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id AND dc.choice = 1) AS option1_count,
-            (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id AND dc.choice = 2) AS option2_count
+            (SELECT COUNT(*) FROM vote v WHERE v.discussion_id = d.discussion_id AND v.choice = 1) AS option1_count,
+            (SELECT COUNT(*) FROM vote v WHERE v.discussion_id = d.discussion_id AND v.choice = 2) AS option2_count
         FROM discussion d
         WHERE d.discussion_id = ? AND d.discussion_type = 'VS'
         `,
