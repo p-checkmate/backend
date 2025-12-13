@@ -78,15 +78,34 @@ export const updateQuote = async (quoteId: number, content: string, userId: numb
 
 // 인용구 삭제
 export const deleteQuote = async (quoteId: number, userId: number): Promise<boolean> => {
-    const [result] = await pool.query<any>(
-        `
-        DELETE FROM quote
-        WHERE quote_id = ? AND user_id = ?
-    `,
-        [quoteId, userId]
-    );
+    const conn = await pool.getConnection();
 
-    return result.affectedRows > 0;
+    try {
+        await conn.beginTransaction();
+
+        //인용구 좋아요 먼저 삭제
+        await conn.query(
+            `DELETE FROM quote_like WHERE quote_id = ?`,
+            [quoteId]
+        );
+
+        //인용구 삭제 (작성자 검증)
+        const [result] = await conn.query<ResultSetHeader>(
+            `
+            DELETE FROM quote
+            WHERE quote_id = ? AND user_id = ?
+            `,
+            [quoteId, userId]
+        );
+
+        await conn.commit();
+        return result.affectedRows > 0;
+    } catch (err) {
+        await conn.rollback();
+        throw err;
+    } finally {
+        conn.release();
+    }
 };
 
 // 좋아요 증가
