@@ -25,7 +25,7 @@ import {
     getMembersWithLevelByGroupId,
 } from "../repositories/reading_groups.repository.js";
 
-import { formatDate, calcDaysLeft } from "../utils/date.util.js";
+import { formatDate, calcDaysLeft, calcTotalDays } from "../utils/date.util.js";
 
 
 const DEFAULT_BOOK = {
@@ -201,7 +201,10 @@ export const getReadingGroupOverview = async (
     // 3) days_left 계산 (list에서 쓰는 헬퍼 재사용)
     const daysLeft = calcDaysLeft(group.end_date);
 
-    // 4) 내 진행 정보 구성 (참여 안 했으면 null)
+    // 4) total_days 계산 (시작일과 종료일 사이의 총 일수)
+    const totalDays = calcTotalDays(group.start_date, group.end_date);
+
+    // 5) 내 진행 정보 구성 (참여 안 했으면 null)
     const myProgress = member
         ? {
             current_page: member.current_page,
@@ -215,6 +218,7 @@ export const getReadingGroupOverview = async (
 
         member_count: group.member_count, 
         days_left: daysLeft,
+        total_days: totalDays,
         total_pages: group.page_count,
 
         my_progress: myProgress,
