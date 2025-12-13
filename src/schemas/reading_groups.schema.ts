@@ -54,7 +54,7 @@ export const readingGroupListResponseSchema = z.object({
 export const readingGroupOverviewResponseSchema = z.object({
     reading_group_id: z.number().int(),
     title: z.string(),
-
+    thumbnail_url: z.string().nullable(), 
     member_count: z.number().int(),
     days_left: z.number().int(),
     total_days: z.number().int(),

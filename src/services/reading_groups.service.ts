@@ -215,7 +215,7 @@ export const getReadingGroupOverview = async (
     return {
         reading_group_id: group.reading_group_id,
         title: group.book_title,
-
+        thumbnail_url: group.thumbnail_url,
         member_count: group.member_count, 
         days_left: daysLeft,
         total_days: totalDays,
