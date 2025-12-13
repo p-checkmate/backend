@@ -11,6 +11,7 @@ import {
     CreateDiscussionMessageResponse,
     VoteResponse,
     PopularDiscussionResponse,
+    VoteStatusResponse
 } from "../schemas/discussions.schema.js";
 import { addExpToUser } from "../services/mypage.service.js";
 
@@ -132,4 +133,27 @@ export const getPopularDiscussionsService = async (): Promise<PopularDiscussionR
         };
     });
     return { discussions: popularDiscussions };
+};
+
+// VS 토론 투표 여부, 선택 조회
+export const getVoteStatusService = async (
+    discussionId: number,
+    userId: number
+): Promise<VoteStatusResponse> => {
+    const discussion = await getDiscussionById(discussionId);
+
+    if (!discussion) {
+        throw HttpError(404, "토론을 찾을 수 없습니다.");
+    }
+
+    if (discussion.discussion_type !== "VS") {
+        throw HttpError(400, "VS 토론이 아닙니다.");
+    }
+
+    const vote = await findVoteByUserAndDiscussion(userId, discussionId);
+
+    return {
+        is_voted: !!vote,
+        choice: vote ? vote.choice : null,
+    };
 };

@@ -9,11 +9,14 @@ import {
     voteResponseSchema,
     getVsDiscussionSummaryInputSchema,
     vsDiscussionSummaryResponseSchema,
+    getVoteStatusInputSchema,
+    voteStatusResponseSchema,
 } from "../schemas/discussions.schema.js";
 import {
     createDiscussionMessageService,
     voteDiscussionService,
     getPopularDiscussionsService,
+    getVoteStatusService,
 } from "../services/discussions.service.js";
 
 import { getVsDiscussionSummaryService } from "../services/discussions_summary.service.js";
@@ -65,5 +68,16 @@ export const handleGetPopularDiscussions = authEndpointsFactory.build({
     output: popularDiscussionResponseSchema,
     handler: async () => {
         return await getPopularDiscussionsService();
+    },
+});
+
+// GET /api/v1/discussions/:discussionId/vote-status
+export const handleGetVoteStatus = authEndpointsFactory.build({
+    method: "get",
+    input: getVoteStatusInputSchema,
+    output: voteStatusResponseSchema,
+    handler: async ({ input, options }) => {
+        const userId = options.user.user_id;
+        return await getVoteStatusService(input.discussionId, userId);
     },
 });
