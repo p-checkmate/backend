@@ -145,7 +145,7 @@ export const insertVote = async (userId: number, discussionId: number, choice: n
     return result.insertId;
 };
 
-// VS 토론 상세 정보 조회 
+// VS 토론 상세 정보 조회
 export const getVsDiscussionWithStats = async (discussionId: number): Promise<VsDiscussionDetailRow | null> => {
     const [rows] = await pool.query<RowDataPacket[]>(
         `
@@ -234,7 +234,7 @@ export const findDiscussionsByCommentCount = async (): Promise<PopularDiscussion
         INNER JOIN user u ON d.user_id = u.user_id
         INNER JOIN book b ON d.book_id = b.book_id
         LEFT JOIN discussion_comment dc ON d.discussion_id = dc.discussion_id
-        WHERE d.end_date IS NULL
+        WHERE d.end_date >= NOW()
         GROUP BY d.discussion_id, d.title, d.content, d.created_at, d.like_count,
             u.nickname, b.title, b.book_id
         ORDER BY comment_count DESC, d.created_at DESC
@@ -243,4 +243,3 @@ export const findDiscussionsByCommentCount = async (): Promise<PopularDiscussion
 
     return rows as PopularDiscussionRow[];
 };
-
