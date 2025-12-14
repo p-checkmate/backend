@@ -142,8 +142,6 @@ export interface VsDiscussionDetailRow extends RowDataPacket {
     created_at: Date;
     end_date: Date | null;
     total_comments: number;
-    option1_count: number;
-    option2_count: number;
 }
 export interface PopularDiscussionRow extends RowDataPacket {
     discussion_id: number;

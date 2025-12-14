@@ -159,9 +159,7 @@ export const getVsDiscussionWithStats = async (discussionId: number): Promise<Vs
             d.option2,
             d.created_at,
             d.end_date,
-            (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id) AS total_comments,
-            (SELECT COUNT(*) FROM vote v WHERE v.discussion_id = d.discussion_id AND v.choice = 1) AS option1_count,
-            (SELECT COUNT(*) FROM vote v WHERE v.discussion_id = d.discussion_id AND v.choice = 2) AS option2_count
+            (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id) AS total_comments
         FROM discussion d
         WHERE d.discussion_id = ? AND d.discussion_type = 'VS'
         `,
