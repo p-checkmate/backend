@@ -6,14 +6,17 @@ import {
     findVoteByUserAndDiscussion,
     insertVote,
     findDiscussionsByCommentCount,
+    getVsVoteStats
 } from "../repositories/discussions.repository.js";
 import {
     CreateDiscussionMessageResponse,
     VoteResponse,
     PopularDiscussionResponse,
-    VoteStatusResponse
+    VoteStatusResponse,
+    OpinionRatio
 } from "../schemas/discussions.schema.js";
 import { addExpToUser } from "../services/mypage.service.js";
+import { formatDate } from "../utils/date.util.js";
 
 const EXP_REWARD = 10;
 
@@ -155,5 +158,35 @@ export const getVoteStatusService = async (
     return {
         is_voted: !!vote,
         choice: vote ? vote.choice : null,
+    };
+};
+
+// VS 토론 투표 통계 조회 서비스
+export const getVsDiscussionVoteStatsService = async (
+    discussionId: number
+): Promise<OpinionRatio> => {
+    const stats = await getVsVoteStats(discussionId);
+
+    if (!stats) throw HttpError(404, "해당 VS 토론을 찾을 수 없습니다.");
+    if (stats.discussion_type !== "VS") throw HttpError(400, "VS 토론만 투표 현황 조회가 가능합니다.");
+
+    const vote1Count = Number(stats.vote1_count ?? 0);
+    const vote2Count = Number(stats.vote2_count ?? 0);
+    const total = vote1Count + vote2Count;
+
+    const option1Percentage = total > 0
+        ? Math.round((vote1Count / total) * 100)
+        : 0;
+
+    const option2Percentage = total > 0
+        ? Math.round((vote2Count / total) * 100)
+        : 0;
+
+    return {
+        vote1_count: vote1Count,
+        vote2_count: vote2Count,
+        option1_percentage: option1Percentage,
+        option2_percentage: option2Percentage,
+        end_date: stats.end_date ? formatDate(stats.end_date) : null,
     };
 };

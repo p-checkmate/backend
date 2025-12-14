@@ -84,15 +84,6 @@ export const getVsDiscussionSummaryService = async (
     // 메시지 조회
     const messages = await getDiscussionMessagesForSummary(discussionId);
 
-    // 의견 비율 계산
-    const totalVotes = discussion.option1_count + discussion.option2_count;
-    const option1Percentage = totalVotes > 0
-        ? Math.round((discussion.option1_count / totalVotes) * 100)
-        : 0;
-    const option2Percentage = totalVotes > 0
-        ? Math.round((discussion.option2_count / totalVotes) * 100)
-        : 0;
-
     // AI 요약 생성
     let summary = "작성된 의견이 없어 요약을 생성할 수 없습니다.";
 
@@ -131,11 +122,5 @@ export const getVsDiscussionSummaryService = async (
         ended_at: discussion.end_date ? formatDate(discussion.end_date) : null,
         total_comments: discussion.total_comments,
         summary,
-        opinion_ratio: {
-            option1_count: discussion.option1_count,
-            option2_count: discussion.option2_count,
-            option1_percentage: option1Percentage,
-            option2_percentage: option2Percentage,
-        },
     };
 };

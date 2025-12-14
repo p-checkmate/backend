@@ -1,6 +1,7 @@
 import { pool } from "../config/db.config.js";
-import { MyDiscussionRow, VsDiscussionDetailRow, PopularDiscussionRow } from "../schemas/discussions.schema.js";
+import { MyDiscussionRow, VsDiscussionDetailRow, PopularDiscussionRow, VsVoteStatsRow } from "../schemas/discussions.schema.js";
 import { ResultSetHeader, RowDataPacket } from "mysql2/promise";
+
 
 // 토론 리스트 조회 헬퍼 함수 (내가 작성한 / 좋아요한 공통)
 const getDiscussionsWithDetails = async (
@@ -158,9 +159,7 @@ export const getVsDiscussionWithStats = async (discussionId: number): Promise<Vs
             d.option2,
             d.created_at,
             d.end_date,
-            (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id) AS total_comments,
-            (SELECT COUNT(*) FROM vote v WHERE v.discussion_id = d.discussion_id AND v.choice = 1) AS option1_count,
-            (SELECT COUNT(*) FROM vote v WHERE v.discussion_id = d.discussion_id AND v.choice = 2) AS option2_count
+            (SELECT COUNT(*) FROM discussion_comment dc WHERE dc.discussion_id = d.discussion_id) AS total_comments
         FROM discussion d
         WHERE d.discussion_id = ? AND d.discussion_type = 'VS'
         `,
@@ -242,4 +241,27 @@ export const findDiscussionsByCommentCount = async (): Promise<PopularDiscussion
     );
 
     return rows as PopularDiscussionRow[];
+};
+
+// VS 토론 투표 통계 조회
+export const getVsVoteStats = async (
+    discussionId: number
+): Promise<VsVoteStatsRow | null> => {
+    const [rows] = await pool.query<VsVoteStatsRow[]>(
+        `
+    SELECT
+        d.discussion_type,
+        d.end_date,
+        COUNT(CASE WHEN dv.choice = 1 THEN 1 END) AS vote1_count,
+        COUNT(CASE WHEN dv.choice = 2 THEN 1 END) AS vote2_count
+    FROM discussion d
+    LEFT JOIN vote dv
+        ON dv.discussion_id = d.discussion_id
+    WHERE d.discussion_id = ?
+    GROUP BY d.discussion_id
+    `,
+        [discussionId]
+    );
+
+    return rows[0] ?? null;
 };

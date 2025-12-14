@@ -11,12 +11,14 @@ import {
     vsDiscussionSummaryResponseSchema,
     getVoteStatusInputSchema,
     voteStatusResponseSchema,
+    opinionRatioSchema,
 } from "../schemas/discussions.schema.js";
 import {
     createDiscussionMessageService,
     voteDiscussionService,
     getPopularDiscussionsService,
     getVoteStatusService,
+    getVsDiscussionVoteStatsService
 } from "../services/discussions.service.js";
 
 import { getVsDiscussionSummaryService } from "../services/discussions_summary.service.js";
@@ -79,5 +81,17 @@ export const handleGetVoteStatus = authEndpointsFactory.build({
     handler: async ({ input, options }) => {
         const userId = options.user.user_id;
         return await getVoteStatusService(input.discussionId, userId);
+    },
+});
+
+// GET /api/v1/discussions/:discussionId/vote - VS 토론 투표 현황
+export const handleGetVsDiscussionVoteStats = authEndpointsFactory.build({
+    method: "get",
+    input: z.object({
+        discussionId: z.coerce.number().int().positive(),
+    }),
+    output: opinionRatioSchema, 
+    handler: async ({ input }) => {
+        return await getVsDiscussionVoteStatsService(input.discussionId);
     },
 });
