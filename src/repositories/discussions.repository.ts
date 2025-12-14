@@ -1,6 +1,7 @@
 import { pool } from "../config/db.config.js";
-import { MyDiscussionRow, VsDiscussionDetailRow, PopularDiscussionRow } from "../schemas/discussions.schema.js";
+import { MyDiscussionRow, VsDiscussionDetailRow, PopularDiscussionRow, VsVoteStatsRow } from "../schemas/discussions.schema.js";
 import { ResultSetHeader, RowDataPacket } from "mysql2/promise";
+
 
 // 토론 리스트 조회 헬퍼 함수 (내가 작성한 / 좋아요한 공통)
 const getDiscussionsWithDetails = async (
@@ -242,4 +243,27 @@ export const findDiscussionsByCommentCount = async (): Promise<PopularDiscussion
     );
 
     return rows as PopularDiscussionRow[];
+};
+
+
+export const getVsVoteStats = async (
+    discussionId: number
+): Promise<VsVoteStatsRow | null> => {
+    const [rows] = await pool.query<VsVoteStatsRow[]>(
+        `
+    SELECT
+      d.discussion_type,
+      d.end_date,
+      COUNT(CASE WHEN dv.choice = 1 THEN 1 END) AS vote1_count,
+      COUNT(CASE WHEN dv.choice = 2 THEN 1 END) AS vote2_count
+    FROM discussion d
+    LEFT JOIN vote dv
+      ON dv.discussion_id = d.discussion_id
+    WHERE d.discussion_id = ?
+    GROUP BY d.discussion_id
+    `,
+        [discussionId]
+    );
+
+    return rows[0] ?? null;
 };

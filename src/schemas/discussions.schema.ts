@@ -59,10 +59,11 @@ export const getVsDiscussionSummaryInputSchema = z.object({
 
 // 의견 비율 스키마
 export const opinionRatioSchema = z.object({
-    option1_count: z.number().int(),
-    option2_count: z.number().int(),
+    vote1_count: z.number().int(),
+    vote2_count: z.number().int(),
     option1_percentage: z.number(),
     option2_percentage: z.number(),
+    end_date: z.string().nullable(),
 });
 
 // VS 토론 요약 응답 스키마
@@ -75,7 +76,6 @@ export const vsDiscussionSummaryResponseSchema = z.object({
     ended_at: z.string().nullable(),
     total_comments: z.number().int(),
     summary: z.string(),
-    opinion_ratio: opinionRatioSchema,
 });
 // 인기 토론 Response 스키마
 export const popularDiscussionResponseSchema = z.object({
@@ -155,4 +155,10 @@ export interface PopularDiscussionRow extends RowDataPacket {
     book_id: number;
     book_title: string;
     nickname: string | null;
+}
+export interface VsVoteStatsRow extends RowDataPacket {
+    end_date: Date | null;
+    vote1_count: number;
+    vote2_count: number;
+    discussion_type: "VS" | "FREE";
 }
