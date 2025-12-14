@@ -245,20 +245,20 @@ export const findDiscussionsByCommentCount = async (): Promise<PopularDiscussion
     return rows as PopularDiscussionRow[];
 };
 
-
+// VS 토론 투표 통계 조회
 export const getVsVoteStats = async (
     discussionId: number
 ): Promise<VsVoteStatsRow | null> => {
     const [rows] = await pool.query<VsVoteStatsRow[]>(
         `
     SELECT
-      d.discussion_type,
-      d.end_date,
-      COUNT(CASE WHEN dv.choice = 1 THEN 1 END) AS vote1_count,
-      COUNT(CASE WHEN dv.choice = 2 THEN 1 END) AS vote2_count
+        d.discussion_type,
+        d.end_date,
+        COUNT(CASE WHEN dv.choice = 1 THEN 1 END) AS vote1_count,
+        COUNT(CASE WHEN dv.choice = 2 THEN 1 END) AS vote2_count
     FROM discussion d
     LEFT JOIN vote dv
-      ON dv.discussion_id = d.discussion_id
+        ON dv.discussion_id = d.discussion_id
     WHERE d.discussion_id = ?
     GROUP BY d.discussion_id
     `,

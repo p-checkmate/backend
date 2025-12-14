@@ -161,6 +161,7 @@ export const getVoteStatusService = async (
     };
 };
 
+// VS 토론 투표 통계 조회 서비스
 export const getVsDiscussionVoteStatsService = async (
     discussionId: number
 ): Promise<OpinionRatio> => {
