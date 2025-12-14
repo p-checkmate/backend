@@ -41,7 +41,7 @@ const DEFAULT_BOOK = {
 
 
 const DEFAULT_GROUP_PERIOD = {
-    startDate: "2025-012-01",
+    startDate: "2025-12-01",
     endDate: "2025-12-31",
 };
 
@@ -215,6 +215,7 @@ export const getReadingGroupOverview = async (
     return {
         reading_group_id: group.reading_group_id,
         title: group.book_title,
+        itemId: group.item_id,
         thumbnail_url: group.thumbnail_url,
         member_count: group.member_count, 
         days_left: daysLeft,

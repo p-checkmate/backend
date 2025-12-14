@@ -84,6 +84,7 @@ export const getReadingGroupById = async (groupId: number): Promise<ReadingGroup
         `SELECT 
             rg.reading_group_id,
             b.book_id,
+            b.aladin_item_id as item_id,
             b.title AS book_title,
             b.thumbnail_url,
             b.page_count,
